@@ -1,822 +1,544 @@
-% รายงานผลโครงงาน 01204496 — รูปแบบรายงานภูมิอากาศ (อิงแนว WMO State of the Climate / BoM Climate Statement)
+% report.tex — รายงานฉบับย่อ แปลงจาก report.md (รูปแบบ paper สากล + ย่อหน้าแบบไทย)
+%   ทุกประโยคตรวจกับ presentation/data/facts.json, data/processed/ และ report.md
+%   บันทึกการตรวจ (ข้อความเดิม → ที่แก้ → หลักฐาน) อยู่ใน report-claimcheck.md
 %   คอมไพล์:  cd reports/final && latexmk -xelatex report.tex
-%   รูปทั้งหมดมาจาก figures/report/ — สร้างใหม่ด้วย
-%     uv run python scripts/make_figures.py
-%     uv run --group report python scripts/make_infographics.py
-%   ตัวเลขในเนื้อความคัดมาจากไฟล์ผลใน data/processed/ (ดูภาคผนวก ข)
+%   รูปทั้งหมดมาจาก figures/report/ (สร้างด้วย scripts/make_figures.py และ scripts/make_infographics.py)
 \documentclass[a4paper,11pt]{article}
 
-\usepackage{fontspec}
-\usepackage{geometry}
+\usepackage[a4paper,margin=2.5cm]{geometry}
 \usepackage{amsmath}
+\usepackage{unicode-math}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{tabularx}
-\usepackage{colortbl}
-\usepackage[table]{xcolor}
-\usepackage{titlesec}
+\usepackage{xcolor}
 \usepackage{enumitem}
-\usepackage{fancyhdr}
 \usepackage{caption}
 \usepackage{graphicx}
-\usepackage{tikz}
-\usetikzlibrary{positioning,arrows.meta,calc,shapes.geometric}
-\usepackage[most]{tcolorbox}
-\usepackage{fontawesome5}
-\usepackage{multicol}
 \usepackage{float}
-\usepackage{needspace}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc}
+\usepackage{indentfirst}   % ย่อหน้าแรกหลังหัวข้อต้องย่อด้วย (LaTeX ปกติไม่ย่อ แต่แบบไทยย่อทุกย่อหน้า)
 \usepackage[hidelinks]{hyperref}
 
 \graphicspath{{../../figures/report/}}
-\geometry{a4paper,top=2.3cm,bottom=2.2cm,left=2.2cm,right=2.2cm,footskip=1.0cm,headheight=15pt}
 
-% ---------- ฟอนต์ไทย ----------
-\setmainfont{Sarabun}[
-  Path=/home/panguin/.fonts/Sarabun/, Extension=.ttf,
-  UprightFont=*-Regular, BoldFont=*-Bold, ItalicFont=*-Italic, BoldItalicFont=*-BoldItalic,
-  Ligatures=TeX, Script=Thai]   % Script=Thai: เปิดกฎวางวรรณยุกต์เหนือสระของฟอนต์ (ไม่ใส่ = วรรณยุกต์ทับสระ)
-\newfontfamily\semibold{Sarabun}[Path=/home/panguin/.fonts/Sarabun/, Extension=.ttf, UprightFont=*-SemiBold, Script=Thai]
-\setmonofont{DejaVu Sans Mono}[Scale=0.82]
-\XeTeXlinebreaklocale "th"
-\XeTeXlinebreakskip = 0pt plus 1.2pt minus 0.2pt
-\XeTeXlinebreakpenalty = 0
-\tolerance=3000 \emergencystretch=3em \hbadness=4000
+% ---------- ฟอนต์แบบ paper สากล ----------
+% อักษรละตินและคณิตศาสตร์ใช้ Times (TeX Gyre Termes) ส่วนอักษรไทยสลับไปใช้ Noto Serif Thai อัตโนมัติ
+% ด้วยกลไก interchar ของ XeTeX (ตรวจ Unicode block ของแต่ละตัวอักษร) — ตัวหนา/เอียงยังคงตามบริบทเดิม
+\setmainfont{TeX Gyre Termes}
+\setmathfont{TeX Gyre Termes Math}
+\setmonofont{DejaVu Sans Mono}[Scale=0.78]
+\newfontfamily\thaifont{Noto Serif Thai}[Script=Thai,Scale=0.92,ItalicFont={Noto Serif Thai},BoldItalicFont={Noto Serif Thai Bold}]  % อักษรไทยไม่มีตัวเอียง ใช้ตัวตรงแทน
+\newfontfamily\symbolfont{DejaVu Sans}   % สำหรับอักขระ ✓
+\newcommand{\tick}{{\symbolfont ✓}}
+% กำหนดอักษรไทย U+0E00–U+0E7F เป็นคลาสหนึ่ง แล้วสลับฟอนต์ทุกครั้งที่ข้ามระหว่างไทยกับอักขระอื่น
+% คลาส 0 = อักขระทั่วไป (ละติน ตัวเลข วรรคตอน) · คลาส 4095 = ขอบ (ช่องว่าง ต้นกลุ่ม ฯลฯ)
+\makeatletter
+\newXeTeXintercharclass\thaicharclass
+\@tempcnta="0E00
+\loop\ifnum\@tempcnta<"0E80
+  \XeTeXcharclass\@tempcnta=\thaicharclass
+  \advance\@tempcnta by 1
+\repeat
+\makeatother
+\XeTeXinterchartokenstate=1
+\XeTeXinterchartoks 0 \thaicharclass = {\thaifont}
+\XeTeXinterchartoks 4095 \thaicharclass = {\thaifont}
+\XeTeXinterchartoks \thaicharclass 0 = {\rmfamily}
+\XeTeXinterchartoks \thaicharclass 4095 = {\rmfamily}
+\XeTeXlinebreaklocale "th"       % ตัดคำไทยด้วย ICU (ภาษาไทยไม่มีช่องว่างระหว่างคำ)
+\XeTeXlinebreakskip = 0pt plus 0.25pt
+\tolerance=6000 \emergencystretch=4em \hbadness=4000
 \linespread{1.12}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{0.55em}
 
-% ---------- สี ----------
-\definecolor{navy}{HTML}{0B3C5D}
-\definecolor{navy2}{HTML}{1D5B85}
-\definecolor{andaman}{HTML}{1F6FB4}
-\definecolor{gulf}{HTML}{D17A22}
-\definecolor{panel}{HTML}{EEF3F8}
-\definecolor{ink}{HTML}{22313F}
-\definecolor{okgreen}{HTML}{1E8449}
-\definecolor{amber}{HTML}{B9770E}
-\definecolor{alert}{HTML}{A93226}
-\definecolor{greytag}{HTML}{6C7A89}
-\color{ink}
+% ---------- ย่อหน้าแบบไทย: ย่อบรรทัดแรกทุกย่อหน้า ----------
+\setlength{\parindent}{1.27cm}
+\setlength{\parskip}{0pt plus 1pt}
 
-% ---------- หัวข้อ: กล่องเลขสีกรมท่าแบบรายงานภูมิอากาศ ----------
-\titleformat{\section}[block]
-  {\needspace{14\baselineskip}\Large\bfseries\color{navy}}
-  {\tikz[baseline=(n.base)]\node[fill=navy,text=white,inner sep=5pt,rounded corners=2pt](n){\thesection};}
-  {0.6em}{}[\vspace{-0.3em}{\color{navy}\rule{\linewidth}{1.2pt}}]
-\titlespacing*{\section}{0pt}{1.2em}{0.8em}
-\titleformat{\subsection}{\large\bfseries\color{navy2}}{\thesubsection}{0.6em}{}
-\titlespacing*{\subsection}{0pt}{1.0em}{0.3em}
-\titleformat{\subsubsection}[runin]{\bfseries\color{navy2}}{}{0em}{}[.]
-\renewcommand{\thesection}{\arabic{section}}
+% ---------- รายการ ----------
+\setlist[enumerate]{before=\raggedright,leftmargin=*,labelindent=\parindent,itemsep=0.1em,topsep=0.2em,parsep=0pt}
+\setlist[itemize]{leftmargin=*,labelindent=\parindent,itemsep=0.1em,topsep=0.2em,parsep=0pt}
 
-% ---------- หัว-ท้ายกระดาษ ----------
-\pagestyle{fancy}
-\fancyhf{}
-\renewcommand{\headrulewidth}{0pt}
-\fancyhead[L]{\small\color{navy}\textbf{ระดับน้ำทะเลไทย × ดัชนีภูมิอากาศ}}
-\fancyhead[R]{\small\color{greytag}\nouppercase{\leftmark}}
-\fancyfoot[C]{\small\color{greytag}\thepage}
-\renewcommand{\sectionmark}[1]{\markboth{#1}{}}
+% ---------- คำบรรยายรูป/ตาราง ----------
+\captionsetup{font=small,labelfont=bf,labelsep=colon,skip=6pt}
+\captionsetup[figure]{name=รูปที่}
+\captionsetup[table]{name=ตารางที่,position=top}
 
-% ---------- กล่องสื่อสาร ----------
-% ข้อความหลักต้นหัวข้อ
-\newtcolorbox{lead}{enhanced,colback=panel,colframe=panel,boxrule=0pt,arc=2pt,left=10pt,right=10pt,
-  top=6pt,bottom=6pt,borderline west={4pt}{0pt}{navy},fontupper=\large\semibold\color{navy}}
-% กล่องความรู้
-\newtcolorbox{infobox}[2][]{enhanced,colback=white,colframe=#2,boxrule=0.8pt,arc=3pt,
-  title={#1},fonttitle=\bfseries,coltitle=white,colbacktitle=#2,left=8pt,right=8pt,top=4pt,bottom=4pt,
-  fontupper=\small}
-% การ์ดประเด็นสำคัญ
-\newcommand{\keycard}[4]{%
-  \begin{tcolorbox}[enhanced,colback=white,colframe=#2,boxrule=0.6pt,arc=3pt,left=4pt,right=8pt,
-    top=5pt,bottom=5pt,sidebyside,lefthand width=1.45cm,sidebyside gap=8pt,segmentation hidden,
-    borderline west={5pt}{0pt}{#2}]
-    \centering{\color{#2}\fontsize{24}{24}\selectfont #1}
-    \tcblower
-    {\large\bfseries\color{#2}#3}\par\vspace{2pt}
-    {\small #4}
-  \end{tcolorbox}}
-% ป้ายระดับหลักฐาน
-\newcommand{\tagbox}[2]{\tikz[baseline=(t.base)]\node[fill=#1,text=white,font=\footnotesize\bfseries,
-  inner xsep=4pt,inner ysep=1.5pt,rounded corners=1.5pt](t){#2};}
-\newcommand{\tagstrong}{\tagbox{okgreen}{หนักแน่น}}
-\newcommand{\tagsingle}{\tagbox{amber}{งานเดียว}}
-\newcommand{\taginfer}{\tagbox{greytag}{อนุมาน}}
-\newcommand{\AND}{\textcolor{andaman}{\textbf{อันดามัน}}}
-\newcommand{\GULF}{\textcolor{gulf}{\textbf{อ่าวไทย}}}
-
-% ---------- รายการ / ตาราง / รูป ----------
-\setlist[itemize]{topsep=0.1em,itemsep=0.2em,parsep=0.1em,leftmargin=1.3em}
-\setlist[enumerate]{topsep=0.1em,itemsep=0.2em,parsep=0.1em,leftmargin=1.5em}
-\renewcommand{\arraystretch}{1.25}
+% ---------- ตาราง ----------
+\renewcommand{\arraystretch}{1.2}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
-\captionsetup{font=small,labelfont={bf,color=navy},skip=5pt}
-\captionsetup[figure]{name=รูป}
-\captionsetup[table]{name=ตาราง,position=top}
-\renewcommand{\contentsname}{สารบัญ}
+
+% หัวข้อไม่มีเลข (เอกสารอ้างอิง)
+\newcommand{\centerheading}[1]{\section*{#1}}
 
 \begin{document}
 
 % ======================================================================
-%  ปก
+%  ชื่อเรื่อง ผู้แต่ง บทคัดย่อ (ถ้อยคำคงตาม report.md · แก้เฉพาะ claim ที่ผิด/ขาดอ้างอิง
+%  ดูบันทึกใน report-claimcheck.md)
 % ======================================================================
-\thispagestyle{empty}
-\begin{tikzpicture}[remember picture,overlay]
-  \fill[navy] (current page.north west) rectangle ([yshift=-10.4cm]current page.north east);
-  \fill[andaman] ([yshift=-10.4cm]current page.north west) rectangle ([yshift=-10.65cm]current page.north east);
-  \node[anchor=north west,text=white,align=left,text width=17cm] at ([xshift=2.1cm,yshift=-1.6cm]current page.north west)
-    {{\large\color{white!75!navy} รายงานผลโครงงาน · 01204496 การประมวลผลสัญญาณดิจิทัล}\\[0.6cm]
-     {\fontsize{34}{40}\selectfont\bfseries ทะเลสองฝั่ง\\[0.15cm] ฟังภูมิอากาศคนละแบบ}\\[0.55cm]
-     {\Large ความสัมพันธ์ระหว่างระดับน้ำทะเลไทยกับดัชนีภูมิอากาศ\\ ด้วย Wavelet Coherence และ Multiple Wavelet Coherence · 1951–2023}};
-  \node[anchor=north] at ([yshift=-11.3cm]current page.north)
-    {\includegraphics[width=11.6cm]{map02_two_seas}};
-  \node[anchor=south west,align=left,text=navy] at ([xshift=2.1cm,yshift=1.7cm]current page.south west)
-    {{\bfseries กวินภพ จันเจือ} · รหัสนิสิต 6710503739\\ ภาควิชาวิศวกรรมคอมพิวเตอร์ · ตุลาคม 2569};
-  \node[anchor=south east,align=right,text=greytag,font=\small] at ([xshift=-2.1cm,yshift=1.7cm]current page.south east)
-    {ข้อมูล: PSMSL · UHSLC · NOAA PSL/CPC\\ วิธี: Grinsted et al. 2004 · Hu \& Si 2016 · Song \& Chen 2022};
-\end{tikzpicture}
-\newpage
+\begin{center}
+{\LARGE\bfseries ความสัมพันธ์เชิงเวลา–คาบระหว่างความผันแปรระหว่างปีของระดับน้ำทะเล%
+ชายฝั่งประเทศไทยกับดัชนีภูมิอากาศด้วย Wavelet Coherence และ Multiple Wavelet Coherence\par}
+\vspace{0.8em}
+{\large\bfseries\itshape Time–Scale Relationships between Interannual Sea-Level Variability along the Thai Coasts
+and Climate Indices: An Analysis Using Wavelet Coherence and Multiple Wavelet Coherence\par}
+\vspace{1.2em}
+{\large กวินภพ จันเจือ (รหัสนิสิต 6710503739)\par}
+\vspace{0.3em}
+{\small ภาควิชาวิศวกรรมคอมพิวเตอร์\\
+รายงานโครงงานรายวิชา 01204496 การประมวลผลสัญญาณดิจิทัลเชิงอัลกอริทึมสำหรับวิศวกรคอมพิวเตอร์\\
+ตุลาคม 2569\par}
+\end{center}
+
+\vspace{0.6em}
+\begin{center}\bfseries บทคัดย่อ\end{center}
+\vspace{-0.6em}
+\begin{quote}\small
+การศึกษานี้วิเคราะห์ความสัมพันธ์ระหว่างความผันแปรระหว่างปีของระดับน้ำทะเลที่สถานีเกาะตะเภาน้อย (ทะเลอันดามัน)
+และเกาะหลัก (อ่าวไทย) กับดัชนีภูมิอากาศ 8 ตัวในช่วง ค.ศ. 1951–2023 ด้วยเครื่องมือ wavelet coherence (WTC)
+และ multiple wavelet coherence (MWC) โดยได้ประเมินระดับนัยสำคัญจากการจำลองมอนติคาร์โลและปรับเกณฑ์ตามจำนวนดัชนีที่ใช้งานอย่างรัดกุม
+ผลการศึกษาพบว่าระดับน้ำทะเลที่เกาะตะเภาน้อยสัมพันธ์อย่างมีนัยสำคัญกับดัชนี SOI, DMI, WNPMI และ Niño3.4
+สอดคล้องกับกลไกของคลื่นเคลวิน ในขณะที่ระดับน้ำทะเลที่เกาะหลักไม่พบความสัมพันธ์กับดัชนีใดเกินกว่าระดับสัญญาณรบกวน
+นอกจากนี้ การใช้ MWC รวมดัชนีหลายตัวไม่ได้เพิ่มอำนาจอธิบายมากไปกว่าการใช้ดัชนีเดี่ยว หากมีการปรับเกณฑ์นัยสำคัญอย่างเหมาะสม
+ข้อมูลมาตรวัดที่เกาะตะเภาน้อยจากสองคลังข้อมูลมีความไม่สอดคล้องกันหลังปี ค.ศ. 2005
+ทำให้ไม่สามารถระบุลำดับความสำคัญของดัชนีในช่วงคาบ 2–7 ปีได้อย่างแน่ชัด
+
+\vspace{0.5em}
+\noindent\textbf{คำสำคัญ:} ระดับน้ำทะเล, wavelet coherence, multiple wavelet coherence, ENSO, Indian Ocean Dipole,
+ทะเลอันดามัน, อ่าวไทย
+\end{quote}
+\vspace{0.5em}
 
 % ======================================================================
-%  ประเด็นสำคัญ
-% ======================================================================
-\section*{ประเด็นสำคัญ}
-\markboth{ประเด็นสำคัญ}{}
+\section{บทนำ}
 
-\keycard{\faWater}{andaman}{ทะเลอันดามันเคลื่อนตาม ENSO และ IOD}
-{ระดับน้ำทะเลระหว่างปีที่เกาะตะเภาน้อย (ภูเก็ต) มี wavelet coherence เกินระดับ noise กับ \textbf{SOI, DMI, WNPMI และ Niño3.4}
-ครอบคลุม 10–14\% ของระนาบเวลา–คาบ (noise ได้ ≈ 9\%) และสูงถึง 32\% ในแถบคาบ 2–7 ปี ผลนี้ \textbf{ผ่านทั้ง 8 แบบทดสอบความไว}}
+\subsection{ที่มาและความสำคัญ}
 
-\keycard{\faWind}{gulf}{อ่าวไทยไม่ตอบสนองต่อดัชนีใดเลย}
-{ที่เกาะหลัก (ประจวบคีรีขันธ์) ไม่มีดัชนีใดใน 8 ตัวเกินระดับ noise ในแบบทดสอบใดเลย (0 จาก 8 ดัชนี × 8 แบบ)
-สอดคล้องกับงานวิจัยที่พบว่าอ่าวไทยเป็นแอ่งตื้นที่ระดับน้ำตอบสนองต่อลมท้องถิ่นทันที}
+ระดับน้ำทะเลประกอบด้วยหลายองค์ประกอบที่ซ้อนทับกัน เช่น วงรอบฤดูกาล ความผันแปรระหว่างปี (การเปลี่ยนแปลงที่เกิดขึ้นข้ามปี)
+และแนวโน้มระยะยาว (การเปลี่ยนแปลงระดับน้ำสะสมในระยะหลายปี) องค์ประกอบระหว่างปีมีความไม่คงที่ (non-stationary)
+จึงทำให้เครื่องมือทางสถิติที่อาศัยค่าเฉลี่ยตลอดอนุกรมเวลาไม่สามารถจับรูปแบบความสัมพันธ์ได้ดีนัก
+การแปลงเวฟเล็ตจึงเป็นเครื่องมือที่เหมาะสมกว่า (Torrence \& Compo, 1998) งานวิจัยต้นทาง (Song \& Chen, 2022)
+ใช้ WTC และ MWC กับข้อมูลระดับน้ำทะเล แต่ไม่ได้ระบุชัดเจนถึงการปรับเกณฑ์นัยสำคัญตามจำนวนดัชนี
+รวมถึงยังไม่พบการนำวิธีนี้มาใช้กับชายฝั่งประเทศไทย ซึ่งมีลักษณะภูมิศาสตร์แตกต่างกันชัดเจนระหว่างฝั่งทะเลอันดามันและอ่าวไทย
 
-\keycard{\faCompass}{okgreen}{ทิศของความสัมพันธ์ตรงกับกลไกทางฟิสิกส์ทั้งสี่ดัชนี}
-{ระดับน้ำอันดามัน \textbf{สวนทาง} Niño3.4 และ DMI และ \textbf{ไปทางเดียวกับ} SOI ตามที่ทฤษฎีคลื่นเคลวินจากเส้นศูนย์สูตรทำนาย
-El Niño และ IOD บวกทำให้น้ำทะเลภูเก็ต\textbf{ลดลง} เช่นปี 1997–98 ที่ต่ำกว่าปกติราว 29 ซม.}
+\subsection{วัตถุประสงค์}
 
-\keycard{\faLayerGroup}{navy2}{ดัชนีตัวเดียวพอ — รวมหลายตัวไม่ได้อะไรเพิ่ม}
-{เมื่อปรับเกณฑ์นัยสำคัญตามจำนวนดัชนี (0.59 → 0.96 จาก 1 ถึง 5 ตัว) ชุดที่ดีที่สุดไม่ดีกว่าดัชนีเดี่ยวเกิน 0.6 จุด
-เพราะทุกดัชนีส่งผลผ่านเส้นทางเดียวกัน คือ ลมเหนือศูนย์สูตรมหาสมุทรอินเดีย}
+\begin{itemize}
+  \item เพื่อวิเคราะห์ความสัมพันธ์ระหว่างระดับน้ำทะเลชายฝั่งไทยกับดัชนีภูมิอากาศด้วย WTC และ MWC
+  \item เพื่อเปรียบเทียบการตอบสนองของระดับน้ำทะเลฝั่งทะเลอันดามันและอ่าวไทย
+  \item เพื่อประเมินผลของการปรับเกณฑ์นัยสำคัญตามจำนวนดัชนีในแบบจำลอง MWC
+  \item เพื่อตรวจสอบความถูกต้องของการลดอัตราสุ่มข้อมูลระดับน้ำทะเลเทียบกับข้อมูลอ้างอิง
+\end{itemize}
 
-\keycard{\faExclamationTriangle}{alert}{เส้นกราฟที่ “พุ่งขึ้นตามจำนวนดัชนี” ในงานต้นทางเกิดจาก noise ได้}
-{ถ้าไม่ปรับเกณฑ์ ดัชนีปลอมที่สุ่มจาก AR(1) ให้ PASC 4.8 → 97.2\% เมื่อเพิ่มจาก 1 เป็น 5 ตัว
-หน้าตาเดียวกับเส้น 14 → 96\% ของ Song \& Chen (2022) ปรับเกณฑ์แล้วเหลือ ≈ 5\% ทุกจำนวน}
-
-\keycard{\faSearch}{amber}{ลำดับว่าดัชนีไหน “นำ” ยังไม่แน่นอน เพราะข้อมูลมาตรวัดหลังปี 2005}
-{WNPMI ดูเด่นที่สุดในแถบ 2–7 ปี แต่ผ่านเพียง 6 จาก 8 แบบ ข้อมูล PSMSL กับ UHSLC ของสถานีเดียวกันแยกทางกันหลังปี 2005
-จากการเปลี่ยนเครื่องมือและการแก้ datum ที่มีเอกสารยืนยัน เมื่อใช้ UHSLC แทน SOI กลับมาเป็นอันดับหนึ่ง}
-
-\vfill
-\begin{infobox}[\faBook\ \ วิธีอ่านรายงานนี้]{navy2}
-แต่ละหัวข้อเริ่มด้วย \textbf{ข้อความหลัก} ในกล่องสีฟ้า ตามด้วยรูปและคำอธิบาย คำอธิบายเชิงกลไกทุกข้อมีป้ายบอกระดับหลักฐาน
-\tagstrong{} = มีงานวิจัย/การสังเกตอิสระหลายชิ้นยืนยัน \quad \tagsingle{} = มาจากงานเดียวหรือข้อมูลชุดเดียว
-\quad \taginfer{} = เหตุผลทางฟิสิกส์ที่ยังไม่มีงานใดทดสอบกับระดับน้ำไทยโดยตรง
-
-สีประจำทะเลใช้ตลอดเล่ม: \AND{} (เกาะตะเภาน้อย) และ \GULF{} (เกาะหลัก)
-คำว่า \textbf{PASC} (percent area of significant coherence) คือร้อยละของพื้นที่ในระนาบเวลา–คาบ (ภายในกรวยอิทธิพล)
-ที่ค่า coherence เกินระดับ noise ที่ 95\% ค่ายิ่งสูง ความสัมพันธ์ยิ่งกินช่วงเวลาและคาบกว้าง
-\end{infobox}
-
-\newpage
-\setcounter{tocdepth}{2}
-\tableofcontents
-
-
-\newpage
-% ======================================================================
-\section[ที่มาของคำถาม]{ทำไมต้องดูระดับน้ำทะเลกับดัชนีภูมิอากาศ}
-% ======================================================================
-\begin{lead}
-ระดับน้ำทะเลชายฝั่งไทยขึ้นลงเป็นปี ๆ นอกเหนือจากน้ำขึ้นน้ำลงและฤดูกาล โครงงานนี้ถามว่า
-ความผันแปรระหว่างปีนั้น “ฟัง” ปรากฏการณ์ภูมิอากาศตัวไหน ที่คาบเท่าไร และสองฝั่งของประเทศต่างกันหรือไม่
-\end{lead}
-
-ระดับน้ำทะเลรายเดือนจากมาตรวัดเป็นสัญญาณเวลาไม่ต่อเนื่องที่มีหลายคาบซ้อนกัน ได้แก่ วงรอบฤดูกาล 1 ปี
-การแกว่งหลายปีแบบ El Niño และแนวโน้มระยะยาว องค์ประกอบระหว่างปีเหล่านี้ \textbf{ไม่คงที่} คือบางทศวรรษแรง บางทศวรรษหายไป
-สหสัมพันธ์ธรรมดาที่เฉลี่ยทั้งอนุกรมจึงมองไม่เห็นมัน (ดูตัวอย่างในรูปที่~\ref{fig:events}) การแปลงเวฟเล็ต (wavelet transform)
-แยกสัญญาณออกเป็นระนาบ \emph{เวลา × คาบ} จึงบอกได้ว่าระดับน้ำกับดัชนีภูมิอากาศเคลื่อนไหวพร้อมกัน \emph{เมื่อไร} และ \emph{ที่คาบไหน}
-
-งานต้นทางของโครงงานนี้คือ Song \& Chen (2022) ซึ่งใช้ wavelet coherence (WTC) และ multiple wavelet coherence (MWC)
-กับมาตรวัด 82 สถานีในอเมริกาเหนือและดัชนี 6 ตัว ข้อสรุปของเขาคือ ยิ่งรวมดัชนีมาก ค่า PASC ยิ่งสูง (14 → 96\%)
-โครงงานนี้ทำซ้ำวิธีดังกล่าวกับมาตรวัดของไทย \textbf{เขียนอัลกอริทึมเองทั้งหมด} (ไม่เรียก \texttt{pycwt.wct} หรือฟังก์ชัน MWC สำเร็จรูป)
-เพิ่มดัชนีประจำภูมิภาคอีกสองตัว คือ DMI (มหาสมุทรอินเดีย) และ WNPMI (มรสุมแปซิฟิกตะวันตกเฉียงเหนือ)
-และเพิ่มสิ่งที่งานต้นทางไม่ได้ทำ คือ การทดสอบนัยสำคัญที่ปรับตามจำนวนดัชนี
+\subsection{คำถามการวิจัย}
 
 \begin{table}[H]
-\centering
-\caption{คำถามแปดข้อของโครงงานและคำตอบโดยย่อ}
-\label{tab:questions}
-\small
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{navy}}l L{5.6cm} Y l@{}}
+\caption{คำถามการวิจัยและหัวข้อที่ตอบคำถาม}\label{tab:rq}
+\centering\small
+\begin{tabularx}{\textwidth}{@{}l Y l@{}}
 \toprule
- & คำถาม & คำตอบโดยย่อ & หัวข้อ \\
+\textbf{รหัส} & \textbf{คำถามการวิจัย} & \textbf{หัวข้อ} \\
 \midrule
-Q1 & ดัชนีเดี่ยวตัวไหนอธิบายระดับน้ำได้มากที่สุด ที่คาบไหน & SOI, DMI, WNPMI, Niño3.4 ที่อันดามัน เด่นในแถบ 2–7 ปี & \ref{sec:andaman} \\
-Q2 & อันดามันกับอ่าวไทยตอบสนองต่างกันไหม & ต่างกันชัด: อันดามันมีสัญญาณ อ่าวไทยไม่มีเลย (8/8 แบบ) & \ref{sec:gulf} \\
-Q3 & ต้องใช้ดัชนีกี่ตัวจึงพอ & ตัวเดียว (ส่วนเพิ่มสูงสุด +0.6 จุด) & \ref{sec:mwc} \\
-Q4 & ชุดดัชนีไหนดีที่สุด & ทั้งระนาบ: SOI · แถบ 2–7 ปี: WNPMI (แต่ไม่แข็งแรง) & \ref{sec:mwc} \\
-Q5 & ดัชนีภูมิภาคเพิ่มอำนาจอธิบายเหนือ 6 ตัวเดิมไหม & มีแนวโน้มในแถบ 2–7 ปี (+11.2 จุด) แต่ผ่านแค่ 4/8 แบบ & \ref{sec:mwc} \\
-Q6 & PASC ที่พุ่งตามจำนวนดัชนีเป็นของจริงแค่ไหน & แทบไม่จริง: noise ล้วนได้ 97\% ถ้าไม่ปรับเกณฑ์ & \ref{sec:mwc} \\
-Q7 & โซ่กรอง + ลดอัตราสุ่มที่เขียนเองตรงกับ PSMSL ไหม & ตรง: ต่างกันมัธยฐาน 1.1–1.2 มม. & \ref{sec:method} \\
-Q8 & ป้อมพระจุลฯ (แผ่นดินทรุด) ต่างจากสถานีอื่นไหม & ไม่มีดัชนีใดเกิน noise เหมือนอ่าวไทย (ภาคผนวก ก) & ก \\
+Q1 & ดัชนีภูมิอากาศเดี่ยวตัวใดสัมพันธ์กับระดับน้ำทะเลมากที่สุด และที่คาบใด & 4.2 \\
+Q2 & ระดับน้ำทะเลฝั่งทะเลอันดามันและฝั่งอ่าวไทยตอบสนองต่อดัชนีภูมิอากาศแตกต่างกันหรือไม่ & 4.2–4.3 \\
+Q3 & จำนวนดัชนีที่จำเป็นต่อการอธิบายระดับน้ำทะเลคือเท่าใด & 4.7 \\
+Q4 & ชุดดัชนีใดอธิบายระดับน้ำทะเลได้ดีที่สุด & 4.7 \\
+Q5 & ดัชนีประจำภูมิภาค (DMI, WNPMI) เพิ่มอำนาจอธิบายเหนือดัชนีหกตัวของงานต้นทางหรือไม่ & 4.7 \\
+Q6 & การเพิ่มขึ้นของ PASC ตามจำนวนดัชนีสะท้อนความสัมพันธ์จริงเพียงใด & 4.6 \\
+Q7 & อนุกรมรายเดือนที่ได้จากการกรองและลดอัตราสุ่มสอดคล้องกับข้อมูลของ PSMSL หรือไม่ & 4.1 \\
+Q8 & สถานีป้อมพระจุลจอมเกล้าซึ่งได้รับผลจากการทรุดตัวของแผ่นดินให้ผลแตกต่างจากสถานีอื่นหรือไม่ & 4.3 \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-% ======================================================================
-\section{สองทะเลและดัชนีภูมิอากาศแปดตัว}
-\label{sec:where}
-% ======================================================================
-\begin{lead}
-ประเทศไทยมีทะเลสองฝั่งที่ภูมิศาสตร์ต่างกันสุดขั้ว ฝั่งตะวันตกคือทะเลอันดามันที่ลึกและเปิดสู่มหาสมุทรอินเดีย
-ฝั่งตะวันออกคืออ่าวไทยที่ตื้นและเกือบปิด ดัชนีภูมิอากาศแต่ละตัววัดสภาพของมหาสมุทรหรือบรรยากาศในจุดที่ห่างออกไปหลายพันกิโลเมตร
-\end{lead}
+\subsection{ขอบเขตการศึกษา}
 
-\begin{figure}[H]
+\begin{itemize}
+  \item ศึกษาความผันแปรระหว่างปีของข้อมูลระดับน้ำทะเลรายเดือน (ม.ค. 1951 ถึง ม.ค. 2023 สิ้นสุดตามความพร้อมของข้อมูล AMO)
+  \item ใช้ข้อมูลจากสถานีเกาะตะเภาน้อย เกาะหลัก และป้อมพระจุลจอมเกล้า
+  \item ใช้ดัชนีภูมิอากาศ 8 ตัว (Niño3.4, SOI, PDO, TPI, AMO, NAO, DMI และ WNPMI)
+  \item วิเคราะห์ผลลัพธ์บนระนาบเวลา–คาบ โดยเน้นที่แถบคาบ 2–7 ปี (ENSO) เป็นหลัก
+\end{itemize}
+
+% ======================================================================
+\section{ทฤษฎีและงานวิจัยที่เกี่ยวข้อง}
+
+\subsection{ENSO และ Indian Ocean Dipole}
+
+El Niño–Southern Oscillation (ENSO) เป็นการแกว่งของอุณหภูมิผิวน้ำทะเลและความกดอากาศในมหาสมุทรแปซิฟิกที่มีคาบ 2–7 ปี
+(วัดด้วย Niño3.4 และ SOI) ส่วน Indian Ocean Dipole (IOD) เป็นความผันแปรในมหาสมุทรอินเดีย (วัดด้วย DMI)
+ทั้งสองปรากฏการณ์มักเกิดร่วมกันและสัมพันธ์กับลมผิวน้ำทะเลพัดผิดปกติเหนือเส้นศูนย์สูตร (Ashok et al., 2003)
+
+\subsection{การแปลงเวฟเล็ตแบบต่อเนื่อง}
+
+Continuous wavelet transform (CWT) แยกสัญญาณเวลาออกเป็นระนาบเวลา–คาบ การศึกษานี้ใช้เวฟเล็ต Morlet ($\omega_0 = 6$)
+ซึ่งรักษาสมดุลระหว่างเวลาและความถี่ได้ดี (Torrence \& Compo, 1998) โดยจะพิจารณาเฉพาะผลลัพธ์ภายในกรวยอิทธิพล (COI)
+เพื่อเลี่ยงความคลาดเคลื่อนจากขอบข้อมูล
+
+\subsection{Wavelet coherence}
+
+Wavelet coherence (WTC) วัดความสัมพันธ์เชิงเวลาและคาบระหว่างสองสัญญาณ คล้ายการหาค่าสัมประสิทธิ์สหสัมพันธ์บนระนาบเวลา–คาบ
+(Torrence \& Webster, 1999; Grinsted et al., 2004) นอกจากนี้ยังสามารถใช้มุมเฟส ($\theta$) เพื่อวิเคราะห์ทิศทางการแปรผัน
+ว่าแปรผันตามกัน สวนทางกัน หรือนำ/ตามกัน
+
+\subsection{Multiple wavelet coherence}
+
+Multiple wavelet coherence (MWC) เป็นการขยาย WTC เพื่อประเมินความสัมพันธ์ที่มีตัวแปรอธิบายหลายตัวพร้อมกัน (Hu \& Si, 2016)
+ผลลัพธ์สรุปด้วยตัวชี้วัดร้อยละพื้นที่ที่มีความสัมพันธ์อย่างมีนัยสำคัญ (PASC)
+
+\subsection{งานวิจัยที่เกี่ยวข้อง}
+
+\begin{itemize}
+  \item \textbf{ด้านวิธีการ:} งานวิจัยต้นทางที่ใช้ WTC และ MWC (Song \& Chen, 2022) รายงานว่าค่า PASC จะเพิ่มขึ้นเรื่อยๆ เมื่อใส่ดัชนีเพิ่ม
+        แต่ข้อมูลเวฟเล็ตมีลักษณะพึ่งพากัน จึงอาจให้ผลบวกลวงเป็นกลุ่มก้อนได้ (Maraun \& Kurths, 2004)
+  \item \textbf{ฝั่งทะเลอันดามัน:} ระดับน้ำทะเลระหว่างปีของอ่าวเบงกอลถูกควบคุมโดยลมเหนือเส้นศูนย์สูตรและคลื่นเคลวิน
+        (Han \& Webster, 2002; Rao et al., 2010) ซึ่งเหตุการณ์น้ำลดผิดปกติสัมพันธ์กับ ENSO และ IOD (Aparna et al., 2012; Brown et al., 2019)
+  \item \textbf{ฝั่งอ่าวไทย:} ระดับน้ำอ่าวไทยตอบสนองต่ออิทธิพลลมท้องถิ่นและฤดูกาลเป็นหลัก (Anutaliya, 2023; Wouters \& Chambers, 2010)
+        และได้รับผลจาก ENSO เพียงระดับเซนติเมตร (วัดที่ชายฝั่งตะวันออกของคาบสมุทรมลายู; Luu et al., 2015)
+\end{itemize}
+
+% ======================================================================
+\section{ข้อมูลและวิธีการศึกษา}
+
+\subsection{พื้นที่ศึกษา}
+
+ครอบคลุมสถานีเกาะตะเภาน้อยในทะเลอันดามัน (เปิดสู่มหาสมุทร) และสถานีเกาะหลักในอ่าวไทย (ตื้นและกึ่งปิด)
+ซึ่งอยู่ห่างกันประมาณ 470 กิโลเมตร (รูปที่~\ref{fig:map-indices})
+
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=\linewidth]{map01_indices}
-\caption{พื้นที่ที่ดัชนีภูมิอากาศแต่ละตัวใช้คำนวณ เทียบกับตำแหน่งมาตรวัดสองทะเลของไทย สังเกตว่ากล่องใต้ของ WNPMI
-เริ่มที่ลองจิจูด 100°E จึงครอบคลุมอ่าวไทยแต่ไม่ครอบคลุมทะเลอันดามัน ซึ่งเป็นประเด็นสำคัญในการตีความผลหัวข้อ~\ref{sec:robust}}
-\label{fig:indices}
+\includegraphics[width=\textwidth]{map01_indices.png}
+\caption{ตำแหน่งสถานีมาตรวัดเทียบกับพื้นที่ที่ใช้คำนวณดัชนีภูมิอากาศแต่ละตัว}
+\label{fig:map-indices}
 \end{figure}
 
-\begin{table}[H]
+\subsection{ข้อมูล}
+
+ใช้ข้อมูลระดับน้ำทะเลจากคลังข้อมูล PSMSL และ UHSLC (Permanent Service for Mean Sea Level, n.d.; University of Hawaii Sea Level Center, 2020)
+เทียบกับข้อมูลดัชนีภูมิอากาศจาก NOAA รวม 865 เดือน
+
+\subsection{การเตรียมสัญญาณ}
+
+ทำความสะอาดสัญญาณโดยตัดค่าผิดปกติ แนวโน้มเชิงเส้น และฮาร์มอนิกของฤดูกาลออก และจัดการช่องว่างข้อมูลด้วยการประมาณค่าในช่วงเชิงเส้น
+(หากไม่เกิน 3 เดือน) หรือเติมศูนย์ (รูปที่~\ref{fig:series})
+
+\begin{figure}[!htbp]
 \centering
-\caption{มาตรวัดระดับน้ำทะเลและดัชนีภูมิอากาศที่ใช้ (หน้าต่างร่วม ม.ค. 1951 – ม.ค. 2023, 865 เดือน)}
-\label{tab:data}
-\small
-\begin{tabularx}{\linewidth}{@{}l L{3.3cm} Y@{}}
-\toprule
-ชื่อ & แหล่ง & สิ่งที่วัด / หมายเหตุ \\
-\midrule
-\rowcolor{andaman!8}\textcolor{andaman}{\textbf{เกาะตะเภาน้อย}} & PSMSL 446 · UHSLC 148A & ภูเก็ต 7.83°N 98.43°E · ทะเลอันดามัน · ของเติม 6.7\% ของเดือน \\
-\rowcolor{gulf!8}\textcolor{gulf}{\textbf{เกาะหลัก}} & PSMSL 174 · UHSLC 328A & ประจวบคีรีขันธ์ 11.80°N 99.82°E · อ่าวไทย · ของเติม 3.1\% \\
-ป้อมพระจุลฯ & PSMSL 444 & ปากแม่น้ำเจ้าพระยา · แผ่นดินทรุด 15.6 มม./ปี · ใช้เป็นหมายเหตุ \\
-\midrule
-Niño3.4 & NOAA PSL & อุณหภูมิผิวน้ำแปซิฟิกกลาง (El Niño เป็นบวก) \\
-SOI & NOAA PSL & ความกดอากาศ ตาฮิติ − ดาร์วิน (El Niño เป็นลบ) \\
-DMI & NOAA PSL & Indian Ocean Dipole: อุณหภูมิผิวน้ำ ตะวันตก − ตะวันออก ของมหาสมุทรอินเดีย \\
-WNPMI & NOAA PSL (U850) & ลม 850 hPa กล่อง 5–15°N 100–130°E ลบกล่อง 20–30°N 110–140°E (Wang \& Fan 1999) \\
-PDO · TPI & NOAA PSL & โหมดคาบทศวรรษของแปซิฟิกเหนือ / ทั้งแอ่งแปซิฟิก \\
-AMO · NAO & NOAA PSL & โหมดของมหาสมุทรแอตแลนติก (AMO สิ้นสุดปี 2023 จึงเป็นตัวจำกัดท้ายหน้าต่าง) \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\includegraphics[width=\textwidth]{fig01_series.png}
+\caption{ระดับน้ำทะเลรายเดือนหลังตัดแนวโน้มและฤดูกาลของเกาะตะเภาน้อย (บน) และเกาะหลัก (กลาง) เทียบกับดัชนี WNPMI และ SOI (ล่าง) เส้นทึบคือค่าเฉลี่ยเคลื่อนที่ 12 เดือน จุดสีแดงคือเดือนที่เป็นค่าเติม}
+\label{fig:series}
+\end{figure}
 
-\begin{infobox}[\faInfoCircle\ \ รู้จัก ENSO และ IOD ในสามบรรทัด]{andaman}
-\textbf{ENSO} (El Niño–Southern Oscillation) คือการแกว่งของอุณหภูมิผิวน้ำและความกดอากาศในแปซิฟิกเขตร้อน คาบราว 2–7 ปี
-ปี El Niño แปซิฟิกตะวันออกอุ่นผิดปกติ Niño3.4 เป็นบวก และ SOI เป็นลบ\\
-\textbf{IOD} (Indian Ocean Dipole) คือรูปแบบคล้ายกันในมหาสมุทรอินเดีย ปี IOD บวกน้ำฝั่งตะวันตกใกล้แอฟริกาอุ่น
-ส่วนฝั่งตะวันออกนอกสุมาตราเย็นลง IOD บวกมักเกิดพร้อม El Niño (เช่น 1997, 2019) แต่ก็เกิดเองได้ (เช่น 2006)\\
-ทั้งสองปรากฏการณ์ทำให้ \textbf{ลมเหนือเส้นศูนย์สูตรมหาสมุทรอินเดียตะวันออกพัดมาจากตะวันออกผิดปกติ} และนี่คือกุญแจของผลทั้งรายงาน
-\end{infobox}
+\subsection{การกรองและลดอัตราสุ่มข้อมูลรายชั่วโมง}
 
-% ======================================================================
-\section{ข้อมูลและวิธีการโดยสรุป}
-\label{sec:method}
-% ======================================================================
-\begin{lead}
-ทุกขั้นตอนเป็นงานประมวลผลสัญญาณดิจิทัลที่เขียนเอง ตั้งแต่ตัวกรองกันการพับความถี่ การแปลงเวฟเล็ต
-ไปจนถึงการทดสอบนัยสำคัญด้วยสัญญาณสุ่ม แต่ละขั้นมีตัวเทียบที่รู้คำตอบอยู่แล้ว
-\end{lead}
+เพื่อเลี่ยงการพับความถี่ (aliasing) ข้อมูลรายชั่วโมงจะถูกผ่านตัวกรอง FIR ชนิดหน้าต่าง Kaiser 261 แท็ป
+เพื่อกรองคลื่นน้ำขึ้นน้ำลงหลักออก ก่อนทำการลดอัตราสุ่มเป็นรายเดือน
 
-\begin{figure}[H]
+\subsection{การคำนวณ WTC และ MWC}
+
+คำนวณ WTC สำหรับดัชนีเดี่ยวแต่ละตัว และ MWC สำหรับทุกชุดย่อยขนาด 1–5 ตัว
+(รวม 218 ชุด โดยจำกัดขนาดไม่เกิน 5 ตัวเพื่อลดภาระการคำนวณ)
+
+\subsection{การทดสอบนัยสำคัญทางสถิติ}
+
+สร้างเกณฑ์นัยสำคัญด้วยกระบวนการมอนติคาร์โลแบบ AR(1) จำนวน 1,000 ชุดต่อกรณี มีการปรับปรุงวิธีเพิ่มเติมด้วยการ
+1) แยกเกณฑ์ตามจำนวนดัชนี 2) ประเมินนัยสำคัญจาก PASC รวม และ 3) ควบคุมผลบวกลวงเมื่อค้นหาตัวแปรที่ดีที่สุด
+
+\subsection{การวิเคราะห์ความไว}
+
+คำนวณซ้ำภายใต้เงื่อนไขข้อมูล 8 รูปแบบที่แตกต่างกัน (V0–V7) เพื่อทดสอบความแข็งแรงคงทนของข้อสรุป
+ขั้นตอนทั้งหมดสรุปไว้ในรูปที่~\ref{fig:pipeline}
+
+\begin{figure}[!htbp]
 \centering
 \begin{tikzpicture}[
-  box/.style={draw=navy2,fill=panel,rounded corners=2pt,align=center,font=\footnotesize,
-              minimum height=15mm,text width=31mm,inner sep=3pt},
-  hot/.style={box,fill=navy,text=white},
-  arr/.style={-{Stealth[length=2.2mm]},thick,navy2},
-  lab/.style={font=\scriptsize\bfseries,text=greytag,anchor=east}]
-  \def\dx{40mm}\def\dy{22mm}
-  \node[box] (uh)  at (0,0)         {UHSLC รายชั่วโมง\\1985–2019};
-  \node[hot] (fir) at (\dx,0)       {FIR Kaiser 261 taps\\anti-alias + ลดอัตราสุ่ม};
-  \node[box] (mo)  at (2*\dx,0)     {รายวัน → รายเดือน\\เทียบ UHSLC / PSMSL};
-  \node[box,fill=white,dashed] (alt) at (3*\dx,0) {Y ทางเลือก\\(แบบ “Y จากโซ่ Q7”)};
-  \node[box] (ps)  at (0,-\dy)      {PSMSL รายเดือน\\+ ดัชนี 8 ตัว};
-  \node[box] (pre) at (\dx,-\dy)    {QC · ตัดแนวโน้ม + ฤดูกาล\\เติมช่องว่าง + mask};
-  \node[hot] (cwt) at (2*\dx,-\dy)  {CWT Morlet\\12 สเกลต่อ octave};
-  \node[hot] (wtc) at (3*\dx,-\dy)  {WTC (ดัชนีเดี่ยว)\\MWC (1–5 ดัชนี, 218 ชุด)};
-  \node[box] (mc)   at (3*\dx,-2*\dy) {AR(1) Monte Carlo\\เกณฑ์ 95\% ปรับตาม q};
-  \node[box] (pasc) at (2*\dx,-2*\dy) {PASC + p-value\\null ของการค้นหาทั้งตระกูล};
-  \node[box] (sens) at (\dx,-2*\dy)   {ทดสอบความไว\\8 แบบ × 2 ทะเล};
-  \node[box,fill=okgreen!12,draw=okgreen] (mech) at (0,-2*\dy) {เทียบกลไกทางกายภาพ\\(58 แหล่งอ้างอิง)};
+  box/.style={draw=black!60,fill=black!4,rounded corners=2pt,align=center,font=\scriptsize,
+              minimum height=13mm,text width=27mm,inner sep=2.5pt},
+  hot/.style={box,fill=black!14},
+  arr/.style={-{Stealth[length=2mm]},semithick,black!70},
+  lab/.style={font=\scriptsize\bfseries,anchor=east}]
+  \def\dx{36.5mm}\def\dy{19mm}
+  \node[box] (uh)  at (0,0)          {UHSLC รายชั่วโมง\\1985–2019};
+  \node[hot] (fir) at (\dx,0)        {FIR หน้าต่าง Kaiser\\261 แท็ป + ลดอัตราสุ่ม};
+  \node[box] (mo)  at (2*\dx,0)      {รายวัน → รายเดือน\\เทียบ UHSLC / PSMSL};
+  \node[box,fill=white,dashed] (alt) at (3*\dx,0) {อนุกรมทางเลือก\\(แบบ V6)};
+  \node[box] (ps)  at (0,-\dy)       {PSMSL รายเดือน\\+ ดัชนี 8 ตัว};
+  \node[box] (pre) at (\dx,-\dy)     {ควบคุมคุณภาพ\\ตัดแนวโน้ม + ฤดูกาล\\เติมช่องว่าง + mask};
+  \node[hot] (cwt) at (2*\dx,-\dy)   {CWT Morlet\\12 สเกลต่อออกเทฟ};
+  \node[hot] (wtc) at (3*\dx,-\dy)   {WTC (ดัชนีเดี่ยว)\\MWC (1–5 ดัชนี\\218 ชุด)};
+  \node[box] (mc)   at (3*\dx,-2*\dy) {มอนติคาร์โล AR(1)\\เกณฑ์ 95\% ปรับตาม $q$};
+  \node[box] (pasc) at (2*\dx,-2*\dy) {PASC + ค่า p\\ค่า p ทั้งตระกูล};
+  \node[box] (sens) at (\dx,-2*\dy)   {วิเคราะห์ความไว\\8 แบบ × 2 สถานี};
+  \node[box] (mech) at (0,-2*\dy)     {เทียบกลไกทางกายภาพ\\จากงานวิจัย};
   \draw[arr] (uh) -- (fir); \draw[arr] (fir) -- (mo); \draw[arr,dashed] (mo) -- (alt);
   \draw[arr,dashed] (alt) -- (wtc);
   \draw[arr] (ps) -- (pre); \draw[arr] (pre) -- (cwt); \draw[arr] (cwt) -- (wtc);
   \draw[arr] (wtc) -- (mc); \draw[arr] (mc) -- (pasc); \draw[arr] (pasc) -- (sens); \draw[arr] (sens) -- (mech);
-  \node[lab] at ($(uh.west)+(-2mm,0)$) {1};
-  \node[lab] at ($(ps.west)+(-2mm,0)$) {2};
-  \node[lab] at ($(mech.west)+(-2mm,0)$) {3};
+  \node[lab] at ($(uh.west)+(-1.5mm,0)$) {1};
+  \node[lab] at ($(ps.west)+(-1.5mm,0)$) {2};
+  \node[lab] at ($(mech.west)+(-1.5mm,0)$) {3};
 \end{tikzpicture}
-\caption{สายการประมวลผลของโครงงาน กล่องสีเข้มคือขั้นตอนที่เป็นแกน DSP และเขียนเองทั้งหมด}
+\caption[ขั้นตอนการศึกษา]{ขั้นตอนการศึกษา (1) กรองและลดอัตราสุ่มข้อมูลรายชั่วโมงเพื่อตรวจสอบกับ PSMSL และใช้เป็นอนุกรมทางเลือก
+(2) เตรียมสัญญาณรายเดือน คำนวณ CWT, WTC และ MWC ทดสอบนัยสำคัญ และวิเคราะห์ความไว
+(3) เปรียบเทียบผลกับกลไกทางกายภาพจากงานวิจัยที่เกี่ยวข้อง}
 \label{fig:pipeline}
 \end{figure}
 
-\subsection{เตรียมสัญญาณ}
-ระดับน้ำรายเดือนจาก PSMSL ผ่านการตัดค่าโดดสองเดือนที่พิสูจน์แล้วว่าผิด (ต.ค. 1985, มิ.ย. 1987 สูงกว่าเดือนข้างเคียง ≈ 255 มม.
-ขณะที่ข้อมูลรายชั่วโมงของ UHSLC ไม่มี) จากนั้นทุกอนุกรมถูกตัด \textbf{แนวโน้มเชิงเส้น + ฮาร์มอนิกรายปีและครึ่งปี} ที่ fit เฉพาะเดือนที่มีข้อมูลจริง
-ช่องว่างสั้น ≤ 3 เดือนเติมด้วยการประมาณเชิงเส้น ช่องว่างยาวเติมศูนย์ และทุกเดือนที่เป็นของเติมถูกจดไว้ใน mask
-จุดในระนาบเวฟเล็ตที่หน้าต่าง smoothing มีของเติมเกิน 50\% จะไม่ถูกนับ ฤดูกาลอธิบายความแปรปรวนของเกาะหลักถึง 81\%
-(แอมพลิจูดรายปี 213 มม.) แต่ของเกาะตะเภาน้อยเพียง 30\% (87 มม.) ส่วนที่เหลือหลังตัดแล้วคือสัญญาณระหว่างปีที่รายงานนี้ศึกษา
-
-\begin{infobox}[\faFilter\ \ Q7 — ตัวกรองที่ออกแบบเองตรงกับข้อมูลทางการ]{navy2}
-\begin{minipage}[t]{0.50\linewidth}\vspace{0pt}
-\includegraphics[width=\linewidth]{fig02_filter}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.47\linewidth}\vspace{0pt}
-การลดอัตราสุ่มจากรายชั่วโมงเป็นรายวันต้องกรองน้ำขึ้นน้ำลง (M2, S2, K1, O1 \ldots) ออกก่อน ไม่อย่างนั้นมันจะพับลงมาความถี่ต่ำ
-ตัวกรอง FIR หน้าต่าง Kaiser ที่ออกแบบจากสเปก 70 dB ($\beta$ = 6.7553) วัดได้ \textbf{70.07 dB} กดน้ำขึ้นน้ำลงทุกองค์ประกอบ 77–99 dB
-ค่ารายวันต่างจาก UHSLC \textbf{RMS 3.0 มม.} ค่ารายเดือนต่างจาก PSMSL \textbf{มัธยฐาน 1.1–1.2 มม.}
-ถ้าไม่กรอง K1+P1 พับไปที่คาบ \textbf{365.2 วันพอดี} และ K2 ไปที่ 182.6 วัน คือ aliasing ไม่ได้เพิ่มแค่ noise แต่ \emph{บิดวงรอบฤดูกาล}
-\end{minipage}
-\end{infobox}
-
-\subsection{Wavelet coherence และ multiple wavelet coherence}
-ใช้ continuous wavelet transform แบบ Morlet ($\omega_0 = 6$, 12 สเกลต่อ octave) ของระดับน้ำ $W_Y$ และดัชนี $W_X$
-แล้วคำนวณ coherence ตาม Grinsted et al. (2004) ด้วยตัวปรับเรียบ $S$ ในทิศเวลาและสเกล
-\begin{equation}
-R^2(s,\tau)=\frac{\bigl|S\!\left(s^{-1}W_{XY}\right)\bigr|^2}{S\!\left(s^{-1}|W_X|^2\right)\,S\!\left(s^{-1}|W_Y|^2\right)},
-\qquad \theta(s,\tau)=\arg S\!\left(s^{-1}W_{YX}\right)
-\end{equation}
-$R^2$ อยู่ระหว่าง 0–1 คล้ายสหสัมพันธ์กำลังสองเฉพาะที่ ส่วนมุม $\theta=\varphi_{\text{ระดับน้ำ}}-\varphi_{\text{ดัชนี}}$ บอกว่าสองสัญญาณไปทางเดียวกัน (0°)
-สวนทาง (180°) หรือใครนำใคร สำหรับดัชนี $q$ ตัวพร้อมกัน ใช้ MWC ของ Hu \& Si (2016)
-\begin{equation}
-\rho^2(s,\tau)=\frac{\widetilde W_{YX}\,\widetilde W_{XX}^{-1}\,\widetilde W_{YX}^{H}}{\widetilde W_{YY}}
-\end{equation}
-โดย $\widetilde W$ คือสเปกตรัมไขว้ที่ผ่านการปรับเรียบ เมื่อ $q=1$ สมการนี้ลดรูปเป็น WTC พอดี (ตรวจแล้ว ต่างกัน $7.8\times10^{-16}$)
-การค้นหาครบ 218 ชุด (ขนาด 1–5 จาก 8 ดัชนี) ใช้การแยก Cholesky แบบเพิ่มทีละตัวตามต้นไม้ของชุดย่อย เร็วขึ้นราว 27 เท่า
-
-\subsection{นัยสำคัญ: noise ทำอะไรได้บ้าง}
-ระดับ noise ได้มาจากการจำลองแบบ Monte Carlo โดยสุ่มคู่สัญญาณ AR(1) ที่มีสัมประสิทธิ์เท่ากับข้อมูลจริง 1,000 คู่ต่อกรณี
-แล้วใช้ quantile 95\% ของ $R^2$ หรือ $\rho^2$ ที่แต่ละสเกลเป็นเกณฑ์ จุดสำคัญที่งานต้นทางไม่ได้ทำมีสามข้อ
-\begin{enumerate}
-\item \textbf{เกณฑ์ต้องปรับตามจำนวนดัชนี $q$} เพราะ noise $q$ ตัวก็ทำให้ $\rho^2$ สูงขึ้นได้เอง (หัวข้อ~\ref{sec:mwc})
-\item \textbf{PASC ต้องมี p-value ของตัวเอง} จุดข้างเคียงในระนาบสัมพันธ์กันผ่านการปรับเรียบ noise จึงเกินเกณฑ์เป็นก้อน
-PASC ของ noise เฉลี่ยราว 5\% แต่ quantile 95\% อยู่ที่ราว 9\% (ทั้งระนาบ) และ 13–15\% (แถบ 2–7 ปี)
-\item \textbf{การเลือก “ชุดที่ดีที่สุด” จาก 218 ชุดต้องจ่ายราคา} จึงใช้ค่าสูงสุดของการค้นหาทั้งหมดภายใต้ null (Y ปลอม 1,000 รอบ) เป็นตัวเทียบ
-136 จาก 218 ชุดมี p รายชุด < 0.05 แต่ผ่าน p ทั้งตระกูลเพียง 4–5 ชุด
-\end{enumerate}
-
-\subsection{ทดสอบความไวแปดแบบ}
-ผลทุกข้อถูกคำนวณใหม่ทั้งสายภายใต้การเตรียมข้อมูล 8 แบบ (ตารางที่~\ref{tab:variants}) โดยใช้ seed สุ่มชุดเดียวกัน
-ความต่างของผลจึงมาจากสิ่งที่เปลี่ยนเท่านั้น
-
-\begin{table}[H]
-\centering
-\caption{แบบทดสอบความไว — แต่ละแบบเปลี่ยนเพียงหนึ่งอย่างจากแบบมาตรฐาน}
-\label{tab:variants}
-\small
-\begin{tabularx}{\linewidth}{@{}l Y@{}}
-\toprule
-แบบ & สิ่งที่เปลี่ยน และเหตุผล \\
-\midrule
-แบบมาตรฐาน & PSMSL 1951–2023 · interp ช่องว่าง ≤ 3 เดือน · นับจุดที่ของเติม ≤ 50\% \\
-interp ทุกช่องว่าง & เติมช่องว่างยาวด้วย interp แทนศูนย์ \\
-เกณฑ์ของเติม 25\% & นับเฉพาะจุดที่ของเติมในหน้าต่าง ≤ 25\% \\
-ตัดปี 2004–2005 & ปีสึนามิ มาตรวัดเสียหาย — ทำเป็นช่องว่างทั้งสองปี \\
-ตัด AMO & AMO จบปี 2023 — ตัดออกแล้วข้อมูลยาวถึง 2025 \\
-PSMSL 1985–2019 & คู่เทียบของแบบถัดไป: ความยาวเท่ากันแต่ยังใช้ PSMSL \\
-Y จากโซ่ Q7 & ใช้ UHSLC รายชั่วโมงผ่านตัวกรองที่ออกแบบเอง (1985–2019) แทน PSMSL \\
-PSMSL ก่อน 2006 & ตัดช่วงที่ PSMSL กับ UHSLC แยกทางกันทิ้งทั้งหมด (1951–2005) \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
 % ======================================================================
-\section[ทะเลอันดามัน]{ทะเลอันดามัน: สัญญาณ ENSO–IOD ที่ชัดและแข็งแรง}
-\label{sec:andaman}
-% ======================================================================
-\begin{lead}
-ระดับน้ำที่เกาะตะเภาน้อยสัมพันธ์กับดัชนีสี่ตัวในกลุ่ม ENSO–IOD–มรสุม เหนือระดับ noise อย่างมีนัยสำคัญ
-ความสัมพันธ์รวมตัวอยู่ที่คาบ 2–7 ปีในช่วงเหตุการณ์ใหญ่ และทิศของมันตรงกับที่ฟิสิกส์ทำนาย
-\end{lead}
+\section{ผลการศึกษา}
 
-\begin{figure}[H]
+\subsection{ความถูกต้องของการกรองและลดอัตราสุ่ม (Q7)}
+
+ตัวกรอง FIR ที่ออกแบบไว้สามารถกำจัดองค์ประกอบน้ำขึ้นน้ำลงได้ 77–99 dB ซึ่งป้องกันการบิดเบือนขององค์ประกอบฤดูกาลได้ดี
+(รูปที่~\ref{fig:filter}) อนุกรมรายเดือนที่ลดอัตราสุ่มแล้ว มีความคลาดเคลื่อนจากข้อมูล PSMSL ในระดับต่ำเพียง 1.1–1.2 มม.
+(มัธยฐานของผลต่างสัมบูรณ์ ในช่วงที่ระดับอ้างอิงของข้อมูลคงที่)
+
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.86\linewidth]{fig10_scorecard}
-\caption{ใบรายงานผลของดัชนีเดี่ยว สีเข้มตามขนาด PASC เฉพาะช่องที่มีนัยสำคัญ (p < 0.05 จาก null 1,000 รอบ)
-ตัวเลขล่างคือจำนวนแบบทดสอบความไวที่ยังผ่าน (AMO มี 7 แบบเพราะแบบ “ตัด AMO” ไม่มีมัน)}
-\label{fig:scorecard}
+\includegraphics[width=0.9\textwidth]{fig02_filter.png}
+\caption{ผลตอบสนองเชิงความถี่ของตัวกรอง FIR หน้าต่าง Kaiser (261 แท็ป) เทียบกับความถี่ขององค์ประกอบน้ำขึ้นน้ำลงหลัก}
+\label{fig:filter}
 \end{figure}
 
-\subsubsection{ดัชนีไหนบ้าง}
-ทั้งระนาบ SOI ได้ PASC 14.3\%, DMI 13.6\%, WNPMI 13.3\% และ Niño3.4 10.0\% เทียบกับ noise ที่ 95\% ≈ 9\%
-ทั้งสี่ตัวผ่านทุก 8 แบบ ในแถบ 2–7 ปี WNPMI สูงถึง 32.2\% ตามด้วย DMI 17.7\% และ SOI 16.1\%
-AMO ผ่านเกณฑ์ในแถบนี้ในแบบมาตรฐาน (13.9\%) แต่ผ่านเพียง 4 จาก 7 แบบ และไม่มีกลไกทางฟิสิกส์รองรับ จึงไม่นับเป็นข้อค้นพบ
-PDO, TPI, NAO ไม่เกิน noise เลย ซึ่งเป็นไปตามคาด เพราะพลังงานหลักของ PDO/TPI อยู่ที่คาบทศวรรษ
-และ NAO เป็นโหมดแอตแลนติกที่ไม่มีเส้นทางมาถึงไทย \tagstrong{} (สำหรับ PDO) \taginfer{} (สำหรับ AMO/NAO)
-แถบ 8–16 ปีตอบไม่ได้ด้วยข้อมูล 72 ปี เพราะ noise ล้วนก็ได้ PASC ถึง 22–30\% ในแถบนี้
+\subsection{ความสัมพันธ์กับดัชนีเดี่ยว: ทะเลอันดามัน (Q1)}
 
-\begin{figure}[H]
+ระดับน้ำทะเลเกาะตะเภาน้อยมีความสัมพันธ์อย่างมีนัยสำคัญกับดัชนี SOI, DMI, WNPMI และ Niño3.4
+ในทุกแบบการทดสอบความไวเมื่อพิจารณาทั้งระนาบ ส่วนในช่วงคาบ 2–7 ปี ดัชนี WNPMI อธิบายผลได้สูงสุด (PASC 32.2\%)
+(รูปที่~\ref{fig:scorecard} และ~\ref{fig:wtc})
+
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=\linewidth]{fig03_wtc_maps}
-\caption{ระนาบ wavelet coherence ของสองทะเลกับสามดัชนี เส้นขาวล้อมบริเวณที่เกินเกณฑ์ 95\% เส้นประคือกรวยอิทธิพล (COI)
-นอกกรวยผลถูกขอบข้อมูลรบกวน ลูกศรชี้ขวา = ไปทางเดียวกัน ชี้ซ้าย = สวนทาง องค์ประกอบชี้ขึ้น = ระดับน้ำนำดัชนี
-แถวบน (อันดามัน) มีก้อนใหญ่ช่วงปลาย 1990 ถึง 2010 ที่คาบ 2–5 ปี ส่วนแถวล่าง (อ่าวไทย) มีแต่จุดเล็กกระจายแบบที่ noise สร้างได้}
+\includegraphics[width=0.9\textwidth]{fig10_scorecard.png}
+\caption{PASC ของดัชนีเดี่ยวสำหรับสองสถานีและสองช่วงคาบ ช่องที่มีสีและเครื่องหมาย \tick{} คือมีนัยสำคัญ (p < 0.05) ตัวเลขใต้ค่าแสดงจำนวนแบบการทดสอบความไวที่ยังคงมีนัยสำคัญ}
+\label{fig:scorecard}
+\end{figure}
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig03_wtc_maps.png}
+\caption{Wavelet coherence ระหว่างระดับน้ำทะเลเกาะตะเภาน้อย (แถวบน) และเกาะหลัก (แถวล่าง) กับดัชนีสามตัว เส้นสีขาวล้อมบริเวณที่เกินเกณฑ์นัยสำคัญ 95\% เส้นประแสดงกรวยอิทธิพล}
 \label{fig:wtc}
 \end{figure}
 
-\subsubsection{ความสัมพันธ์มาเป็นช่วง ๆ ไม่ได้มาทุกปี}
-รูปที่~\ref{fig:events} วางระดับน้ำ (มิลลิเมตร) คู่กับ Niño3.4 และ DMI ที่กลับด้าน ช่วงที่ระดับน้ำอันดามันต่ำผิดปกติ (สีแดง)
-ตรงกับปี El Niño และ IOD บวกหลายครั้ง ชัดที่สุดคือปี 1997–98 ที่ต่ำลงราว 210 มม. ในค่าเฉลี่ย 12 เดือน
-ตรงกับรายงานภาคสนามว่าน้ำภูเก็ตต่ำกว่าปกติราว 29 ซม. นาน 7 เดือนจนปะการังบนพื้นราบตาย (Brown et al. 2019)
-กรมทรัพยากรทางทะเลและชายฝั่งบันทึกน้ำลงต่ำผิดปกติฝั่งอันดามันในปี 1997, 2006 และ 2019 ซึ่งเป็นปี IOD บวกทั้งหมด \tagstrong{}
+\subsection{ความสัมพันธ์กับดัชนีเดี่ยว: อ่าวไทย (Q2)}
 
-แต่สหสัมพันธ์ของค่าเฉลี่ย 12 เดือนทั้งอนุกรมกลับต่ำ (r = 0.30 กับ −Niño3.4 และ 0.10 กับ −DMI)
-เพราะความสัมพันธ์ “เปิด” เฉพาะช่วงเหตุการณ์ แล้ว “ปิด” ในปีปกติ นี่คือเหตุผลที่ต้องใช้เครื่องมือที่ระบุตำแหน่งในเวลาได้อย่างเวฟเล็ต
-อ่าวไทย (แผงล่าง) ไม่มีรูปแบบนี้เลย
+ระดับน้ำทะเลเกาะหลักไม่พบ PASC ที่มีนัยสำคัญเหนือระดับสัญญาณรบกวนกับดัชนีใดๆ ทั้งสิ้นในทุกรูปแบบการวิเคราะห์
+(รูปที่~\ref{fig:scorecard} และ~\ref{fig:wtc}) ผลลัพธ์ของ PASC แสดงให้เห็นว่า สถานีป้อมพระจุลจอมเกล้า (หลังตัดแนวโน้มการทรุดตัว 15.6 มม./ปี ออก) ไม่มีดัชนีใดให้ผล PASC อย่างมีนัยสำคัญเลย เช่นเดียวกับสถานีเกาะหลัก
 
-\begin{figure}[H]
+\subsection{ลักษณะเชิงเวลาของความสัมพันธ์}
+
+ระดับน้ำฝั่งอันดามันลดต่ำลงอย่างชัดเจนในช่วงที่เกิดเหตุการณ์ El Niño และ IOD บวก
+(เช่น ปี 1997–1998 ค่าเฉลี่ยเคลื่อนที่ 12 เดือนลดกว่าปกติราว 210 มม.) แต่สัมประสิทธิ์สหสัมพันธ์แบบทั่วไปตลอดอนุกรมมีค่าต่ำ
+ซึ่งสนับสนุนว่าการวิเคราะห์ด้วยเวฟเล็ตให้ภาพที่ชัดเจนกว่า (รูปที่~\ref{fig:events})
+
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=\linewidth]{fig11_events}
-\caption{ระดับน้ำทะเลระหว่างปี (ตัดแนวโน้มและฤดูกาลแล้ว ค่าเฉลี่ยเคลื่อนที่ 12 เดือน) กับ Niño3.4 และ DMI ที่กลับเครื่องหมาย
-เพื่อให้ “ดัชนีขึ้น” ตรงกับ “ระดับน้ำลง” ป้ายคือปีที่หน่วยงานไทยบันทึกน้ำลงต่ำผิดปกติ ค่า r เป็นการบรรยาย ไม่ใช่การทดสอบ}
+\includegraphics[width=\textwidth]{fig11_events.png}
+\caption{ระดับน้ำทะเลระหว่างปี (ค่าเฉลี่ยเคลื่อนที่ 12 เดือน) เทียบกับดัชนี Niño3.4 และ DMI ที่กลับเครื่องหมาย ค่า $r$ ใช้เพื่อการบรรยายเท่านั้น}
 \label{fig:events}
 \end{figure}
 
-\subsubsection{ทิศของความสัมพันธ์ตรงกับที่กลไกทำนาย}
-ถ้าความสัมพันธ์มาจากกลไกจริง ทิศของมันต้องคาดได้ล่วงหน้า งานวิจัยด้านกลไก (หัวข้อ~\ref{sec:mech}) ทำนายว่า El Niño และ IOD บวก
-ทำให้น้ำอันดามัน\textbf{ลดลง} ดังนั้นมุมกับ Niño3.4 และ DMI ควรอยู่ราว 180° (สวนทาง) และกับ SOI ราว 0° (ไปด้วยกัน)
-รูปที่~\ref{fig:phase} แสดงว่าผลที่วัดได้ \textbf{ตรงทั้งสี่ดัชนี}
-\begin{itemize}
-\item \textbf{SOI} $\theta$ = −28° ไปด้วยกัน ระดับน้ำตามหลังราว 3 เดือน
-\item \textbf{Niño3.4} $\theta$ = +156° สวนทาง ระดับน้ำตามหลังราว 3 เดือน (สอดคล้องกับ SOI ซึ่งวัดปรากฏการณ์เดียวกัน)
-\item \textbf{DMI} $\theta$ = −150° สวนทาง ระดับน้ำลดก่อน DMI ถึงจุดสูงสุดราว 5 เดือน สอดคล้องกับที่อ่าวเบงกอลเริ่มต่ำตั้งแต่ เม.ย.
-ขณะที่ IOD สูงสุด ก.ย.–พ.ย. (Aparna et al. 2012) แต่มุมกระจายมากกว่าตัวอื่น (ความสม่ำเสมอ R = 0.55)
-\item \textbf{WNPMI} $\theta$ = +56° ไปด้วยกัน ระดับน้ำ\textbf{นำ}ราว 6 เดือน คือมรสุมแปซิฟิกตะวันตกตอบสนองช้ากว่า
-ซึ่งเข้ากับการที่มรสุมนี้อ่อนลงในฤดูร้อน\emph{หลัง} El Niño (Wang et al. 2001) WNPMI จึงน่าจะเป็น “ผลตาม” ของ ENSO ไม่ใช่ตัวขับ \taginfer{}
-\end{itemize}
+\subsection{ความสัมพันธ์เชิงเฟส}
 
-\begin{figure}[H]
+ทิศทางของมุมเฟสสอดคล้องกับกลไกทางกายภาพ ระดับน้ำแปรผันตามทิศทางของดัชนี SOI แต่อยู่ในทิศทางสวนทางกับดัชนี Niño3.4 และ DMI
+ขณะที่ดัชนี WNPMI แปรผันในทิศทางเดียวกันโดยระดับน้ำนำหน้าประมาณ 6 เดือน (รูปที่~\ref{fig:phase})
+
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=\linewidth]{fig12_phase}
-\caption{เข็มทิศเฟสของอันดามัน (แถบ 2–7 ปี เฉพาะบริเวณมีนัยสำคัญ) ลูกศรดำ = ทิศเฉลี่ยเชิงวงกลม ยาว 1 = ทุกจุดชี้ทางเดียวกัน
-พื้นสี = ช่วงทิศที่กลไกทำนายไว้ก่อนดูผล (ลายเส้น = เป็นการอนุมาน) แท่งเทา = การกระจายของมุมทุกจุด}
+\includegraphics[width=\textwidth]{fig12_phase.png}
+\caption{มุมเฟสของ coherence ระหว่างระดับน้ำทะเลเกาะตะเภาน้อยกับดัชนีสี่ตัว (แถบคาบ 2–7 ปี เฉพาะบริเวณที่มีนัยสำคัญ) พื้นที่แรเงาแสดงช่วงทิศที่คาดการณ์จากกลไก}
 \label{fig:phase}
 \end{figure}
 
-% ======================================================================
-\section[อ่าวไทย]{อ่าวไทย: ไม่พบสัญญาณจากดัชนีใด}
-\label{sec:gulf}
-% ======================================================================
-\begin{lead}
-ห่างจากภูเก็ตไม่ถึง 450 กม. ระดับน้ำที่เกาะหลักไม่สัมพันธ์กับดัชนีใดเกินระดับ noise เลย ทั้ง 8 ดัชนี ทั้ง 8 แบบทดสอบ
-นี่ไม่ใช่ความล้มเหลวของวิธี แต่เป็นผลที่ฟิสิกส์ของอ่าวไทยคาดไว้
-\end{lead}
+\subsection{เกณฑ์นัยสำคัญของ MWC ตามจำนวนดัชนี (Q6)}
 
-PASC สูงสุดของเกาะหลักทั้งระนาบคือ 6.5\% (NAO) และ 6.4\% (AMO) ต่ำกว่าระดับ noise ≈ 8–9\% ดัชนีกลุ่ม ENSO ได้เพียง 2.5–4.8\%
-แผงล่างของรูปที่~\ref{fig:wtc} แสดงก้อน coherence เล็ก ๆ กระจายทั่วระนาบโดยไม่มีแบบแผนต่อเนื่อง ซึ่ง noise สร้างได้เอง
-ในการค้นหา MWC ครบ 218 ชุด p ทั้งตระกูลของเกาะหลักอยู่ที่ 0.29–0.59 คือไม่มีชุดใดเกิน noise
-สถานีป้อมพระจุลฯ ที่ปากแม่น้ำเจ้าพระยาก็ให้ผลเดียวกัน (p ทั้งตระกูล 0.51–0.80, ภาคผนวก ก)
-มีข้อยกเว้นเดียวคือแบบ “PSMSL 1985–2019” ที่ชุดหลายดัชนีสองชุดของเกาะหลักผ่าน p ทั้งตระกูล ขณะที่ดัชนีเดี่ยวยังไม่ผ่าน
-ข้อยกเว้นนี้ไม่ปรากฏในแบบ “Y จากโซ่ Q7” ซึ่งใช้ช่วงเวลาเดียวกันแต่ใช้ข้อมูล UHSLC จึงไม่ถือเป็นสัญญาณ
+หากไม่มีการปรับเกณฑ์ ค่า PASC จากสัญญาณสุ่มจะพุ่งสูงถึง 97.2\% เมื่อเพิ่มจำนวนดัชนีเป็น 5 ตัว
+(รูปแบบเดียวกับที่พบในงานต้นทาง; Song \& Chen, 2022) การปรับเกณฑ์นัยสำคัญให้สัมพันธ์กับจำนวนตัวแปร%
+จะช่วยคุมระดับ PASC จากสัญญาณรบกวนไว้ที่ประมาณ 4.7\% ได้อย่างคงที่ (รูปที่~\ref{fig:thr} และ~\ref{fig:false})
 
-\begin{infobox}[\faWind\ \ ทำไมอ่าวไทยไม่ฟังเสียงจากศูนย์สูตร]{gulf}
-\begin{itemize}[leftmargin=1.1em]
-\item \textbf{ตื้นและตอบสนองทันที} อ่าวไทยลึกเฉลี่ยราว 40 ม. ระดับน้ำเฉลี่ยทั้งแอ่งตาม curl ของลมที่ r = −0.84 \textbf{โดยไม่มีความหน่วง}
-อ่าวที่ “ลืม” ลมทันทีที่ลมเปลี่ยนจึงไม่สะสมสัญญาณระหว่างปี (Anutaliya 2023) \tagstrong{}
-\item \textbf{ฤดูกาลกลบทุกอย่าง} มรสุมตะวันออกเฉียงเหนือดันน้ำเข้าแอ่ง วงรอบรายปีราว 20 ซม. (GRACE; Wouters \& Chambers 2010)
-ตรงกับแอมพลิจูด 213 มม. และสัดส่วน 81\% ที่โครงงานวัดได้ \tagstrong{}
-\item \textbf{อยู่นอกท่อนำคลื่น} สัญญาณ ENSO ทางมหาสมุทรเข้าทะเลจีนใต้ทางฝั่งตะวันออก (ช่องแคบลูซอน) ส่วนทางออกตื้นด้านไหล่ทวีปซุนดา
-ไม่สัมพันธ์กับ Niño3.4 (Liu et al. 2011) และช่องแคบมะละกาตื้นเกินจะส่งคลื่นจากอันดามัน \tagstrong{}/\taginfer{}
-\item \textbf{สัญญาณเล็ก} ที่ชายฝั่งตะวันออกของมาเลเซีย ENSO ปรับระดับน้ำเพียง ±3–5 ซม. ในค่าเฉลี่ยรายปี (Luu et al. 2015)
-เล็กพอ ๆ กับการแกว่งปีต่อปีของฤดูกาลเอง \tagsingle{}
-\item \textbf{สื่อสารสาธารณะก็สอดคล้อง} หน่วยงานไทยอธิบายน้ำทะเลหนุนในอ่าวไทยว่าเป็นเหตุการณ์ “ปลายปีของทุกปี” จากน้ำเกิด มรสุม และน้ำท่า
-ไม่เคยโยงกับ ENSO (กรมประชาสัมพันธ์ 2568)
-\end{itemize}
-\end{infobox}
-
-% ======================================================================
-\section[กลไกทางกายภาพ]{กลไก: สัญญาณเดินทางจากศูนย์สูตรมาถึงภูเก็ตอย่างไร}
-\label{sec:mech}
-% ======================================================================
-\begin{lead}
-ผลของสองทะเลอธิบายได้ด้วยภูมิศาสตร์ของ “ท่อนำคลื่น” ฝั่งอันดามันต่อกับมหาสมุทรเปิดผ่านเส้นทางที่ส่งสัญญาณลมศูนย์สูตร
-มาถึงภายในไม่กี่วัน ส่วนอ่าวไทยเป็นแอ่งตื้นที่ตอบลมเหนือหัวแล้วลืม
-\end{lead}
-
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=\linewidth]{map03_mechanism}
-\caption{ลำดับกลไกในปี El Niño หรือ IOD บวก (ปีตรงข้ามทุกลูกศรกลับทิศ) ที่มา: Han \& Webster (2002), Aparna et al. (2012),
-Rao et al. (2010), Brown et al. (2019), Anutaliya (2023), กรมทรัพยากรทางทะเลและชายฝั่ง (2564)}
-\label{fig:mech}
-\end{figure}
-
-\begin{enumerate}
-\item \textbf{จากแปซิฟิกสู่มหาสมุทรอินเดีย} El Niño ย้าย Walker circulation ทำให้กิ่งขาลงของอากาศมาอยู่เหนือทะเลทวีป
-เกิดลมผิวน้ำตะวันออกผิดปกตินอกฝั่งชวา–สุมาตรา ซึ่งเป็นลมแบบเดียวกับที่กระตุ้น IOD บวก
-สัญญาณ ENSO จึงมาถึงอันดามันทาง\emph{บรรยากาศ} ไม่ได้มาทางมหาสมุทรผ่านทะเลอินโดนีเซีย \tagstrong{}
-\item \textbf{ลมศูนย์สูตรสร้างคลื่นเคลวิน} ลมตะวันออกผิดปกติสร้างคลื่นเคลวินแบบดูดน้ำขึ้นที่วิ่งไปทางตะวันออกตามศูนย์สูตร \tagstrong{}
-\item \textbf{ชนสุมาตราแล้วเลี้ยวขึ้นเหนือ} คลื่นกลายเป็นคลื่นเคลวินชายฝั่งที่วิ่งทวนเข็มนาฬิการอบอ่าวเบงกอล ผ่านทะเลอันดามัน
-ในแบบจำลอง ลมศูนย์สูตรอย่างเดียวอธิบายระดับน้ำขอบตะวันออกของอ่าวเบงกอลได้ที่ \textbf{r = 0.95} ส่วนลมท้องถิ่นได้เพียง 0.28
-(Han \& Webster 2002) \tagstrong{} คลื่นใช้เวลาไม่ถึงสองสัปดาห์จากสุมาตราถึงภูเก็ต ที่ความละเอียดรายเดือนจึงไม่เห็นความหน่วงจากการเดินทาง \taginfer{}
-\item \textbf{ระดับน้ำภูเก็ตลดลง} ทั้ง El Niño และ IOD บวกจึงให้ผลทิศเดียวกัน คือน้ำต่ำ ซึ่งตรงกับเข็มทิศเฟสในรูปที่~\ref{fig:phase}
-\end{enumerate}
-
-กลไกเดียวนี้อธิบายผลสามข้อพร้อมกัน ข้อแรก ทำไมดัชนีหลายตัว (SOI, Niño3.4, DMI, WNPMI) coherent พร้อมกัน ข้อสอง
-ทำไมรวมหลายดัชนีแล้วไม่ได้อะไรเพิ่ม (หัวข้อ~\ref{sec:mwc}) เพราะทุกตัวส่งผลผ่านตัวกลางเดียวกัน คือลมศูนย์สูตรมหาสมุทรอินเดีย
-และข้อสาม ทำไมอ่าวไทยซึ่งอยู่นอกท่อนำคลื่นจึงไม่ได้รับสัญญาณ
-
-\begin{table}[H]
-\centering
-\caption{จับคู่ผลของโครงงานกับคำอธิบายทางกายภาพ}
-\label{tab:mechmap}
-\small
-\begin{tabularx}{\linewidth}{@{}L{4.4cm} Y l@{}}
-\toprule
-ผลที่พบ & คำอธิบายหลัก & หลักฐาน \\
-\midrule
-อันดามัน coherent กับ SOI, DMI, WNPMI, Niño3.4 & ลมศูนย์สูตร → คลื่นเคลวินศูนย์สูตร → คลื่นเคลวินชายฝั่งสุมาตรา–อันดามัน & \tagstrong{} \\
-ทิศ: สวนทาง Niño3.4/DMI, ไปด้วยกันกับ SOI & El Niño/IOD บวก → ลมตะวันออก → คลื่นดูดน้ำขึ้น → น้ำต่ำ & \tagstrong{} \\
-WNPMI ไปด้วยกัน ระดับน้ำนำ ~6 เดือน & มรสุม WNP อ่อนลงหลัง El Niño จึงตอบสนองช้ากว่า & \taginfer{} \\
-อ่าวไทยไม่มีสัญญาณ & แอ่งตื้นตอบลมท้องถิ่นทันที อยู่นอกท่อนำคลื่น สัญญาณ ENSO เล็ก & \tagstrong{} \\
-PDO, TPI, AMO, NAO ไม่ coherent ระหว่างปี & พลังงานอยู่ที่คาบทศวรรษ / เป็นโหมดแอตแลนติก & \tagstrong{}/\taginfer{} \\
-รวมหลายดัชนีไม่ช่วย & ทุกดัชนีวิ่งผ่านเส้นทางลมเดียวกัน ENSO–IOD เกิดร่วมกัน & \tagstrong{} \\
-ช่วง 1985–2019 coherent แรงกว่า & ENSO–มรสุมผูกกันแน่นขึ้นหลังปลายทศวรรษ 1970 · IOD บวกถี่ขึ้น & \taginfer{} \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-% ======================================================================
-\section[รวมหลายดัชนี (MWC)]{รวมหลายดัชนีช่วยไหม — และบทเรียนจากงานต้นทาง}
-\label{sec:mwc}
-% ======================================================================
-\begin{lead}
-เมื่อใช้เกณฑ์ที่ถูกต้อง การรวมดัชนีด้วย MWC ไม่ได้เพิ่มอำนาจอธิบาย กราฟ “ยิ่งรวมยิ่งสูง” ของงานต้นทาง
-เกิดซ้ำได้ด้วย noise ล้วน ถ้าใช้เกณฑ์เดียวกันทุกจำนวนดัชนี
-\end{lead}
-
-\subsubsection{เกณฑ์ต้องสูงขึ้นตามจำนวนดัชนี (Q6)}
-noise ที่ไม่เกี่ยวกันเลย $q$ ตัวรวมกันก็ “อธิบาย” สัญญาณอื่นได้มากขึ้นเรื่อย ๆ โดยบังเอิญ เกณฑ์ 95\% ของ $\rho^2$ ที่กลางแกนสเกลจึงขึ้นจาก
-\textbf{0.59 → 0.77 → 0.87 → 0.93 → 0.96} เมื่อ $q$ = 1 ถึง 5 (รูปที่~\ref{fig:thr}) เพราะการปรับเรียบแบบ Grinsted
-เหลือข้อมูลอิสระในหน้าต่างเพียงราว 4–6 ชิ้น
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.78\linewidth]{fig05_threshold_vs_q}
-\caption{เกณฑ์นัยสำคัญ 95\% ของ MWC ตามคาบ สำหรับจำนวนดัชนี 1–5 ตัว (สามสถานีให้เส้นแทบทับกัน) แถบเทาคือคาบ 2–7 ปี}
+\includegraphics[width=0.75\textwidth]{fig05_threshold_vs_q.png}
+\caption{เกณฑ์นัยสำคัญที่ระดับ 95\% ของ MWC ตามคาบ สำหรับจำนวนดัชนี 1–5 ตัว}
 \label{fig:thr}
 \end{figure}
-
-รูปที่~\ref{fig:q6} ทดลองตรง ๆ โดยรันสายเดียวกันทั้งหมดกับ\textbf{ดัชนีปลอม} 8 ตัวที่สุ่มจาก AR(1) ถ้าใช้เกณฑ์ของ $q=1$ กับทุกจำนวน
-PASC เฉลี่ยของดัชนีปลอมพุ่ง \textbf{4.8 → 25.7 → 59.8 → 86.4 → 97.2\%} หน้าตาเหมือนเส้นของ Song \& Chen (2022) ที่ 14 → 50 → 81 → 96\%
-ดัชนีจริงที่อันดามันได้ 9.3 → 98.5\% ซึ่งแยกจากของปลอมแทบไม่ออก เมื่อปรับเกณฑ์ตาม $q$ แล้ว ของปลอมอยู่ที่ราว 4.7\% ทุกจำนวน
-ตามที่ระดับนัยสำคัญ 5\% ควรเป็น ส่วนของจริงอยู่ที่ 9–10\%
-
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=\linewidth]{fig06_q6_false_floor}
-\caption{PASC เฉลี่ยทุกชุดขนาด $q$: ดัชนีจริงเทียบดัชนีปลอม ทั้งแบบไม่ปรับเกณฑ์ (แดง) และปรับตาม $q$ (น้ำเงิน) สามเหลี่ยมคือค่าของงานต้นทาง}
-\label{fig:q6}
+\includegraphics[width=\textwidth]{fig06_q6_false_floor.png}
+\caption{PASC เฉลี่ยของดัชนีจริงเทียบกับดัชนีปลอม กรณีไม่ปรับเกณฑ์ (สีแดง) และปรับเกณฑ์ตามจำนวนดัชนี (สีน้ำเงิน) สามเหลี่ยมคือค่าที่ Song และ Chen (2022) รายงาน}
+\label{fig:false}
 \end{figure}
 
-\begin{infobox}[\faLightbulb\ \ ข้อสังเกตต่องานต้นทาง]{alert}
-AWC ต่ำสุดของชุด 5 ดัชนีที่ Song \& Chen รายงาน (0.938) ต่ำกว่าเกณฑ์ $q=5$ ของการปรับเรียบแบบเดียวกันที่โครงงานนี้วัดได้ (≥ 0.955)
-แปลว่าเกณฑ์ของเขาต่ำกว่า ซึ่งอาจมาจากการปรับเรียบที่ต่างกัน หรือจากการไม่ปรับเกณฑ์ตามจำนวนดัชนี โครงงานนี้แยกสองสาเหตุไม่ได้
-จึงเสนอเป็นข้อสังเกต ไม่ใช่ข้อกล่าวหา บทเรียนทั่วไปคือ \textbf{การรายงาน MWC ต้องรายงานเกณฑ์ที่ใช้กับแต่ละ $q$ เสมอ}
-\end{infobox}
+\subsection{จำนวนและชุดดัชนีที่เหมาะสม (Q3–Q5)}
 
-\subsubsection{ต้องใช้กี่ตัว และชุดไหนดีที่สุด (Q3–Q5)}
-เมื่อค้นครบ 218 ชุดด้วยเกณฑ์ที่ปรับแล้ว ชุดที่ดีที่สุดของแต่ละขนาดแทบไม่ดีขึ้นจากดัชนีเดี่ยว (รูปที่~\ref{fig:q3})
-ส่วนเพิ่มสูงสุดคือ +0.6 จุดทั้งระนาบ และเป็นศูนย์แล้วลดลงในแถบ 2–7 ปี ไม่ถึงเกณฑ์ +5 จุดของ Hu et al. (2017) ที่กำหนดไว้ล่วงหน้า
-\textbf{ดัชนีเดียวจึงพอ} ชุดที่ดีที่สุดทั้งระนาบคือ \textbf{SOI} (14.3\%, p ทั้งตระกูล 0.03) ส่วนแถบ 2–7 ปีคือ \textbf{WNPMI} (32.2\%, p ทั้งตระกูล 0.005)
+การใช้ดัชนีเดี่ยวเพียงพอต่อการอธิบายผลลัพธ์แล้ว การเพิ่มจำนวนดัชนีใน MWC แทบไม่ได้เพิ่มอำนาจการอธิบายอย่างมีนัยสำคัญ
+(ชุดที่เหมาะสมคือ SOI สำหรับทั้งระนาบ และ WNPMI สำหรับแถบคาบ 2–7 ปี) และแม้ว่าชุดดัชนีประจำภูมิภาคจะมีแนวโน้มอธิบายผลได้ดีกว่า%
+ในแถบคาบ 2–7 ปี แต่ยังไม่แข็งแรงพอที่จะเป็นข้อสรุปตายตัว (รูปที่~\ref{fig:best})
 
-คำถาม Q5 คือดัชนีภูมิภาคที่โครงงานเพิ่มเข้ามา (DMI, WNPMI) ช่วยไหม ในแถบ 2–7 ปี ชุดที่ดีที่สุดจาก 8 ดัชนีสูงกว่าชุดที่ดีที่สุดจาก
-6 ดัชนีของงานต้นทาง \textbf{+11.2 จุด} (p = 0.022) แต่ทั้งระนาบต่างกันเพียง +0.8 จุด (p = 0.43) และส่วนเพิ่มในแถบ 2–7 ปี
-ผ่านเพียง 4 จาก 8 แบบทดสอบ (หัวข้อ~\ref{sec:robust}) ข้อสรุปที่เขียนได้จึงเป็น “มีแนวโน้ม” ไม่ใช่ “พบ”
-
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=\linewidth]{fig07_q3_best_per_q}
-\caption{PASC ของชุดที่ดีที่สุดต่อจำนวนดัชนี เทียบกับ null ของค่าสูงสุดจากการค้นหาทั้งหมด (Y ปลอม 1,000 รอบ) ป้ายคือชุดที่ชนะ}
-\label{fig:q3}
+\includegraphics[width=\textwidth]{fig07_q3_best_per_q.png}
+\caption{PASC ของชุดดัชนีที่ดีที่สุดสำหรับแต่ละจำนวนดัชนี เทียบกับการแจกแจงของค่าสูงสุดจากการค้นหาทั้งตระกูลภายใต้สมมติฐานว่าง}
+\label{fig:best}
 \end{figure}
 
-% ======================================================================
-\section{ผลไหนเชื่อได้แค่ไหน}
-\label{sec:robust}
-% ======================================================================
-\begin{lead}
-ข้อสรุปเรื่อง “สองทะเลต่างกัน” และ “ดัชนีเดียวพอ (ทั้งระนาบ)” ผ่านทุกแบบทดสอบ ส่วนข้อสรุปว่า WNPMI นำ
-และดัชนีภูมิภาคเพิ่มอำนาจอธิบาย ขึ้นกับข้อมูลมาตรวัดเกาะตะเภาน้อยหลังปี 2005 ซึ่งมีปัญหาที่มีเอกสารยืนยัน
-\end{lead}
+\subsection{ความไวต่อการเตรียมข้อมูลและแหล่งข้อมูล}
 
-\begin{figure}[H]
+ข้อสรุปหลักๆ มีความแข็งแรงทนทาน (robust) ในแทบทุกการทดสอบ (รูปที่~\ref{fig:robust}) อย่างไรก็ตาม
+ลำดับความสำคัญของดัชนีในช่วงคาบ 2–7 ปีแปรปรวน เนื่องจากข้อมูลของสถานีเกาะตะเภาน้อยระหว่างคลัง PSMSL และ UHSLC
+ให้ข้อมูลที่ไม่ตรงกันหลังปี 2005 (ต่างกันประมาณ 10 ซม. ในช่วง 2015–2019) เพราะมีการเปลี่ยนเครื่องมือวัด
+การแก้ระดับอ้างอิงที่ไม่ตรงกันระหว่างสองคลัง และพายุทำลายสถานี (University of Hawaii Sea Level Center, 2020)
+(รูปที่~\ref{fig:datum})
+
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=\linewidth]{fig13_robustness}
-\caption{สัญญาณไฟความแข็งแรง: ข้อสรุปหลักเจ็ดข้อภายใต้การเตรียมข้อมูลแปดแบบ (ตารางที่~\ref{tab:variants}) แต่ละช่องคำนวณใหม่ทั้งสาย
-รวม null ของแบบนั้นเอง ตัวเลขขวาสุดคือจำนวนแบบที่ผ่าน}
+\includegraphics[width=\textwidth]{fig13_robustness.png}
+\caption{ผลของข้อสรุปหลักภายใต้การเตรียมข้อมูลแปดแบบ (V0–V7) ตัวเลขด้านขวาแสดงจำนวนแบบที่ข้อสรุปยังคงมีนัยสำคัญ}
 \label{fig:robust}
 \end{figure}
-
-\subsubsection{สถานีเดียวกัน สองคลังข้อมูล}
-มาตรวัดเกาะตะเภาน้อยมีข้อมูลสองคลัง คือ PSMSL (ข้อมูลกองทัพเรือ) และ UHSLC (ข้อมูลรายชั่วโมงที่โครงงานผ่านตัวกรองของ Q7 เอง)
-รูปที่~\ref{fig:datum} แสดงว่าสองคลังตรงกันระดับมิลลิเมตรจนถึงปี 2005 (ช่วง 1990–2003 ส่วนต่างมัธยฐาน 0 มม. MAD 1.2 มม.)
-แล้วแยกทางกัน ช่วง 2006–2012 ส่วนต่างรายเดือนกระโดดไปมาระหว่าง −70 ถึง +135 มม. และนิ่งที่ \textbf{+100.7 มม.} ช่วง 2015–2019
-เอกสารของผู้ผลิตข้อมูลอธิบายได้เกือบทั้งหมด \tagstrong{}
-\begin{itemize}
-\item ตั้งแต่ 12 ต.ค. 2005 UHSLC ใช้\textbf{เรดาร์ของตัวเอง} ขณะที่ PSMSL น่าจะยังใช้มาตรวัดทุ่นลอยของกองทัพเรือ สองคลังจึงมาจากคนละเครื่อง
-\item UHSLC พบการเลื่อนแบบขั้นบันไดใกล้ 1 เม.ย. 2012 จากการเทียบกับดาวเทียมและสถานีลังกาวี จึง\textbf{บวก 10 ซม.ให้ข้อมูลก่อนหน้าทั้งหมด}
-พร้อมเตือนว่า “use this series with caution” แต่ PSMSL ไม่มีการแก้คู่กัน ตรงกับส่วนต่าง ≈ 100 มม. ที่วัดได้
-\item แท่นวัดถูกพายุทำลายเดือน ก.ค. 2013 (PSMSL ไม่มีข้อมูลปี 2013–2014) และแท่นใหม่ใช้งาน มี.ค. 2016
-\item การทรุดตัวหลังแผ่นดินไหวปี 2004 (≈ 10 ซม. ภายในปี 2021) \textbf{ไม่ใช่สาเหตุ} เพราะทั้งสองคลังวัดจากแท่นเดียวกันบนแผ่นดินเดียวกัน
-การทรุดตัวจึงหักล้างกันในผลต่าง
-\end{itemize}
-
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=\linewidth]{fig14_ktn_datum}
-\caption{ผลต่างรายเดือนระหว่าง PSMSL กับ UHSLC (ผ่านโซ่ Q7) ของเกาะตะเภาน้อย จัดศูนย์ที่ช่วง 1990–2003
-เส้นประคือเหตุการณ์ที่มีเอกสาร (UHSLC qa148a 2020; PSMSL 446; Naeije et al. 2022)}
+\includegraphics[width=\textwidth]{fig14_ktn_datum.png}
+\caption{ผลต่างรายเดือนระหว่างข้อมูล PSMSL และ UHSLC ของสถานีเกาะตะเภาน้อย เส้นประแสดงเหตุการณ์ที่มีเอกสารยืนยัน (University of Hawaii Sea Level Center, 2020; Naeije et al., 2022)}
 \label{fig:datum}
 \end{figure}
 
-\begin{table}[H]
-\centering
-\caption{PASC ในแถบ 2–7 ปีของเกาะตะเภาน้อย ช่วงเวลาเดียวกัน (1985–2019) ต่างกันแค่คลังข้อมูล}
-\label{tab:source}
-\small
-\begin{tabular}{@{}lccc@{}}
-\toprule
-ดัชนี & PSMSL & UHSLC (โซ่ Q7) & เปลี่ยนไป \\
-\midrule
-SOI & 49.7\% & 50.3\% & \textcolor{okgreen}{\textbf{แทบไม่เปลี่ยน}} \\
-Niño3.4 & 39.1\% & 43.1\% & \textcolor{okgreen}{\textbf{แทบไม่เปลี่ยน}} \\
-WNPMI & 70.5\% & 34.9\% & \textcolor{alert}{\textbf{ลดลงครึ่งหนึ่ง}} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-ตารางที่~\ref{tab:source} คือหลักฐานชี้ขาด ในช่วงเวลาเดียวกัน การเปลี่ยนคลังข้อมูลแทบไม่กระทบ SOI และ Niño3.4
-แต่ทำให้ WNPMI ลดลงครึ่งหนึ่ง WTC กับ WNPMI ของ PSMSL สูงกว่าของ UHSLC มากเฉพาะช่วงที่สองคลังไม่ตรงกัน
-(0.70 เทียบ 0.41 ช่วง 2006–2012 และ 0.60 เทียบ 0.24 ช่วง 2013–2019) ความเด่นของ WNPMI จึง\textbf{ตั้งอยู่บนช่วงข้อมูลที่น่าสงสัย}
-ประกอบกับกล่องของ WNPMI ไม่ครอบคลุมทะเลอันดามันเลย (รูปที่~\ref{fig:indices}) รายงานนี้จึงไม่สรุปว่า WNPMI เป็นดัชนีเด่น
-ในยุคที่ตรวจสอบได้ (ก่อน 2006) DMI กับ WNPMI เสมอกันในแถบ 2–7 ปี (23.9\% เทียบ 23.0\%)
-
-ทั้งสองคลังเห็นตรงกันอีกข้อหนึ่ง คือช่วง 1985–2019 coherent แรงกว่าทั้งอนุกรมมากสำหรับทุกดัชนี (เช่น SOI แถบ 2–7 ปี ≈ 50\% เทียบ 16\%)
-ข้อนี้สอดคล้องกับหลักฐานว่า ENSO กับมรสุมเอเชียผูกกันแน่นขึ้นตั้งแต่ปลายทศวรรษ 1970 และ IOD บวกเกิดบ่อยขึ้น
-(Wang et al. 2008; Abram et al. 2008) แต่โครงงานนี้แยกผลของระบอบภูมิอากาศออกจากคุณภาพข้อมูลยุคแรกไม่ได้ \taginfer{}
-
 % ======================================================================
-\section[สรุป]{สรุป ข้อจำกัด และงานต่อ}
-\label{sec:conclude}
-% ======================================================================
-\begin{lead}
-สองฝั่งของคาบสมุทรไทยเป็นการทดลองธรรมชาติ สถานีสองแห่งที่ห่างกันไม่ถึง 450 กม. ให้ผลตรงข้ามกัน
-ด้วยเหตุผลทางฟิสิกส์ที่ระบุได้และตรวจสอบได้ด้วยทิศของความสัมพันธ์
-\end{lead}
+\section{อภิปรายผล}
 
-\begin{table}[H]
+\subsection{กลไกทางกายภาพของความสัมพันธ์ฝั่งทะเลอันดามัน}
+
+ปรากฏการณ์ El Niño และ IOD ฝั่งบวกกระตุ้นลมเหนือเส้นศูนย์สูตร ซึ่งก่อให้เกิดคลื่นเคลวิน (Ashok et al., 2003)
+คลื่นนี้เคลื่อนตัวมายังชายฝั่งทะเลอันดามัน ส่งผลให้ระดับน้ำลดต่ำลงในทิศทางและจังหวะเวลาที่สอดคล้องกัน
+(Han \& Webster, 2002; Rao et al., 2010) ดัชนีทั้งสี่ตัวส่งผลกระทบผ่านตัวแปรตัวกลางนี้ตัวเดียวกัน
+จึงทำให้การรวมดัชนีเข้าด้วยกันไม่ได้ช่วยเพิ่มข้อมูลใหม่ (รูปที่~\ref{fig:mech})
+
+\begin{figure}[!htbp]
 \centering
-\caption{ข้อสรุปพร้อมระดับความมั่นใจ — ถ้อยคำที่ข้อมูลรองรับ}
-\label{tab:conclude}
-\small
-\begin{tabularx}{\linewidth}{@{}c Y l@{}}
-\toprule
- & ข้อสรุป & ความมั่นใจ \\
-\midrule
-\textcolor{okgreen}{\faCheckCircle} & ระดับน้ำทะเลระหว่างปีที่อันดามันมี coherence อย่างมีนัยสำคัญกับ SOI, Niño3.4, DMI และ WNPMI ในทุก 8 แบบทดสอบ
-สอดคล้องกับกลไกคลื่นเคลวินจากลมศูนย์สูตรมหาสมุทรอินเดีย ดัชนีเหล่านี้ไม่เป็นอิสระต่อกัน จึงเป็นสัญญาณร่วมของระบบ ENSO–IOD ไม่ใช่แรงขับสี่ตัว & สูง (8/8) \\
-\textcolor{okgreen}{\faCheckCircle} & ไม่พบ coherence ที่ตรวจจับได้ระหว่างระดับน้ำอ่าวไทยกับดัชนีใด สัญญาณ ENSO ที่อาจมีน่าจะเล็กเพียงไม่กี่เซนติเมตร
-ต่ำกว่าที่วิธีนี้ตรวจได้ในข้อมูลรายเดือน & สูง (8/8) \\
-\textcolor{okgreen}{\faCheckCircle} & ทิศของความสัมพันธ์ตรงกับกลไก: สวนทาง Niño3.4/DMI ไปด้วยกันกับ SOI & สูง (4/4 ดัชนี) \\
-\textcolor{okgreen}{\faCheckCircle} & ดัชนีเดียวพอ การรวมหลายดัชนีไม่เพิ่มอำนาจอธิบายเมื่อปรับเกณฑ์ตามจำนวนดัชนี & สูง (8/8 ทั้งระนาบ) \\
-\textcolor{okgreen}{\faCheckCircle} & MWC ต้องปรับเกณฑ์ตามจำนวนดัชนี ไม่เช่นนั้น noise ล้วนให้ PASC 97\% & เป็นสมบัติของวิธี \\
-\textcolor{amber}{\faAdjust} & ดัชนีภูมิภาค (DMI, WNPMI) มีแนวโน้มเพิ่มอำนาจอธิบายในแถบ 2–7 ปี & ปานกลาง (4/8) \\
-\textcolor{amber}{\faAdjust} & ลำดับว่าดัชนีใดนำในแถบ 2–7 ปีขึ้นกับคลังข้อมูลและช่วงเวลา ไม่สามารถสรุปว่า WNPMI เด่น & ต่ำ (6/8, ขึ้นกับข้อมูล) \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\subsection{ข้อจำกัด}
-\begin{itemize}
-\item \textbf{coherence ไม่ใช่เหตุและผล} ผลที่ได้ “สอดคล้องกับ” กลไกที่มีงานวิจัยรองรับ ไม่ได้พิสูจน์กลไกนั้น
-\item \textbf{ข้อมูลเกาะตะเภาน้อยหลังปี 2005 ไม่มีแหล่งที่สามตัดสิน} จึงบอกไม่ได้ว่าคลังไหนถูก ข้อสรุปข้อ 1–4 ในตารางที่~\ref{tab:conclude}
-ไม่ขึ้นกับปัญหานี้ (ผ่านทั้งแบบ “ก่อน 2006” และ “Y จากโซ่ Q7”) แต่ข้อ 6–7 ขึ้นกับมันโดยตรง
-\item \textbf{แถบ 8–16 ปีตอบไม่ได้} ข้อมูล 72 ปีมีรอบคาบทศวรรษน้อยเกินไป noise ล้วนได้ PASC 22–30\% ในแถบนี้
-ผลว่างของ PDO/TPI จึงไม่ได้ตัดอิทธิพลคาบทศวรรษออก
-\item \textbf{ไม่ได้ทดสอบความต่างระหว่างสองทะเลโดยตรง} ข้อสรุป Q2 มาจาก “ทะเลหนึ่งผ่าน อีกทะเลไม่ผ่าน” ในทุกแบบ ไม่ใช่การทดสอบผลต่าง
-\item ใช้มาตรวัดเพียงหนึ่งแห่งต่อทะเล ไม่ได้ทำ areawise significance (Maraun \& Kurths 2004) และลมจาก reanalysis ก่อนปี 1979
-ที่ใช้สร้าง WNPMI เชื่อถือได้น้อยกว่าช่วงหลัง
-\end{itemize}
-
-\enlargethispage{5\baselineskip}
-\subsection{งานต่อที่ตอบคำถามค้างได้ตรงที่สุด}
-\begin{enumerate}
-\item ใช้ความสูงผิวน้ำจากดาวเทียมใกล้ 7.83°N 98.42°E หรือมาตรวัดลังกาวีเป็นแหล่งที่สาม ตรวจหาจุดกระโดดที่วันเปลี่ยนเครื่องมือ (Ray et al. 2023)
-\item partial wavelet coherence ของ DMI และ WNPMI โดยควบคุม Niño3.4 เพื่อดูว่ามีข้อมูลอิสระจาก ENSO หรือไม่
-\item เทียบ PSMSL ช่วง 1951–1984 กับ 1985–2019 ในแบบเดียวกัน เพื่อแยกผลของระบอบภูมิอากาศออกจากแหล่งข้อมูล
-\item วิเคราะห์อ่าวไทยแยกตามฤดู (DJF / JJA) เพราะสัญญาณ ENSO ในทะเลจีนใต้ล็อกกับฤดู
-\end{enumerate}
-
-% ======================================================================
-\clearpage
-\appendix
-\renewcommand{\thesection}{\thaialph{section}}
-\newcommand{\thaialph}[1]{\ifcase\value{#1}\or ก\or ข\or ค\fi}
-\section[ตารางตัวเลขเต็ม]{ตารางตัวเลขเต็ม: ดัชนีเดี่ยวสามสถานี}
-\label{app:numbers}
-
-\begin{table}[H]
-\centering
-\caption{PASC (\%) และ p-value ของดัชนีเดี่ยว (WTC, null 1,000 คู่ต่อกรณี, การคำนวณรอบ W4)
-ตัวหนา = p < 0.05 · $^\star$ = ผ่านการปรับ Benjamini–Hochberg (24 การทดสอบต่อสถานี)}
-\label{tab:full}
-\footnotesize
-\begin{tabular}{@{}l rr rr rr rr rr rr@{}}
-\toprule
- & \multicolumn{4}{c}{\textcolor{andaman}{\textbf{เกาะตะเภาน้อย}}} & \multicolumn{4}{c}{\textcolor{gulf}{\textbf{เกาะหลัก}}} & \multicolumn{4}{c}{\textbf{ป้อมพระจุลฯ}} \\
-\cmidrule(lr){2-5}\cmidrule(lr){6-9}\cmidrule(lr){10-13}
- & \multicolumn{2}{c}{ทั้งระนาบ} & \multicolumn{2}{c}{2–7 ปี} & \multicolumn{2}{c}{ทั้งระนาบ} & \multicolumn{2}{c}{2–7 ปี} & \multicolumn{2}{c}{ทั้งระนาบ} & \multicolumn{2}{c}{2–7 ปี} \\
-ดัชนี & PASC & p & PASC & p & PASC & p & PASC & p & PASC & p & PASC & p \\
-\midrule
-SOI     & \textbf{13.9}$^\star$ & .002 & \textbf{15.5} & .038 & 4.0 & .63 & 1.2 & .82 & 3.8 & .72 & 2.0 & .72 \\
-WNPMI   & \textbf{13.5}$^\star$ & .002 & \textbf{32.4}$^\star$ & .001 & 4.7 & .49 & 4.3 & .45 & 3.4 & .80 & 0.1 & .93 \\
-DMI     & \textbf{13.2}$^\star$ & .004 & \textbf{17.2} & .026 & 4.6 & .50 & 3.3 & .58 & 5.9 & .30 & 6.2 & .33 \\
-Niño3.4 & \textbf{10.2} & .018 & 13.9 & .052 & 2.5 & .95 & 0.3 & .92 & 4.4 & .54 & 1.4 & .74 \\
-AMO     & 8.2 & .078 & \textbf{14.0} & .048 & 6.6 & .19 & 14.0 & .051 & 4.5 & .50 & 2.9 & .55 \\
-TPI     & 7.0 & .18 & 10.8 & .11 & 3.4 & .79 & 0.0 & .96 & 4.0 & .63 & 0.9 & .83 \\
-NAO     & 5.1 & .39 & 8.4 & .20 & 6.5 & .19 & 7.8 & .23 & 5.2 & .38 & 2.6 & .64 \\
-PDO     & 2.9 & .89 & 1.3 & .79 & 3.4 & .83 & 0.6 & .88 & 3.4 & .80 & 2.4 & .66 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-ตัวเลขในตารางนี้มาจากการรัน WTC รอบแรก (W4, \texttt{wtc\_q1.npz}) ซึ่งใช้ null แยกต่อคู่ ส่วนตัวเลขในใบรายงานผล (รูปที่~\ref{fig:scorecard})
-มาจากการค้นหา MWC ที่ $q=1$ (\texttt{sens\_baseline.npz}) ซึ่งใช้ null รวมต่อสถานี สองชุดต่างกันไม่เกิน 0.5 จุดและให้ข้อสรุปเดียวกันทุกข้อ
-\textbf{Q8 (ป้อมพระจุลฯ):} หลังตัดแนวโน้มการทรุดตัว (15.6 มม./ปี) ออก ไม่มีดัชนีใดเกิน noise เหมือนเกาะหลัก
-จึงรายงานเป็นหมายเหตุตามที่ตัดสินไว้ในแผนงาน
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=\linewidth]{fig09_sensitivity}
-\caption{PASC ของสี่ตัวชี้วัดหลักภายใต้การเตรียมข้อมูลแต่ละแบบ จุดใหญ่ขอบดำ = p < 0.05 จาก null ของแบบนั้นเอง}
+\includegraphics[width=\textwidth]{map03_mechanism.png}
+\caption{ลำดับกลไกในปีที่เกิด El Niño หรือ IOD บวก เรียบเรียงจาก Han และ Webster (2002), Rao et al. (2010), Aparna et al. (2012), Brown et al. (2019), Anutaliya (2023) และ นิพนธ์ พงศ์สุวรรณ (2564)}
+\label{fig:mech}
 \end{figure}
 
-\section{การทำซ้ำ}
-\label{app:repro}
-โค้ด ข้อมูล และโน้ตบุ๊กอยู่ใน repository ของโครงงาน ทุกรูปสร้างจากไฟล์ผลใน \texttt{data/processed/} เท่านั้น
-\begin{tcolorbox}[colback=panel,colframe=panel,arc=2pt,fontupper=\footnotesize\ttfamily]
-uv run python scripts/fetch\_data.py \&\& uv run python scripts/build\_series.py\\
-uv run python scripts/verify\_decimation.py \quad\# Q7\\
-uv run python scripts/run\_wtc.py \quad\# Q1 Q2 Q8\\
-uv run python scripts/run\_mwc\_null.py \&\& uv run python scripts/run\_mwc.py \quad\# Q3–Q5\\
-uv run python scripts/null\_control.py --nrep 1000 \quad\# Q6\\
-uv run python scripts/sensitivity.py --all \quad\# {\rmfamily 8 แบบ × 2 ทะเล}\\
-uv run python scripts/make\_figures.py \&\& uv run --group report python scripts/make\_infographics.py\\
-cd reports/final \&\& latexmk -xelatex report.tex
-\end{tcolorbox}
-การตรวจความถูกต้องหลัก: MWC ที่ $q=1$ เท่ากับ WTC (ต่าง $7.8\times10^{-16}$) · $Y = X_1+X_2$ ให้ MWC = 1 ทุกจุดในกรวย ·
-ตัวกรองตรงกับ \texttt{scipy.signal.firwin} (ต่าง $<10^{-18}$) · WTC ตรงกับ \texttt{pycwt.wct} ที่ใช้เป็นตัวเทียบเท่านั้น ·
-แบบมาตรฐานของการทดสอบความไวให้ผลเดิมทุกหลัก · ชุดทดสอบอัตโนมัติ 77 ตัวผ่านทั้งหมด
+\subsection{การไม่ปรากฏความสัมพันธ์ในอ่าวไทย}
 
-\section{เอกสารอ้างอิง}
-\label{app:refs}
-{\small
-\textbf{วิธีการ}
-\begin{enumerate}[leftmargin=1.6em,itemsep=0.1em]
-\item Song, C. \& Chen, X. (2022). Multivariate analysis of multiscale periodicity in North American annual mean sea level based on wavelet coherence and multiple wavelet coherence. \textit{J. Water Clim. Change} 13(9), 3435–3457.
-\item Grinsted, A., Moore, J.C. \& Jevrejeva, S. (2004). Application of the cross wavelet transform and wavelet coherence to geophysical time series. \textit{Nonlin. Processes Geophys.} 11, 561–566.
-\item Hu, W. \& Si, B.C. (2016). Technical note: Multiple wavelet coherence for untangling scale-specific and localized multivariate relationships in geosciences. \textit{Hydrol. Earth Syst. Sci.} 20, 3183–3191.
-\item Torrence, C. \& Compo, G.P. (1998). A practical guide to wavelet analysis. \textit{Bull. Amer. Meteor. Soc.} 79(1), 61–78.
-\item Torrence, C. \& Webster, P. (1999). Interdecadal changes in the ENSO–monsoon system. \textit{J. Climate} 12, 2679–2690.
-\item Wang, B. \& Fan, Z. (1999). Choice of South Asian summer monsoon indices. \textit{Bull. Amer. Meteor. Soc.} 80, 629–638.
-\end{enumerate}
-\textbf{กลไกฝั่งอันดามันและมหาสมุทรอินเดีย}
-\begin{enumerate}[leftmargin=1.6em,itemsep=0.1em,resume]
-\item Han, W. \& Webster, P.J. (2002). Forcing mechanisms of sea level interannual variability in the Bay of Bengal. \textit{J. Phys. Oceanogr.} 32, 216–239.
-\item Aparna, S.G., McCreary, J.P., Shankar, D. \& Vinayachandran, P.N. (2012). Signatures of Indian Ocean Dipole and El Niño–Southern Oscillation events in sea level variations in the Bay of Bengal. \textit{J. Geophys. Res.} 117, C10012.
-\item Rao, R.R. et al. (2010). Interannual variability of Kelvin wave propagation in the wave guides of the equatorial Indian Ocean, the coastal Bay of Bengal and the southeastern Arabian Sea during 1993–2006. \textit{Deep-Sea Res. I} 57(1).
-\item Ashok, K., Guan, Z. \& Yamagata, T. (2003). A look at the relationship between the ENSO and the Indian Ocean Dipole. \textit{J. Meteor. Soc. Japan} 81(1), 41–56.
-\item Brown, B.E. et al. (2019). Long-term impacts of rising sea temperature and sea level on shallow water coral communities over a $\sim$40 year period. \textit{Sci. Rep.} 9, 8826.
-\item Dunne, R.P., Brown, B.E., Phongsuwan, N. \& Putchim, L. (2021). The Indian Ocean Dipole and El Niño Southern Oscillation as major drivers of coral cover on shallow reefs in the Andaman Sea. \textit{Global Change Biol.} 27(14), 3312–3323.
-\item Wang, B., Wu, R. \& Lau, K.-M. (2001). Interannual variability of the Asian summer monsoon: contrasts between the Indian and the western North Pacific–East Asian monsoons. \textit{J. Climate} 14.
-\item Wang, B., Yang, J. \& Zhou, T. (2008). Interdecadal changes in the major modes of Asian–Australian monsoon variability: strengthening relationship with ENSO since the late 1970s. \textit{J. Climate} 21.
-\item Abram, N.J. et al. (2008). Recent intensification of tropical climate variability in the Indian Ocean. \textit{Nature Geosci.} 1, 849–853.
-\end{enumerate}
-\textbf{อ่าวไทยและทะเลจีนใต้}
-\begin{enumerate}[leftmargin=1.6em,itemsep=0.1em,resume]
-\item Anutaliya, A. (2023). Surface circulation in the Gulf of Thailand from remotely sensed observations: seasonal and interannual timescales. \textit{Ocean Sci.} 19, 335–350.
-\item Wouters, B. \& Chambers, D.P. (2010). Analysis of seasonal ocean bottom pressure variability in the Gulf of Thailand from GRACE. \textit{Global Planet. Change} 74(2), 76–81.
-\item Liu, Q., Feng, M. \& Wang, D. (2011). ENSO-induced interannual variability in the southeastern South China Sea. \textit{J. Oceanogr.} 67, 127–133.
-\item Luu, Q.H., Tkalich, P. \& Tay, T.W. (2015). Sea level trend and variability around Peninsular Malaysia. \textit{Ocean Sci.} 11, 617–628.
-\end{enumerate}
-\textbf{ข้อมูลมาตรวัดและหน่วยงาน}
-\begin{enumerate}[leftmargin=1.6em,itemsep=0.1em,resume]
-\item UHSLC (2020). Research Quality data documentation, station 148A Ko Taphao Noi (qa148a.dmt).
-\item PSMSL. Station 446 Ko Taphao Noi; Station 174 Ko Lak; Station 444 Fort Phrachula Chomklao. https://psmsl.org
-\item Naeije, M.C. et al. (2022). Monitoring megathrust-earthquake-cycle-induced relative sea-level changes near Phuket, South Thailand, using (space) geodetic techniques. \textit{Remote Sens.} 14, 5145.
-\item Ray, R.D., Widlansky, M.J., Genz, A.S. \& Thompson, P.R. (2023). Offsets in tide-gauge reference levels detected by satellite altimetry: ten case studies. \textit{J. Geodesy} 97, 110.
-\item นิพนธ์ พงศ์สุวรรณ (2564). ผลกระทบจากปรากฏการณ์น้ำลงมากผิดปกติต่อแนวปะการังทางฝั่งทะเลอันดามัน. กรมทรัพยากรทางทะเลและชายฝั่ง.
-\item กรมประชาสัมพันธ์ (2568). เตรียมรับมือ “น้ำทะเลหนุนสูง” ช่วงปลายปี.
-\item Hu, W., Si, B.C., Biswas, A. \& Chau, H.W. (2017). Temporally stable patterns but seasonal dependent controls of soil water content: evidence from wavelet analyses. \textit{Hydrol. Process.} 31(21), 3697–3707. (ที่มาของเกณฑ์ +5\% อ้างตาม Song \& Chen 2022)
-\end{enumerate}
-รายการอ้างอิงฉบับเต็ม 58 แหล่งพร้อมป้ายระดับหลักฐานอยู่ใน \textit{reports/กลไก ระดับน้ำทะเลไทย กับ ดัชนีภูมิอากาศ.md}
-}
+อ่าวไทยมีสภาพทางกายภาพเป็นอ่าวตื้นที่ตอบสนองต่อลมท้องถิ่นและมรสุมได้ทันที (Anutaliya, 2023)
+นอกจากนี้ยังตั้งอยู่นอกเส้นทางการเคลื่อนตัวของคลื่นเคลวิน (ท่อนำคลื่น) (Liu et al., 2011)
+และสัญญาณ ENSO ที่มีขนาดเล็กมากมักจะถูกกลบด้วยความแปรปรวนของวัฏจักรฤดูกาล (Luu et al., 2015) (รูปที่~\ref{fig:twoseas})
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.72\textwidth]{map02_two_seas.png}
+\caption{สรุปผลเชิงพื้นที่ของสองสถานีพร้อมความลึกของพื้นท้องทะเล}
+\label{fig:twoseas}
+\end{figure}
+
+\subsection{นัยต่อการใช้ MWC และการเปรียบเทียบกับงานต้นทาง}
+
+การเพิ่มดัชนีใน MWC โดยไม่ระวังเกณฑ์นัยสำคัญ อาจทำให้สัญญาณรบกวนถูกตีความว่าเป็นความสัมพันธ์จริง
+งานวิจัยต่อยอดจึงควรปรับเกณฑ์ตามจำนวนตัวแปร $q$ อย่างรัดกุมเสมอ
+
+\subsection{ความไม่แน่นอนจากข้อมูลมาตรวัด}
+
+ข้อจำกัดจากความคลาดเคลื่อนของข้อมูลหลังปี 2005 ทำให้ไม่สามารถยืนยันได้ว่า WNPMI คือดัชนีเด่นที่สุด
+สรุปได้เพียงว่าระดับน้ำฝั่งอันดามันสัมพันธ์กับโหมด ENSO และมรสุม/มหาสมุทรอินเดีย
+
+% ======================================================================
+\section{สรุปและข้อเสนอแนะ}
+
+\subsection{สรุปผลการศึกษา}
+
+\begin{itemize}
+  \item ระดับน้ำทะเลฝั่งอันดามันสัมพันธ์อย่างชัดเจนกับ ENSO และ IOD สอดคล้องกับกลไกของคลื่นเคลวิน
+  \item อ่าวไทยไม่พบการตอบสนองต่อดัชนีใดๆ เกินระดับสัญญาณรบกวน
+  \item ทิศทางการแปรผันสอดคล้องตามทฤษฎีกลไกทางกายภาพ
+  \item การใช้ MWC รวมหลายดัชนีไม่ได้มีประโยชน์ไปกว่าการพิจารณาดัชนีเดี่ยว
+\end{itemize}
+
+\subsection{ข้อจำกัดของการศึกษา}
+
+\begin{itemize}
+  \item การวัดค่า Coherence ไม่สามารถยืนยันความเป็นเหตุเป็นผล (causation) ได้
+  \item คลังข้อมูลหลังปี 2005 มีปัญหาความไม่สอดคล้องกันที่หาข้อสรุปชี้ขาดไม่ได้
+  \item การวิเคราะห์แถบคาบทศวรรษ (8–16 ปี) ทำได้ยากเนื่องจากหน้าต่างเวลาข้อมูลที่มีจำกัด
+\end{itemize}
+
+\subsection{ข้อเสนอแนะสำหรับการศึกษาต่อ}
+
+\begin{itemize}
+  \item นำข้อมูลความสูงผิวน้ำทะเลจากดาวเทียมมาเทียบสอบแก้ปัญหาความคลาดเคลื่อนของมาตรวัด
+  \item ประยุกต์ใช้ partial wavelet coherence ควบคุมอิทธิพลร่วมของดัชนี
+  \item วิเคราะห์อ่าวไทยแยกช่วงฤดูเพื่อให้เห็นสัญญาณ ENSO ที่ชัดเจนขึ้น
+\end{itemize}
+
+% ======================================================================
+\centerheading{เอกสารอ้างอิง}
+
+\begingroup
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.3em}
+\everypar{\hangindent=2em\hangafter=1}   % ย่อหน้าแบบแขวน (hanging indent) ตาม APA
+\small
+
+นิพนธ์ พงศ์สุวรรณ. (2564). \textit{ผลกระทบจากปรากฏการณ์น้ำลงมากผิดปกติต่อแนวปะการังทางฝั่งทะเลอันดามัน}.
+กรมทรัพยากรทางทะเลและชายฝั่ง.
+
+Anutaliya, A. (2023). Surface circulation in the Gulf of Thailand from remotely sensed observations: Seasonal and interannual
+timescales. \textit{Ocean Science, 19}, 335–350.
+
+Aparna, S. G., McCreary, J. P., Shankar, D., \& Vinayachandran, P. N. (2012). Signatures of Indian Ocean Dipole and
+El Niño–Southern Oscillation events in sea level variations in the Bay of Bengal. \textit{Journal of Geophysical Research, 117}, C10012.
+
+Ashok, K., Guan, Z., \& Yamagata, T. (2003). A look at the relationship between the ENSO and the Indian Ocean Dipole.
+\textit{Journal of the Meteorological Society of Japan, 81}(1), 41–56.
+
+Brown, B. E., Dunne, R. P., Somerfield, P. J., Edwards, A. J., Simons, W. J. F., Phongsuwan, N., Putchim, L., Anderson, L.,
+\& Naeije, M. C. (2019). Long-term impacts of rising sea temperature and sea level on shallow water coral communities over
+a \textasciitilde 40 year period. \textit{Scientific Reports, 9}, 8826.
+
+Grinsted, A., Moore, J. C., \& Jevrejeva, S. (2004). Application of the cross wavelet transform and wavelet coherence to
+geophysical time series. \textit{Nonlinear Processes in Geophysics, 11}, 561–566.
+
+Han, W., \& Webster, P. J. (2002). Forcing mechanisms of sea level interannual variability in the Bay of Bengal.
+\textit{Journal of Physical Oceanography, 32}, 216–239.
+
+Hu, W., \& Si, B. C. (2016). Technical note: Multiple wavelet coherence for untangling scale-specific and localized
+multivariate relationships in geosciences. \textit{Hydrology and Earth System Sciences, 20}, 3183–3191.
+
+Liu, Q., Feng, M., \& Wang, D. (2011). ENSO-induced interannual variability in the southeastern South China Sea.
+\textit{Journal of Oceanography, 67}, 127–133.
+
+Luu, Q. H., Tkalich, P., \& Tay, T. W. (2015). Sea level trend and variability around Peninsular Malaysia.
+\textit{Ocean Science, 11}, 617–628.
+
+Maraun, D., \& Kurths, J. (2004). Cross wavelet analysis: Significance testing and pitfalls.
+\textit{Nonlinear Processes in Geophysics, 11}, 505–514.
+
+Naeije, M. C., et al. (2022). Monitoring megathrust-earthquake-cycle-induced relative sea-level changes near Phuket,
+South Thailand, using (space) geodetic techniques. \textit{Remote Sensing, 14}, 5145.
+
+Permanent Service for Mean Sea Level. (n.d.). \textit{Station 446 Ko Taphao Noi; Station 174 Ko Lak; Station 444 Fort
+Phrachula Chomklao}. https://psmsl.org
+
+Rao, R. R., Girish Kumar, M. S., Ravichandran, M., Rao, A. R., Gopalakrishna, V. V., \& Thadathil, P. (2010). Interannual
+variability of Kelvin wave propagation in the wave guides of the equatorial Indian Ocean, the coastal Bay of Bengal and the
+southeastern Arabian Sea during 1993–2006. \textit{Deep-Sea Research Part I, 57}(1), 1–13.
+
+Song, C., \& Chen, X. (2022). Multivariate analysis of multiscale periodicity in North American annual mean sea level based on
+wavelet coherence and multiple wavelet coherence. \textit{Journal of Water and Climate Change, 13}(9), 3435–3457.
+
+Torrence, C., \& Compo, G. P. (1998). A practical guide to wavelet analysis.
+\textit{Bulletin of the American Meteorological Society, 79}(1), 61–78.
+
+Torrence, C., \& Webster, P. J. (1999). Interdecadal changes in the ENSO–monsoon system. \textit{Journal of Climate, 12}, 2679–2690.
+
+University of Hawaii Sea Level Center. (2020). \textit{Research quality data documentation: Station 148A Ko Taphao Noi} (qa148a.dmt).
+
+Wouters, B., \& Chambers, D. P. (2010). Analysis of seasonal ocean bottom pressure variability in the Gulf of Thailand from
+GRACE. \textit{Global and Planetary Change, 74}(2), 76–81.
+
+\endgroup
 
 \end{document}

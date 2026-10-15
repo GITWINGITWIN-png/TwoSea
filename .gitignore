@@ -32,6 +32,8 @@ reports/final/*.fdb_latexmk
 reports/final/*.xdv
 reports/final/*.toc
 reports/final/*.out
+reports/final/*.lof
+reports/final/*.lot
 reports/final/build.log
 
 # โน้ตส่วนตัว / สถานะหน้าต่าง Obsidian (เปลี่ยนทุกครั้งที่เปิดแท็บ) — ไม่ขึ้น repo

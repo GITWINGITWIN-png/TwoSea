@@ -4,6 +4,11 @@
 
 > 📖 อยากเข้าใจว่าทำอะไรไปแล้วบ้าง ทำไม และได้ผลอะไร (ไม่ลงรายละเอียดโค้ด) → อ่าน [`WORKLOG.md`](WORKLOG.md)
 
+## 2026-10-15 — pre-report → report
+
+- `reports/final/pre-report.*` เปลี่ยนชื่อเป็น `report.*` (ทับฉบับ 2026-10-07 · ฉบับเก่าดูได้จาก `git show ca1fa91:reports/final/report.tex`) · บันทึกตรวจ claim → `report-claimcheck.md`
+- README เขียนใหม่ให้สั้น: วิธีรัน + ที่อยู่รายงาน
+
 ## 2026-10-15 — ตัดคอมเมนต์/คำอธิบายแบบสอนออกจากโค้ด
 
 - `wtc/` `scripts/` `tests/` `notebooks/` (44 ไฟล์ · −2,357 บรรทัด): ลบ docstring ทั้งหมด + คอมเมนต์ `#` ทั้งหมด (เหลือแค่หัวข้อ section · shebang · `# noqa`)
@@ -13,13 +18,13 @@
 
 ## 2026-10-15 — pre-report.md → PDF (ตรวจ claim ทุกประโยค)
 
-**📄 [`reports/final/pre-report.pdf`](reports/final/pre-report.pdf)** (14 หน้า · ต้นฉบับ `pre-report.tex` · `latexmk -xelatex pre-report.tex`)
+**📄 [`reports/final/report.pdf`](reports/final/report.pdf)** (14 หน้า · ต้นฉบับ `report.tex` · `latexmk -xelatex report.tex`)
 - รูปแบบ paper สากล (Times + Noto Serif Thai · หัวเรื่อง/บทคัดย่อหน้าแรก) + ย่อหน้าแบบไทยทุกย่อหน้า (`indentfirst`)
-- คงถ้อยคำของ pre-report.md · แก้เฉพาะ claim ผิด/ขาดเงื่อนไข/ขาดอ้างอิง ~30 จุด (เช่น 450 → 470 กม., สาเหตุ 10 ซม., "ตามกลไก" → "สอดคล้องกับ") — บันทึกใน [`pre-report-claimcheck.md`](reports/final/pre-report-claimcheck.md)
+- คงถ้อยคำของ pre-report.md · แก้เฉพาะ claim ผิด/ขาดเงื่อนไข/ขาดอ้างอิง ~30 จุด (เช่น 450 → 470 กม., สาเหตุ 10 ซม., "ตามกลไก" → "สอดคล้องกับ") — บันทึกใน [`report-claimcheck.md`](reports/final/report-claimcheck.md)
 - เติมรูป 15 + แผนภาพขั้นตอน · รายการอ้างอิง 19 รายการ · ตัดภาคผนวกออก (ผล Q8 ป้อมพระจุลฯ ย้ายไป §4.3)
 - ⚠️ ข้อความไทยใน .tex: ขึ้นบรรทัดใหม่ = ช่องว่าง → ถ้าตัดบรรทัดกลางวลีต้องปิดท้ายด้วย `%`
 
-- [ ] ผู้ใช้ตรวจ ⚠️ 3 ข้อใน `pre-report-claimcheck.md`
+- [ ] ผู้ใช้ตรวจ ⚠️ 3 ข้อใน `report-claimcheck.md`
 
 ## 2026-10-15 — เตรียม repo ขึ้น GitHub (public · `GITWINGITWIN-png/TwoSea`)
 
