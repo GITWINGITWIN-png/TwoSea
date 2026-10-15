@@ -1,14 +1,3 @@
-"""ทดสอบ wtc/significance.py และ wtc/metrics.py — นัยสำคัญของ WTC + PASC/AWC (W4)
-
-เกณฑ์ผ่าน (PLAN.md §6)
-  - **คู่ AR(1) ที่ไม่เกี่ยวกัน ต้องได้ PASC ทั้งระนาบเฉลี่ยใกล้ 5%** — นิยามของเกณฑ์ 95%
-    ถ้าได้ต่ำหรือสูงกว่านี้มาก แปลว่า threshold หรือการนับพื้นที่ผิด
-  - PASC ของระนาบที่มีนัยสำคัญทั้งหมด = 100 · ไม่มีเลย = 0
-  - พื้นที่นอก COI / ที่มีของเติมเกินครึ่งต้องไม่ถูกนับทั้งในเศษและในส่วน
-  - fit_ar1 ที่รับ mask ต้องไม่ถูกช่องว่างที่เติม 0 ดึงค่า a
-
-เขียนแล้ว 2026-09-30 (W4)
-"""
 import numpy as np
 import pytest
 
@@ -50,10 +39,6 @@ def test_identical_series_are_significant_everywhere(thr):
 
 
 def test_threshold_is_in_unit_interval_and_u_shaped(thr):
-    """threshold รูปตัว U: สองปลายของแกนสเกลสูงกว่าช่วงกลาง (เหตุผลใน threshold_wtc)
-
-    เคยเขียนเทสต์นี้ว่า "สเกลใหญ่ต้องสูงกว่าสเกลเล็ก" แล้วพัง — สเกลเล็กสุดก็สูงเหมือนกัน
-    """
     ok = np.isfinite(thr.per_scale)
     t = thr.per_scale[ok]
     assert np.all((t > 0) & (t < 1))
@@ -70,11 +55,9 @@ def test_pasc_bounds_and_empty():
 
 
 def test_pasc_ignores_points_that_are_not_valid():
-    """จุดที่ไม่ valid ต้องหายไปทั้งจากเศษและส่วน — ไม่ใช่นับเป็น "ไม่มีนัยสำคัญ" """
     per = np.array([1.0, 3.0])
     sig = np.array([[True, True, False, False], [True, False, False, False]])
     valid = np.array([[True, True, False, False], [True, True, True, True]])
-    # ที่นับได้ 6 จุด มีนัยสำคัญ 3 ⇒ 50%
     assert pasc(sig, valid, per) == pytest.approx(50.0)
 
 
@@ -96,16 +79,15 @@ def test_filled_fraction_is_high_inside_long_gap_and_zero_far_away():
 
 
 def test_fit_ar1_ignores_interpolated_gaps():
-    """ช่องว่างสั้นที่เติมด้วยเส้นตรงเรียบเกินจริง ⇒ ถ้าไม่ตัดออก a จะถูกดันขึ้น"""
     from wtc.preprocess import fill_gaps
     z = ar1_surrogate(2000, 0.3, np.sqrt(1 - 0.09), np.random.default_rng(5))
     for a in range(20, 1980, 12):
-        z[a:a + 3] = np.nan                         # รู 3 เดือนถี่ ๆ ⇒ interp เชิงเส้น
+        z[a:a + 3] = np.nan
     filled_z, filled = fill_gaps(z)
     a_masked, _ = fit_ar1(filled_z, filled)
     a_naive, _ = fit_ar1(filled_z)
     assert abs(a_masked - 0.3) < 0.07
-    assert a_naive - 0.3 > 0.1                      # ยืนยันว่าเทสต์นี้วัดปัญหาจริง
+    assert a_naive - 0.3 > 0.1
 
 
 def test_empirical_p():

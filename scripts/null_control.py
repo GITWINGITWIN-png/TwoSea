@@ -1,36 +1,8 @@
 #!/usr/bin/env python3
-"""Q6 — การค้นหาทั้งดุ้นให้ผลอะไรเมื่อ **ไม่มีความสัมพันธ์จริงเลย**
-
-    uv run python scripts/null_control.py              # 500 รอบ × 2 แบบ × 3 สถานี
-    uv run python scripts/null_control.py --nrep 50    # ตอนพัฒนา
-
-ต้องรัน run_mwc_null.py (threshold) และ run_mwc.py (ผลจริง) มาก่อน
-
-ทำไมต้องมี: Q3–Q5 เลือก "ชุดที่ดีที่สุด" จาก 218 ชุด ค่าสูงสุดของหลายสิบชุดย่อมสูงกว่าค่าของชุดเดียว
-แม้ทุกชุดเป็น noise ⇒ p-value ต่อชุดใน run_mwc.py ใช้ตัดสิน "ชุดที่ดีที่สุด" ไม่ได้
-ที่นี่สร้างข้อมูลที่รู้แน่ว่าไม่มีความสัมพันธ์ แล้ว **ส่งผ่านการค้นหาเดียวกันทุกขั้น**
-(threshold เดียวกัน · พื้นที่ที่นับเดียวกัน · คำนวณด้วย wtc.search.FastSearch ซึ่งมีเทสต์บังคับว่า
-ได้ PASC เท่ากับ evaluate_subsets ที่ใช้กับผลจริง — และสคริปต์นี้ตรวจซ้ำกับผลจริงก่อนเริ่มทุกครั้ง)
-
-null สองแบบ — ตอบคำถามเดียวกันด้วยสมมติฐานคนละชุด
-  fake_x  **ดัชนีปลอม** (แบบที่ proposal ประกาศ): Y จริง + ดัชนี AR(1) อิสระ 8 ตัว ความแดงเท่าของจริง
-          ⇒ พื้นค่าเท็จของ "ดัชนี 8 ตัวอะไรก็ได้ที่ไม่เกี่ยวกับระดับน้ำ"
-  fake_y  **Y ปลอม**: Y เป็น AR(1) ความแดงเท่าของจริง + ดัชนีจริงทั้ง 8 ตัว
-          ⇒ เก็บโครงสร้างจริงของดัชนีไว้ครบ (สหสัมพันธ์ระหว่างกัน เช่น Niño3.4–SOI–TPI และ
-            spectrum ที่ไม่ใช่ AR(1)) สมมติแค่เรื่อง Y — เข้มกว่าในแง่ที่ดัชนีจริงซ้ำซ้อนกัน
-            การค้น 218 ชุดจึง "เลือกได้น้อยกว่า" ที่ดูเหมือน
-
-ผลต่อรอบ: PASC ของทุกชุด (ปรับ q และไม่ปรับ) ⇒ สถิติอะไรก็คำนวณทีหลังได้ เช่น
-  - ค่าสูงสุดต่อ q        เทียบกับชุดที่ดีที่สุดต่อ q ของข้อมูลจริง (Q3 · Q4)
-  - ค่าสูงสุดทั้ง 218 ชุด  = p ที่คุมความผิดพลาดทั้งตระกูลการทดสอบ (max-statistic)
-  - (สูงสุดจาก 8 ตัว) − (สูงสุดจาก 6 ตัวของเปเปอร์)   เทียบกับ Q5
-
-ผล -> data/processed/null_control.npz
-"""
 from __future__ import annotations
 import os
 for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
-    os.environ.setdefault(_v, "1")          # ก่อน import numpy — worker ละเธรดเดียว (บทเรียน W4)
+    os.environ.setdefault(_v, "1")
 
 import argparse, json, sys, time
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -38,7 +10,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from wtc.search import search_null_chunk                                 # noqa: E402
+from wtc.search import search_null_chunk  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 SERIES = ROOT / "data" / "processed" / "series.npz"
@@ -47,11 +19,10 @@ SEARCH = ROOT / "data" / "processed" / "mwc_search.npz"
 OUT = ROOT / "data" / "processed" / "null_control.npz"
 MAIN = "ko_taphao_noi"
 DESIGNS = ("fake_x", "fake_y")
-CHUNK = 25                       # รอบต่อหนึ่งงาน — งานที่ k ใช้ seed + k ⇒ ผลไม่ขึ้นกับจำนวน worker
+CHUNK = 25
 
 
 def run_chunk(station: str, design: str, nrep: int, seed: int):
-    """-> (pasc, pasc_fixed, n_bad) — ตัวงานอยู่ใน wtc.search.search_null_chunk (ย้ายไปเมื่อ W7)"""
     d = np.load(SERIES, allow_pickle=True)
     nul = np.load(NULL, allow_pickle=True)
     si = [str(s) for s in nul["stations"]].index(station)
@@ -64,7 +35,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--nrep", type=int, default=500)
     ap.add_argument("--seed", type=int, default=20261002)
-    ap.add_argument("--workers", type=int, default=min(16, (os.cpu_count() or 2) // 2))   # คอร์จริง
+    ap.add_argument("--workers", type=int, default=min(16, (os.cpu_count() or 2) // 2))
     ap.add_argument("--stations", nargs="*", default=None)
     args = ap.parse_args()
 
@@ -82,7 +53,6 @@ def main() -> int:
     sizes = [CHUNK] * (args.nrep // CHUNK) + ([args.nrep % CHUNK] if args.nrep % CHUNK else [])
     print(f"{len(stations)} สถานี × {len(DESIGNS)} แบบ × {args.nrep} รอบ × {len(subsets)} ชุด · "
           f"{args.workers} workers · seed {args.seed}")
-    # ด่านตรวจก่อนเริ่ม: ข้อมูลจริงผ่านเส้นทางเร็วต้องได้ PASC เท่ากับที่ run_mwc.py บันทึกไว้
     for st in stations:
         p, pf, bad = run_chunk(st, "check", 1, 0)
         sj = all_stations.index(st)
@@ -106,17 +76,16 @@ def main() -> int:
                 print(f"  งาน {n_done}/{len(futs)} ({time.perf_counter() - t0:.0f} s)", flush=True)
 
     P = np.array([[np.concatenate([parts[(st, de, k)][0] for k in range(len(sizes))])
-                   for de in DESIGNS] for st in stations])            # (สถานี, แบบ, รอบ, ชุด, แถบ)
+                   for de in DESIGNS] for st in stations])
     PF = np.array([[np.concatenate([parts[(st, de, k)][1] for k in range(len(sizes))])
                     for de in DESIGNS] for st in stations])
 
-    # --- สรุป ---------------------------------------------------------------
     qs = sorted(set(int(v) for v in q))
     pval = lambda obs, null: float((np.sum(null >= obs - 1e-9) + 1) / (len(null) + 1))
     summary = {}
     for i, st in enumerate(stations):
         sj = all_stations.index(st)
-        obs = srch["pasc"][sj]                                          # (ชุด, แถบ)
+        obs = srch["pasc"][sj]
         summary[st] = {}
         print(f"\n{'=' * 100}\n{st}{'  ← รายงานหลัก' if st == MAIN else '  (สำรอง)'}")
         for b in smeta["primary_bands"]:
@@ -140,7 +109,6 @@ def main() -> int:
                 rec["per_q"][k] = rq
                 print(f"  {k:2d} │ {o:14.1f} │ " + " │ ".join(f"{c:^44s}" for c in cells) +
                       f" │ {rq['fixed_mean_fake_x']:6.1f}")
-            # ค่าสูงสุดทั้ง 218 ชุด = p ที่คุมทั้งตระกูล
             o_all = float(np.nanmax(obs[:, kb]))
             line = []
             for di, de in enumerate(DESIGNS):
@@ -149,7 +117,6 @@ def main() -> int:
                 line.append(f"{de}: 95% ของ null {np.percentile(nall, 95):.1f} · p = {pval(o_all, nall):.3f}")
             rec["overall"]["observed"] = o_all
             print(f"  สูงสุดจากทั้ง {len(subsets)} ชุด: จริง {o_all:.1f}   |   " + "   |   ".join(line))
-            # Q5: (สูงสุดจาก 8 ตัว) − (สูงสุดจาก 6 ตัวของเปเปอร์) ทุก q รวมกัน
             o_gain = float(np.nanmax(obs[:, kb]) - np.nanmax(obs[in6, kb]))
             line = []
             for di, de in enumerate(DESIGNS):

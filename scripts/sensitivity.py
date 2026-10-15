@@ -1,41 +1,21 @@
 #!/usr/bin/env python3
-"""W7 — ข้อสรุปของ Q1 · Q3–Q5 แข็งแรงแค่ไหนเมื่อเปลี่ยนการเตรียมข้อมูลทีละอย่าง
-
-    uv run python scripts/sensitivity.py --variant cut_2004        # ทีละแบบ (~7 นาที/แบบ)
-    uv run python scripts/sensitivity.py --all                     # ทุกแบบใน wtc.series.VARIANTS
-    uv run python scripts/sensitivity.py --variant baseline --nmc 200 --nrep 200   # ตอนพัฒนา
-
-ต่อแบบ ต่อสถานีที่รายงาน (KO TAPHAO NOI · KO LAK) — **ทั้งสายใหม่หมด** ไม่ยืมของจากแบบมาตรฐาน
-  1. สร้างอนุกรมด้วย wtc.series.build_series(แบบ)
-  2. threshold ของ MWC รวมต่อ q + null ของ PASC ต่อชุด         (เหมือน run_mwc_null.py)
-  3. ค้นครบทุกชุดดัชนี + p ต่อชุด                              (เหมือน run_mwc.py)
-  4. null ของการค้นหาทั้งดุ้น แบบ "Y ปลอม" 1000 รอบ           (เหมือน null_control.py)
-     ใช้แบบเดียว (ไม่ทำดัชนีปลอม) เพราะ W6 แสดงแล้วว่าสองแบบให้ข้อสรุปตรงกันทุกข้อ
-     และแบบนี้เก็บโครงสร้างจริงของดัชนีไว้ครบ
-
-**seed เดียวกับ W5–W6 ทุกแบบ** (common random numbers)
-  - แบบ baseline ต้องได้ตัวเลขเท่า mwc_search.npz / null_control.npz เป๊ะ ⇒ สคริปต์ตรวจเองทุกครั้ง
-  - ความต่างระหว่างแบบจึงมาจากสิ่งที่เปลี่ยนจริง ไม่ใช่จากโชคของการสุ่ม
-
-ผล -> data/processed/sens_<แบบ>.npz
-"""
 from __future__ import annotations
 import argparse, json, os, sys, time
 from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from wtc.metrics import BANDS                                                     # noqa: E402
-from wtc.search import (all_subsets, best_per_q, evaluate_subsets, gains,         # noqa: E402
+from wtc.metrics import BANDS  # noqa: E402
+from wtc.search import (all_subsets, best_per_q, evaluate_subsets, gains,  # noqa: E402
                         prepare_station, search_null, within_of_max)
-from wtc.series import VARIANTS, build_series                                     # noqa: E402
+from wtc.series import VARIANTS, build_series  # noqa: E402
 from wtc.significance import empirical_p, fit_ar1, pasc_null_mwc, threshold_mwc  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 PROC = ROOT / "data" / "processed"
-REPORTED = ("ko_taphao_noi", "ko_lak")               # สองทะเลที่รายงาน (PLAN.md §1.4)
-SEED_INDEX = {"ko_taphao_noi": 0, "ko_lak": 1, "fort_phrachula_chomklao": 2}   # ลำดับใน W5–W6
-THR_SEED, NULL_SEED = 20261001, 20261002             # = run_mwc_null.py / null_control.py
+REPORTED = ("ko_taphao_noi", "ko_lak")
+SEED_INDEX = {"ko_taphao_noi": 0, "ko_lak": 1, "fort_phrachula_chomklao": 2}
+THR_SEED, NULL_SEED = 20261001, 20261002
 QS = (1, 2, 3, 4, 5)
 PAPER6 = ("nino34", "pdo", "nao", "soi", "amo", "tpi")
 PRIMARY = ("ทั้งระนาบ", "2–7 ปี")
@@ -118,7 +98,6 @@ def run_station(d, st, variant, nmc, nrep, workers):
 
 
 def check_baseline(st, arrays, subsets):
-    """แบบ baseline ต้องได้เลขเท่ากับผลของ W5–W6 ทุกหลัก — ไม่งั้นแปลว่าสายของ W7 ไม่ใช่สายเดียวกัน"""
     srch = np.load(PROC / "mwc_search.npz", allow_pickle=True)
     nc = np.load(PROC / "null_control.npz", allow_pickle=True)
     assert [tuple(s) for s in json.loads(str(srch["subsets"]))] == subsets

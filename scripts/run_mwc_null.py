@@ -1,44 +1,26 @@
 #!/usr/bin/env python3
-"""null ของ MWC — threshold รวมต่อ (q, สถานี) + การกระจายของ PASC · ใช้ซ้ำใน W6
-
-    uv run python scripts/run_mwc_null.py                 # 1000 surrogate ตามแผน (ผลจริง)
-    uv run python scripts/run_mwc_null.py --nmc 200       # ตอนพัฒนา
-
-ต่อสถานี:
-  1. fit AR(1) ของ Y และดัชนีทั้ง 8 ตัว (เฉพาะคู่ข้อมูลจริง — เหมือน W4)
-  2. threshold_mwc แบบ **รวมต่อ q** (q = 1..5): ทุก surrogate สุ่มชุดดัชนีขนาด q ใหม่จาก 8 ตัว
-  3. pasc_null_mwc ด้วย surrogate ชุดใหม่ ⇒ ใช้คิด p-value ของ PASC ของทุกชุดใน W6
-
-ตรวจความชอบธรรมของการรวม (เฉพาะสถานีหลัก): คำนวณ threshold แบบ **เจาะจงชุด** (exact)
-ของชุดที่ความแดงสุดโต่งสองทาง แล้ววัดว่าห่างจากแบบรวมแค่ไหน
-  แดงน้อยสุด  NAO (a≈0.18) · WNPMI (a≈0.11) [+ SOI ที่ q=3]
-  แดงมากสุด   Niño3.4 (a≈0.94) · TPI (a≈0.96) [+ AMO ที่ q=3]
-ถ้าห่างมาก ⇒ ต้องรัน null แบบเจาะจงกับชุดที่จะรายงานทุกชุด (PLAN.md §4 วางไว้แล้วว่าจะทำ)
-
-ผล -> data/processed/mwc_null.npz
-"""
 from __future__ import annotations
 import argparse, json, os, sys, time
 from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from wtc.metrics import BANDS                                               # noqa: E402
-from wtc.significance import fit_ar1, pasc_null_mwc, threshold_mwc          # noqa: E402
-from wtc.transform import cwt                                               # noqa: E402
+from wtc.metrics import BANDS  # noqa: E402
+from wtc.significance import fit_ar1, pasc_null_mwc, threshold_mwc  # noqa: E402
+from wtc.transform import cwt  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 SERIES = ROOT / "data" / "processed" / "series.npz"
 OUT = ROOT / "data" / "processed" / "mwc_null.npz"
 MAIN = "ko_taphao_noi"
 QS = (1, 2, 3, 4, 5)
-EXTREMES = {                       # ชุดที่ใช้ตรวจว่า null รวมต่อ q ใช้แทน null เจาะจงได้
+EXTREMES = {
     "แดงน้อย q=2": ("nao", "wnpmi"),
     "แดงมาก q=2": ("nino34", "tpi"),
     "แดงน้อย q=3": ("nao", "wnpmi", "soi"),
     "แดงมาก q=3": ("nino34", "tpi", "amo"),
 }
-MID = (0.5, 16.0)                  # ช่วงคาบที่ใช้สรุป "ระดับ" ของ threshold (ตัดสองปลายตัว U)
+MID = (0.5, 16.0)
 
 
 def main() -> int:
@@ -84,7 +66,6 @@ def main() -> int:
                   + " │ ".join(f"{c:^17s}" for c in cells) + f" │ {thr[q].n_nan}")
         print("       (ช่อง PASC ของ null = ค่าเฉลี่ย / เปอร์เซ็นไทล์ที่ 95 · หน่วย %)")
 
-    # --- ตรวจ: null รวมต่อ q ใช้แทน null เจาะจงชุดได้ไหม (สถานีหลักเท่านั้น) ------------
     iy = y_names.index(MAIN)
     a_y, s_y = fit_ar1(Y[iy], Yf[iy])
     print(f"\nตรวจการรวม null ที่ {MAIN} — threshold แบบเจาะจงชุด เทียบแบบรวมต่อ q")
@@ -102,7 +83,6 @@ def main() -> int:
         print(f"  {label:12s} {'+'.join(subset):22s} เจาะจง−รวม: มัธยฐาน {np.nanmedian(diff[mid]):+.3f} · "
               f"มากสุด {np.nanmax(np.abs(diff[mid])):.3f}")
 
-    # --- บันทึก --------------------------------------------------------------
     OUT.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
         OUT, stations=np.array(stations), indices=np.array(x_names), qs=np.array(QS),

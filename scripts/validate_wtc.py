@@ -1,28 +1,4 @@
 #!/usr/bin/env python3
-"""🚦 ประตูตาย G1 — WTC ที่เขียนเองต้องให้ค่าเท่ากับ pycwt.wct
-
-    uv run --group reference python scripts/validate_wtc.py
-
-เกณฑ์ผ่าน (PLAN.md §5, §6)
-  (ก) |R2 ของเรา − R2 ของ pycwt| <= 0.05 ในแถบ 2–7 ปี ที่ KO TAPHAO NOI (ในกรวย COI)
-  (ข) ทำซ้ำข้อสรุปของ premise test ได้: อันดามัน **มี** สัญญาณ ENSO · อ่าวไทย **ไม่มี**
-      (เลขเป้าเดิมจาก baseline_pycwt.py: p = 0.016 และ p = 0.984)
-
-⚠️ สคริปต์นี้เป็นที่**เดียว**ในโปรเจกต์ที่อนุญาตให้เรียก pycwt.wct — เพราะหน้าที่ของมัน
-คือการเทียบ ไม่ใช่การผลิตผล ตัวงานจริงทั้งหมดใช้ wtc.coherence.wtc()
-เมื่อผ่านประตูนี้แล้ว ทุกที่อื่นเลิกพึ่ง pycwt.wct ถาวร (PLAN.md §5 W3)
-
-⚠️ ห้ามใช้ KO LAK ตัดสินว่าโค้ดถูกหรือผิด — สถานีนั้นไม่มีสัญญาณจริง (p = 0.984)
-จะได้ผลว่างแล้วสรุปผิดว่าโค้ดพัง
-
-📌 **ผลที่ได้จริง 2026-09-20 ดีกว่าเกณฑ์มาก: ต่างกันระดับ 1e-14 ทั้งระนาบ ไม่ใช่ 0.05**
-   แปลว่าไม่ใช่ "ใกล้เคียงพอ" แต่เป็นสูตรเดียวกันจริง ๆ ระหว่างทางเจอสามจุดที่ต่าง
-   และแต่ละจุดคือของจริงที่ต้องรู้ (เขียนไว้ใน wtc/smoothing.py ครบ):
-     1. หน้าต่างแกนสเกลเป็น **สี่เหลี่ยมคางหมู** ปลายนับครึ่งน้ำหนัก ไม่ใช่ boxcar ตรง ๆ
-     2. การเติมศูนย์ของแกนเวลาต้องเติมถึง **กำลังสองถัดไป** (1024) ไม่ใช่ next_fast_len (875)
-     3. การ normalize ขอบแกนสเกลไม่มีผลต่อ R^2 เลย เพราะเป็นการคูณทั้งแถวด้วยตัวเดียวกัน
-        แล้วมันหารกันหายไปใน |Sxy|^2/(Sxx*Syy) — เรื่องนี้จริงกับ WTC และต้องตรวจซ้ำกับ MWC
-"""
 from __future__ import annotations
 import argparse, json, sys, warnings
 from pathlib import Path
@@ -31,13 +7,13 @@ import numpy as np
 warnings.filterwarnings("ignore")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from wtc.transform import cwt, coi_mask, morlet_flambda, DJ, DT_MONTHLY, OMEGA0  # noqa: E402
-from wtc.coherence import wtc                                                    # noqa: E402
-from wtc.significance import fit_ar1, ar1_surrogate                              # noqa: E402
+from wtc.coherence import wtc  # noqa: E402
+from wtc.significance import fit_ar1, ar1_surrogate  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 SERIES = ROOT / "data" / "processed" / "series.npz"
-BAND = (2.0, 7.0)          # แถบ ENSO เป็นปี
-GATE = 0.05                # เกณฑ์ประตู G1
+BAND = (2.0, 7.0)
+GATE = 0.05
 
 
 def load():
@@ -48,7 +24,6 @@ def load():
 
 
 def our_wtc(y, x, dt=DT_MONTHLY, dj=DJ):
-    """R2, คาบ, COI จากโค้ดของเราล้วน ๆ"""
     Wy, scales, periods, coi = cwt(y, dt, dj)
     Wx, _, _, _ = cwt(x, dt, dj)
     R2, _ = wtc(Wy, Wx, dt, dj, scales)
@@ -56,12 +31,6 @@ def our_wtc(y, x, dt=DT_MONTHLY, dj=DJ):
 
 
 def lib_wtc(y, x, dt=DT_MONTHLY, dj=DJ):
-    """R2 จาก pycwt.wct โดยตั้งพารามิเตอร์ให้ตรงกับของเราทุกตัว
-
-    normalize=False สำคัญ — ถ้าปล่อย default pycwt จะ normalize ให้อีกรอบ ทั้งที่
-    อนุกรมผ่าน preprocess มาแล้ว ความต่างที่เห็นจะกลายเป็นความต่างของการเตรียมข้อมูล
-    ไม่ใช่ของตัวสูตร ซึ่งทำให้ประตู G1 วัดผิดเรื่อง
-    """
     import pycwt
     s0 = 2 * dt / morlet_flambda(OMEGA0)
     j = int(round(np.log2(len(y) * dt / s0) / dj))
@@ -71,7 +40,6 @@ def lib_wtc(y, x, dt=DT_MONTHLY, dj=DJ):
 
 
 def band_mean(R2, periods, coi, band=BAND):
-    """ค่าเฉลี่ย coherence ในแถบคาบที่กำหนด **เฉพาะจุดที่อยู่ในกรวย COI**"""
     sel = (periods >= band[0]) & (periods <= band[1])
     inside = coi_mask(periods, coi)
     return float(np.nanmean(R2[sel][inside[sel]]))
@@ -88,7 +56,6 @@ def main() -> int:
     nino = X[x_names.index("nino34")]
     print(f"หน้าต่าง {t[0]:.3f}–{t[-1]:.3f} · {n} เดือน · dj={DJ:.4f} · omega0={OMEGA0:.0f}")
 
-    # --- (ก) ประตู G1: เทียบกับไลบรารี ------------------------------------
     print("\n" + "=" * 78)
     print("(ก) โค้ดเรา เทียบ pycwt.wct")
     print("=" * 78)
@@ -111,7 +78,6 @@ def main() -> int:
         if key == "ko_taphao_noi":
             worst = d_band.max()
 
-    # --- (ข) ทำซ้ำข้อสรุปของ premise test ----------------------------------
     print("\n" + "=" * 78)
     print(f"(ข) นัยสำคัญด้วย AR(1) surrogate {args.nmc} ชุด (seed {args.seed}) — ใช้โค้ดเราล้วน")
     print("=" * 78)
@@ -135,7 +101,6 @@ def main() -> int:
               f"⇒ p = {p:.3f}  {'✅ มีนัยสำคัญ' if p < 0.05 else '❌ ไม่ผ่าน'}")
     print(f"  (Niño3.4: AR(1) a={ax:.3f})")
 
-    # --- สรุปประตู --------------------------------------------------------
     print("\n" + "=" * 78)
     gate_a = worst <= GATE
     gate_b = verdicts["ko_taphao_noi"] < 0.05 <= verdicts["ko_lak"]

@@ -1,15 +1,3 @@
-"""ทดสอบไปป์ไลน์ต้นน้ำ — preprocess, multirate, metrics
-
-เกณฑ์ผ่าน (PLAN.md §6)
-
-  preprocess   ✅ เขียนแล้ว 2026-09-20
-    - detrend_deseason ต้องฟิตบนจุดที่มีข้อมูลจริงเท่านั้น
-      (ทดสอบด้วยการเจาะรูในอนุกรมสังเคราะห์แล้วดูว่าสัมประสิทธิ์ไม่ขยับ)
-    - fill_gaps ต้องคืน mask ที่ True ตรงตำแหน่งที่เติมจริงทุกตำแหน่ง
-
-  multirate    ✅ ย้ายไป tests/test_multirate.py แล้ว (2026-09-30)
-  metrics      ✅ อยู่ใน tests/test_significance.py (2026-09-30)
-"""
 import numpy as np
 import pytest
 
@@ -31,7 +19,6 @@ def test_detrend_recovers_known_coefficients():
 
 
 def test_detrend_fits_only_on_observed_points():
-    """เจาะรูแล้วสัมประสิทธิ์ต้องแทบไม่ขยับ — ถ้าขยับแปลว่าเผลอเอา NaN/ของเติมไปฟิต"""
     y = _synthetic(noise=3.0, seed=1)
     holed = y.copy()
     holed[100:103] = np.nan
@@ -58,8 +45,8 @@ def test_detrend_normalises_to_unit_variance():
 
 def test_fill_gaps_mask_marks_every_filled_point():
     z = np.arange(100.0)
-    z[10:12] = np.nan          # รูสั้น -> interp
-    z[40:60] = np.nan          # รูยาว -> เติม 0
+    z[10:12] = np.nan
+    z[40:60] = np.nan
     filled, mask = fill_gaps(z, max_interp=3)
     assert mask.sum() == 22
     assert np.array_equal(np.flatnonzero(mask), np.r_[10:12, 40:60])
@@ -71,13 +58,12 @@ def test_fill_gaps_short_gap_is_interpolated_long_gap_is_zero():
     z[10:12] = np.nan
     z[40:60] = np.nan
     filled, _ = fill_gaps(z, max_interp=3)
-    assert filled[10] == pytest.approx(10.0)      # เส้นตรงเดิม
+    assert filled[10] == pytest.approx(10.0)
     assert filled[11] == pytest.approx(11.0)
     assert np.all(filled[40:60] == 0.0)
 
 
 def test_fill_gaps_at_the_edges_uses_zero_not_extrapolation():
-    """ขอบอนุกรม interp ไม่ได้ (ไม่มีจุดอีกข้าง) ⇒ ต้องเป็น 0 ไม่ใช่การลากเส้นออกไป"""
     z = np.arange(50.0)
     z[:2] = np.nan
     z[-1] = np.nan
@@ -88,8 +74,8 @@ def test_fill_gaps_at_the_edges_uses_zero_not_extrapolation():
 
 def test_common_window_uses_finite_points_only():
     t = np.arange(1950, 1960, 1 / 12)
-    a = np.ones_like(t); a[:12] = np.nan          # เริ่มช้ากว่า 1 ปี
-    b = np.ones_like(t); b[-24:] = np.nan         # จบเร็วกว่า 2 ปี
+    a = np.ones_like(t); a[:12] = np.nan
+    b = np.ones_like(t); b[-24:] = np.nan
     lo, hi = common_window({"a": (t, a), "b": (t, b)})
     assert lo == pytest.approx(t[12])
     assert hi == pytest.approx(t[-25])
@@ -97,9 +83,9 @@ def test_common_window_uses_finite_points_only():
 
 def test_align_puts_every_series_on_one_grid():
     t1 = np.arange(1950 + 1 / 24, 1960, 1 / 12)
-    t2 = t1 + 1e-5                                 # เวลาปัดเศษต่างกันนิดหน่อย
+    t2 = t1 + 1e-5
     grid, out = align({"a": (t1, np.arange(len(t1), dtype=float)),
                        "b": (t2, np.arange(len(t2), dtype=float))}, 1951.0, 1955.0)
     assert len(grid) == len(out["a"]) == len(out["b"])
-    assert np.allclose(out["a"], out["b"])         # ความต่าง 1e-5 ต้องไม่ทำให้หลุดกริด
+    assert np.allclose(out["a"], out["b"])
     assert np.isfinite(out["a"]).all()

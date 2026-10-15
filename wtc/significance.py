@@ -1,55 +1,9 @@
-"""★ นัยสำคัญด้วย AR(1) surrogate — ส่วนที่เปเปอร์ต้นทางไม่บอกอะไรเลย
-
-เปเปอร์ต้นทางเขียนแค่ "5% significance against red noise" ในคำบรรยายรูป
-ไม่มีจำนวน surrogate ไม่มีวิธี fit AR(1) ไม่มี threshold ของ MWC สักตัว
-(docs/source-paper-detail.md §3.4) -> ทุกอย่างในไฟล์นี้เป็นการเลือกของเรา
-**ต้องประกาศให้ครบในรายงาน นั่นคือจุดขายเชิงวิธีของงานนี้**
-
-จะมีอะไรบ้าง (PLAN.md §4)
-
-  fit_ar1(z) -> (a, sigma)      ประมาณด้วย lag-1 autocorrelation (บทที่ 5)
-  ar1_surrogate(n, a, sigma)    สร้างอนุกรมเทียม
-  threshold_wtc(...)            เปอร์เซ็นไทล์ที่ 95 **แยกรายสเกล** จาก surrogate
-  threshold_mwc(..., q)         null สร้างจาก AR(1) อิสระ q+1 เส้น
-                                -> threshold ขึ้นกับ q ซึ่งเป็นเหตุผลว่าทำไม PASC
-                                   ถึงพุ่งขึ้นเองเมื่อเพิ่มตัวแปร (เหมือน R^2 ของถดถอยพหุ)
-
-จำนวน surrogate: 200 ตอนพัฒนา · **1000 ตอนรันจริง** · รายงาน threshold ทุกตัวในภาคผนวก
-กลยุทธ์ลดเวลา: ใช้ null รวมต่อ (q, สถานี) ในขั้นค้นหา แล้วรัน null เต็มเฉพาะชุดที่รายงาน
-
-ไม่ทำ areawise significance (Maraun & Kurths 2004) — เกินเวลา
-ใช้การทดสอบดัชนีปลอมของ Q6 เป็นตัวแทนพื้นค่าเท็จแทน และเขียนข้อจำกัดนี้ไว้ให้ชัด
-
-สถานะ: fit_ar1 + ar1_surrogate (W1) · threshold_wtc (W4 · 2026-09-30)
-       threshold_mwc + pasc_null_mwc (W5 · 2026-09-30 ทำก่อนกำหนด)
-"""
 from __future__ import annotations
 from dataclasses import dataclass
 import numpy as np
 
 
 def fit_ar1(z: np.ndarray, filled: np.ndarray | None = None) -> tuple[float, float]:
-    """ประมาณ AR(1) จาก lag-1 autocorrelation -> (a, sigma ของ innovation)
-
-        z[i] = a * z[i-1] + e[i]    โดย e ~ N(0, sigma^2)
-
-    ใช้ lag-1 autocorrelation ตรง ๆ (Yule-Walker อันดับ 1) ตามบทที่ 5 ของวิชา
-    ไม่ใช้ MLE เพราะ (ก) ที่ n ~ 865 ผลต่างเล็กมาก (ข) วิธีนี้อธิบายได้ในรายงานหนึ่งบรรทัด
-
-    sigma มาจากความสัมพันธ์ var(z) = sigma^2 / (1 - a^2) ⇒ sigma = sd(z) * sqrt(1 - a^2)
-    ⚠️ ถ้า a ใกล้ 1 มาก (อนุกรมเกือบเป็น random walk) ค่านี้จะเล็กลงจนเกือบศูนย์
-    และ surrogate จะกลายเป็นเส้นแทบไม่ขยับ — ต้องดูค่า a ที่พิมพ์ออกมาทุกครั้ง ไม่ใช้แบบหลับตา
-
-    filled (ถ้าให้มา): True = ตำแหน่งที่เป็นของเติม ⇒ ใช้เฉพาะคู่ (z[i-1], z[i]) ที่เป็น
-    **ข้อมูลจริงทั้งคู่** (เพิ่ม 2026-09-30 · W4)
-
-    ตัวที่ทำให้ a เพี้ยนจริงคือ **ช่องว่างสั้นที่เติมด้วยเส้นตรง** — จุดบนเส้นตรงเรียบต่อกัน
-    เกินจริง ⇒ a ถูกดันขึ้น ⇒ null แดงเกินไป ⇒ threshold สูงเกิน ⇒ *พลาดสัญญาณจริง*
-    (วัดแล้ว: AR(1) a=0.3 ที่มีรู 3 เดือนถี่ ๆ ได้ a=0.46 ถ้าไม่ใช้ mask · 0.325 ถ้าใช้)
-    ส่วนช่องว่างยาวที่เติม 0 แทบไม่มีผล เพราะ anomaly มีค่าเฉลี่ย ≈ 0 คู่ (0,0) จึงไม่เพิ่ม
-    อะไรให้ทั้งความแปรปรวนร่วมและความแปรปรวน — ตอนแรกเข้าใจผิดว่าตัวนี้คือปัญหา
-    กับข้อมูลจริงของโปรเจกต์ผลต่างเล็ก (a เปลี่ยน ≤ 0.012) แต่ใช้ mask ไว้เพราะมันถูกต้องกว่า
-    """
     z = np.asarray(z, float)
     x0, x1 = z[:-1], z[1:]
     if filled is not None:
@@ -65,12 +19,6 @@ def fit_ar1(z: np.ndarray, filled: np.ndarray | None = None) -> tuple[float, flo
 
 def ar1_surrogate(n: int, a: float, sigma: float,
                   rng: np.random.Generator) -> np.ndarray:
-    """สร้างอนุกรมเทียม AR(1) ยาว n แล้ว normalize ให้เทียบกับของจริงได้
-
-    ตั้งต้นด้วย z[0] = e[0] แล้วปล่อยให้ตัวมันเองวิ่ง — ช่วงต้นจะยังไม่เข้าสู่ภาวะคงตัว
-    แต่ที่ n ~ 865 กับ a ~ 0.3-0.8 ช่วง burn-in สั้นกว่าความยาวอนุกรมมาก และ COI
-    ก็ตัดขอบทิ้งอยู่แล้ว ⇒ ยอมรับได้ (ถ้า a เข้าใกล้ 1 เมื่อไร ต้องกลับมาทบทวนข้อนี้)
-    """
     e = rng.normal(0.0, sigma, n)
     z = np.empty(n)
     z[0] = e[0]
@@ -79,24 +27,20 @@ def ar1_surrogate(n: int, a: float, sigma: float,
     return (z - z.mean()) / z.std()
 
 
-# ---------------------------------------------------------------------------
 # threshold ของ WTC — เปอร์เซ็นไทล์ที่ 95 แยกรายสเกล (W4)
-# ---------------------------------------------------------------------------
 
 @dataclass
 class WTCThreshold:
-    """threshold ของ WTC หนึ่งคู่ + ทุกอย่างที่ต้องใช้รายงานในภาคผนวก"""
-    level: float              # เช่น 0.95
-    per_scale: np.ndarray     # threshold ของ R^2 แยกรายสเกล (NaN = สเกลที่ไม่มีจุดในกรวยเลย)
-    nmc: int                  # จำนวน surrogate ที่ใช้จริง
+    level: float
+    per_scale: np.ndarray
+    nmc: int
     a_y: float
     a_x: float
     seed: int
-    n_pooled: np.ndarray      # จำนวนค่าที่เอามาคิดในแต่ละสเกล (surrogate × จุดในกรวย)
+    n_pooled: np.ndarray
 
 
 def _quantile_from_hist(counts: np.ndarray, level: float, edges: np.ndarray) -> np.ndarray:
-    """เปอร์เซ็นไทล์จาก histogram รายแถว + interpolate เชิงเส้นในช่อง"""
     total = counts.sum(axis=1)
     out = np.full(counts.shape[0], np.nan)
     width = edges[1] - edges[0]
@@ -114,26 +58,6 @@ def threshold_wtc(n: int, a_y: float, s_y: float, a_x: float, s_x: float,
                   nmc: int = 1000, level: float = 0.95, seed: int = 0,
                   dt: float | None = None, dj: float | None = None,
                   nbins: int = 1000) -> WTCThreshold:
-    """threshold ของ WTC ต่อสเกล จาก AR(1) surrogate คู่ที่เป็นอิสระต่อกัน
-
-    วิธี (Grinsted et al. 2004 ทำแบบเดียวกัน)
-      1. สร้างคู่อนุกรม AR(1) อิสระที่มี a เท่ากับของจริงแต่ละฝั่ง ยาวเท่าของจริง
-      2. ส่งผ่านสายงานเดียวกันทุกขั้น (CWT -> smoothing -> WTC)
-      3. ต่อสเกล: รวมค่า R^2 ของทุก surrogate **เฉพาะจุดที่อยู่ในกรวย COI**
-         แล้วเอาเปอร์เซ็นไทล์ที่ `level`
-    ⇒ ความหมายของ threshold: ถ้าสองอนุกรมไม่เกี่ยวกันเลยแต่มีความ "แดง" เท่าของจริง
-      R^2 จะเกินค่านี้เพียง 5% ของจุดในกรวย ที่สเกลนั้น
-
-    ทำไมแยกรายสเกล ไม่ใช้ค่าเดียวทั้งระนาบ: threshold เป็น **รูปตัว U** ตามสเกล
-      - สเกลเล็กสุด (ใกล้ Nyquist) หน้าต่าง Gaussian กว้างแค่ sigma ≈ 1.9 ตัวอย่าง
-        ⇒ เฉลี่ยจุดที่เป็นอิสระได้น้อย ⇒ R^2 ของ noise สูง
-      - สเกลใหญ่ จุดในกรวย COI เหลือน้อยและเรียงติดกัน ⇒ R^2 ของ noise สูงอีก
-      - ช่วงกลางแบนราว 0.59 (n = 865, a ~ 0.7/0.9)
-    threshold ค่าเดียวทั้งระนาบจะทำให้สองปลาย "มีนัยสำคัญ" มั่วไปหมด
-
-    ทำไมใช้ histogram: เก็บค่าดิบทั้งหมดต้องใช้ ~1000 × 107 × 865 ค่า ≈ 740 MB
-    histogram 1000 ช่องต่อสเกลใช้ ~1 MB และละเอียดพอ (0.001 บนสเกล R^2 ที่อยู่ใน [0, 1])
-    """
     from .coherence import wtc
     from .transform import DJ, DT_MONTHLY, coi_mask, cwt
 
@@ -149,7 +73,7 @@ def threshold_wtc(n: int, a_y: float, s_y: float, a_x: float, s_x: float,
         inside = coi_mask(periods, coi)
         if counts is None:
             counts = np.zeros((len(scales), nbins), dtype=np.int64)
-        b = np.clip((R2 * nbins).astype(int), 0, nbins - 1)       # ช่องของแต่ละจุด
+        b = np.clip((R2 * nbins).astype(int), 0, nbins - 1)
         rows = np.broadcast_to(np.arange(len(scales))[:, None], R2.shape)
         np.add.at(counts, (rows[inside], b[inside]), 1)
     assert counts is not None
@@ -160,18 +84,6 @@ def threshold_wtc(n: int, a_y: float, s_y: float, a_x: float, s_x: float,
 def pasc_null(thr: WTCThreshold, n: int, s_y: float, s_x: float,
               nmc: int | None = None, seed: int | None = None,
               dt: float | None = None, dj: float | None = None) -> dict[str, np.ndarray]:
-    """การกระจายของ PASC เมื่อสองอนุกรม **ไม่เกี่ยวกันเลย** -> {ชื่อแถบ: PASC ของแต่ละ surrogate}
-
-    ทำไมต้องมี (พบจากการทดสอบ 2026-09-30): threshold รายจุดรับประกันแค่ว่า "ค่าเฉลี่ย"
-    ของ PASC ใน null ≈ 5% แต่ในแถบแคบ ๆ มันแกว่งมาก — คู่ AR(1) ที่ไม่เกี่ยวกันเลย
-    ได้ PASC แถบ 2–7 ปีถึง ~22% ได้โดยบังเอิญ (sd ~5.5%) เพราะจุดข้างเคียงบนระนาบ
-    สหสัมพันธ์กันสูง (ผ่าน smoothing มาแล้ว) จึงเกินเกณฑ์พร้อมกันเป็นก้อน
-    ⇒ PASC ที่สังเกตได้ต้องเทียบกับการกระจายนี้ ไม่ใช่เทียบกับ 5% ตรง ๆ
-    (นี่คือตัวแทนราคาถูกของ areawise significance ที่ PLAN.md §4 ตัดสินว่าไม่ทำ)
-
-    ใช้ **surrogate ชุดใหม่** (seed ต่างจากที่ใช้คิด threshold) — ถ้าใช้ชุดเดิม
-    แต่ละ surrogate จะถูกวัดด้วยเกณฑ์ที่ตัวมันเองมีส่วนสร้าง ผลจะเอียงเล็กน้อย
-    """
     from .coherence import wtc
     from .metrics import BANDS, pasc, significance
     from .transform import DJ, DT_MONTHLY, coi_mask, cwt
@@ -193,11 +105,6 @@ def pasc_null(thr: WTCThreshold, n: int, s_y: float, s_x: float,
 
 
 def empirical_p(observed: float, null: np.ndarray) -> float:
-    """p = (จำนวน null ที่ >= ค่าที่สังเกตได้ + 1) / (จำนวน null + 1)
-
-    +1 ทั้งเศษและส่วนเพื่อไม่ให้ได้ p = 0 (ค่าที่สังเกตได้นับเป็นหนึ่งในชุดด้วย)
-    ⇒ ด้วย 1000 surrogate ค่า p ที่เล็กที่สุดที่รายงานได้คือ 1/1001 ≈ 0.001
-    """
     null = np.asarray(null, float)
     null = null[np.isfinite(null)]
     if not np.isfinite(observed) or len(null) == 0:
@@ -205,43 +112,26 @@ def empirical_p(observed: float, null: np.ndarray) -> float:
     return float((np.sum(null >= observed) + 1) / (len(null) + 1))
 
 
-# ---------------------------------------------------------------------------
 # threshold ของ MWC — null รวมต่อ (q, สถานี) (W5)
-# ---------------------------------------------------------------------------
 
-# surrogate ถูกแบ่งเป็นก้อนละ MC_CHUNK ชุด ก้อนที่ k ใช้ seed + k
-# ⇒ ผลขึ้นกับ (seed, nmc) เท่านั้น **ไม่ขึ้นกับจำนวน worker** — รันบนเครื่องไหนก็ได้เลขเดิม
-# และก้อนแรกใช้ seed ตรง ๆ ⇒ ถ้า nmc <= MC_CHUNK ลำดับการสุ่มจะเหมือน threshold_wtc ทุกตัว
-# (เทสต์ใช้ข้อนี้ยืนยันว่า threshold_mwc ที่ q=1 ได้เลขเดียวกับ threshold_wtc เป๊ะ)
 MC_CHUNK = 50
 
 
 @dataclass
 class MWCThreshold:
-    """threshold ของ MWC ที่จำนวนดัชนี q หนึ่งค่า + ทุกอย่างที่ต้องรายงานในภาคผนวก"""
     q: int
     level: float
-    per_scale: np.ndarray     # threshold ของ rho^2 แยกรายสเกล
+    per_scale: np.ndarray
     nmc: int
-    pooled: bool              # True = สุ่มชุดดัชนีใหม่ทุก surrogate จากผู้สมัคร m ตัว
+    pooled: bool
     a_y: float
-    a_x: tuple                # a ของดัชนีผู้สมัครทั้งหมด (ตามลำดับที่ส่งเข้ามา)
+    a_x: tuple
     seed: int
-    n_pooled: np.ndarray      # จำนวนค่าที่เอามาคิดในแต่ละสเกล
-    n_nan: int                # จุดในกรวยที่ cond เกิน COND_MAX ใน null (คาดว่า 0)
+    n_pooled: np.ndarray
+    n_nan: int
 
 
 def _mwc_null_chunk(task: dict) -> dict:
-    """งานหนึ่งก้อน — ต้องอยู่ระดับโมดูลเพื่อให้ส่งข้าม process ได้
-
-    ต่อ surrogate หนึ่งชุด:
-      1. สร้าง Y และ X ผู้สมัคร **ทุกตัว** ตามลำดับเสมอ (การใช้เลขสุ่มจึงคงที่ ไม่ขึ้นกับว่า
-         รอบนี้สุ่มได้ชุดไหน) — ถ้าผู้สมัครมี q ตัวพอดี ไม่ต้องสุ่มชุด
-      2. สุ่มชุดดัชนีขนาด q หนึ่งชุดต่อ q (โหมด pooled)
-      3. CWT + smooth เฉพาะอนุกรม/คู่ที่ถูกใช้จริง (SpectraCache คำนวณเมื่อถูกขอ)
-      4. mode="hist": สะสม histogram ของ rho^2 รายสเกลในกรวย
-         mode="pasc": คิด PASC ทุกแถบด้วย threshold ที่ให้มา
-    """
     from .coherence import SpectraCache, mwc_cached
     from .metrics import BANDS, pasc, significance
     from .transform import coi_mask, cwt
@@ -280,14 +170,11 @@ def _mwc_null_chunk(task: dict) -> dict:
 
 
 def _run_chunks(base: dict, nmc: int, seed: int, workers: int) -> list[dict]:
-    """แบ่ง nmc เป็นก้อน (ก้อน k ใช้ seed + k) แล้วรันทีละก้อนหรือขนานกัน — ผลเหมือนกันทุกกรณี"""
     sizes = [MC_CHUNK] * (nmc // MC_CHUNK) + ([nmc % MC_CHUNK] if nmc % MC_CHUNK else [])
     tasks = [dict(base, nmc=k_n, seed=seed + k) for k, k_n in enumerate(sizes)]
     if workers <= 1 or len(tasks) == 1:
         return [_mwc_null_chunk(t) for t in tasks]
 
-    # ใช้ "spawn" + ตั้ง BLAS ให้เธรดเดียวก่อนเปิด process ลูก — ลูกจะ import numpy ใหม่
-    # ด้วยค่านี้ ไม่งั้น worker หลายสิบตัว × BLAS หลายเธรดจะแย่งคอร์กันเอง (บทเรียนจาก W4)
     import multiprocessing as mp
     import os
     from concurrent.futures import ProcessPoolExecutor
@@ -310,28 +197,6 @@ def threshold_mwc(n: int, a_y: float, s_y: float, a_x, s_x, qs=(1, 2, 3, 4, 5),
                   nmc: int = 1000, level: float = 0.95, seed: int = 0,
                   dt: float | None = None, dj: float | None = None,
                   nbins: int = 1000, workers: int = 1) -> dict[int, MWCThreshold]:
-    """threshold ของ MWC ต่อสเกล แยกตามจำนวนดัชนี q -> {q: MWCThreshold}
-
-    a_x, s_x  พารามิเตอร์ AR(1) ของ **ดัชนีผู้สมัครทั้งหมด** (m ตัว)
-    โหมดขึ้นกับ q เทียบกับ m
-      q == m   null ของชุดนี้ชุดเดียวแบบเจาะจง (exact) — ใช้กับชุดที่รายงานเป็นผลสุดท้าย
-      q <  m   **null รวมต่อ (q, สถานี)** — ทุก surrogate สุ่มชุดดัชนีขนาด q ใหม่จาก m ตัว
-               ⇒ ได้ threshold เดียวใช้กับทุกชุดขนาด q (PLAN.md §4)
-
-    ทำไมรวมได้: threshold ขึ้นกับความแดง (a) ของอนุกรมน้อยมาก — วัดจาก Q1 แล้วที่ q=1
-    ดัชนี 8 ตัวที่ a ต่างกันตั้งแต่ 0.11 ถึง 0.96 ให้ threshold ต่างกันไม่เกิน ~0.03
-    สิ่งที่ threshold ขึ้นกับจริงคือ **q** (ดู notebooks/05_mwc.ipynb §4 ที่ตรวจซ้ำที่ q > 1)
-    ทำไมต้องรวม: null แยกทุกชุด = 218 ชุด × 1000 surrogate ต่อสถานี แพงกว่า ~50 เท่า
-
-    null ของ MWC = Y กับ X ทุกตัว **อิสระต่อกันหมด** (ตามแบบของ Hu & Si 2016)
-    ⇒ threshold ตอบคำถามว่า "ถ้าดัชนี q ตัวนี้ไม่เกี่ยวกับ Y เลย rho^2 จะสูงได้แค่ไหน"
-    ซึ่งสูงขึ้นตาม q เสมอ — เหมือน R^2 ของถดถอยพหุที่สุ่มตัวทำนายมาใส่ก็ยังขึ้น
-
-    workers > 1 รันขนาน — ผลเหมือนรันทีละก้อนทุกหลัก (ดู MC_CHUNK)
-    ⚠️ สคริปต์ที่เรียกด้วย workers > 1 ต้องมี `if __name__ == "__main__":` ครอบโค้ดหลัก
-       (process ลูกแบบ spawn จะ import สคริปต์นั้นใหม่ ถ้าไม่ครอบจะเปิด pool ซ้อนกันไม่รู้จบ)
-       ในโน้ตบุ๊กไม่ต้อง เพราะ kernel ไม่มีไฟล์ __main__ ให้ import ซ้ำ
-    """
     from .transform import DJ, DT_MONTHLY
     a_x, s_x = tuple(float(v) for v in a_x), tuple(float(v) for v in s_x)
     qs = tuple(int(q) for q in qs)
@@ -356,12 +221,6 @@ def pasc_null_mwc(thr: dict[int, MWCThreshold], n: int, s_y: float, s_x,
                   nmc: int | None = None, seed: int | None = None,
                   dt: float | None = None, dj: float | None = None,
                   workers: int = 1) -> dict[int, dict[str, np.ndarray]]:
-    """การกระจายของ PASC ของ MWC เมื่อดัชนีไม่เกี่ยวกับ Y เลย -> {q: {แถบ: PASC ต่อ surrogate}}
-
-    หลักเดียวกับ pasc_null ของ WTC (W4): threshold รายจุดคุมแค่ค่าเฉลี่ยของ PASC ใน null
-    ส่วนการแกว่งรายแถบต้องวัดเอง · ใช้ **surrogate ชุดใหม่** (seed + 10000 เป็นค่าปริยาย)
-    โหมด pooled/exact ตาม thr ที่ให้มา (สุ่มชุดดัชนีแบบเดียวกับตอนทำ threshold)
-    """
     from .transform import DJ, DT_MONTHLY
     first = next(iter(thr.values()))
     qs = tuple(sorted(thr))

@@ -1,34 +1,11 @@
 #!/usr/bin/env python3
-"""สร้างเมทริกซ์วิเคราะห์จากข้อมูลดิบ -> data/processed/series.npz
-
-    uv run python scripts/build_series.py
-
-ผลที่ได้คือไฟล์เดียวที่ทุกขั้นหลังจากนี้ (WTC, MWC, significance, รูป) ใช้ร่วมกัน
-⇒ ถ้าไฟล์นี้ผิด ทุกอย่างผิดเหมือนกันหมด จึงพิมพ์ตารางสรุปออกมาให้ตรวจด้วยตาทุกครั้ง
-
-สิ่งที่อยู่ในไฟล์ผลลัพธ์
-    t          (n,)      ปีทศนิยม กริดรายเดือนร่วม
-    Y, X       (k, n)    อนุกรมที่ตัดแนวโน้ม+ฤดูกาลและ normalize แล้ว เติมช่องว่างแล้ว
-    Y_fill, X_fill       True = ตำแหน่งที่เป็นของเติม ไม่ใช่ของจริง (metrics.py ต้องใช้)
-    y_names, x_names     ชื่อเรียงตามแถว
-    meta                 พารามิเตอร์และสถิติของการเตรียมข้อมูล (JSON)
-
-การตัดสินใจที่ประกาศไว้และทำจริงที่นี่
-  - **ตัดแนวโน้ม+ฤดูกาลกับดัชนีด้วย ไม่ใช่เฉพาะระดับน้ำทะเล** เปเปอร์ต้นทางไม่พูดถึง
-    แต่ WNPMI มีวงรอบรายปีมหึมาโดยนิยาม (มรสุมมาทุกปี) ถ้าไม่ตัด coherence ที่แถบ 1 ปี
-    จะสูงทุกคู่โดยอัตโนมัติและไม่ได้แปลว่าอะไรเลย
-  - หน้าต่างเวลาคำนวณจากไฟล์จริงทุกครั้ง ไม่ hard-code
-
-ตัวงานย้ายไปอยู่ใน wtc/series.py แล้ว (2026-10-07 · W7) เพื่อให้การทดสอบความไวใช้โค้ดเส้นเดียวกัน
-ไฟล์นี้เหลือหน้าที่พิมพ์ตารางตรวจด้วยตาและบันทึกไฟล์
-"""
 from __future__ import annotations
 import json, sys
 from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from wtc.series import BASELINE, STATIONS, build_series              # noqa: E402
+from wtc.series import BASELINE, STATIONS, build_series  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "processed" / "series.npz"

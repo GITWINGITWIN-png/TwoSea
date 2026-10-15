@@ -1,16 +1,4 @@
 #!/usr/bin/env python3
-"""รันโน้ตบุ๊กทั้งหมดใหม่ตั้งแต่ต้น แล้วเขียนผลทับลงไฟล์เดิม — ล้มถ้าเซลล์ไหน error
-
-    uv run --group dev --group reference python scripts/run_notebooks.py          # ทุกเล่ม
-    uv run --group dev --group reference python scripts/run_notebooks.py 03       # เฉพาะเล่มที่ชื่อขึ้นต้นด้วย 03
-
-ทำไมต้องมี: โน้ตบุ๊กในโปรเจกต์นี้เป็น **หลักฐานว่ากระบวนการทำซ้ำได้** (ทุกเล่มมี assert
-ตรวจตัวเลขสำคัญ) ถ้ามีคนแก้โมดูลใน wtc/ แล้วไม่รันโน้ตบุ๊กซ้ำ ผลที่เห็นในไฟล์จะเป็นของเก่า
-ซึ่งแย่กว่าไม่มีโน้ตบุ๊กเลย ⇒ รันสคริปต์นี้ก่อน commit ทุกครั้งที่แตะโมดูล
-
-ต้องรันหลัง scripts/build_series.py และ scripts/verify_decimation.py
-เพราะโน้ตบุ๊กเทียบผลของตัวเองกับไฟล์ใน data/processed/ ที่สคริปต์เหล่านั้นสร้าง
-"""
 from __future__ import annotations
 import sys, time
 from pathlib import Path
@@ -29,7 +17,7 @@ def run_one(path: Path) -> bool:
         NotebookClient(nb, timeout=1800, kernel_name="python3",
                        resources={"metadata": {"path": str(NB_DIR)}}).execute()
     except CellExecutionError as exc:
-        nbformat.write(nb, path)                      # เก็บผลถึงเซลล์ที่พังไว้ให้เปิดดูได้
+        nbformat.write(nb, path)
         print(f"  ❌ {path.name}  พังที่เซลล์:\n{str(exc)[:1500]}")
         return False
     nbformat.write(nb, path)

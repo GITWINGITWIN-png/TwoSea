@@ -1,72 +1,10 @@
-"""★ smoothing operator — หัวใจของทั้งโปรเจกต์
-
-ขาดตัวนี้ coherence จะเท่ากับ 1 ทุกจุดโดยไม่มีอะไรเตือน
-(เพราะ |W^XY|^2 = |W^X|^2 |W^Y|^2 เป๊ะ ๆ ที่ทุกจุด ถ้าไม่เฉลี่ยเพื่อนบ้านเข้ามาก่อน)
-
-สูตร Torrence & Webster (1999) ตามที่ถอดไว้ใน docs/source-paper-detail.md §3.2
-
-    S(W) = S_scale( S_time( W_n(s) ) )
-
-    S_time(W)|_s  = ( W_n(s) * c1 * exp(-t^2 / 2s^2) )|_s     Gaussian ตามแกนเวลา
-    S_scale(W)|_n = ( W_n(s) * c2 * PI(0.6 s) )|_n            boxcar ยาว 0.6s ตามแกนสเกล
-
-    c1, c2 = ค่าคงที่ normalize ให้ผลรวมน้ำหนักเป็น 1
-    0.6 = scale-decorrelation length ของ Morlet (Torrence & Compo 1998 Table 2)
-
-🐛 เปเปอร์ต้นทางพิมพ์สมการ (3) ผิด — ติดป้าย S_time ทั้งสองตัว
-   ตัวที่สอง (ตัวที่ใช้ PI(0.6s) และ index ด้วย n) คือ S_scale
-   **ห้ามลอกจากหน้าเปเปอร์ ให้ใช้รูปข้างบนนี้**
-
-อย่าลืมตัวประกอบ s^-1 ก่อน smooth (แปลงเป็น energy density) — ตัวนั้นอยู่ใน coherence.py
-ไม่ใช่ที่นี่ ที่นี่รับอะไรมาก็ smooth ตัวนั้น
-
----
-
-## สามเรื่องที่ต้องตัดสินใจเอง เพราะสูตรข้างบนไม่ได้บอก
-
-**(1) กว้างเท่าไรถึงพอ** Gaussian ไม่มีจุดจบ ต้องตัดที่ไหนสักที่ — ที่นี่คำนวณด้วย FFT
-ซึ่งเท่ากับใช้ Gaussian เต็มใบ (ไม่ตัด) ⇒ ไม่มีพารามิเตอร์ truncate ให้ต้องเถียง
-ส่วน `gaussian_time_weights()` ที่คืนน้ำหนักชัด ๆ มีไว้ **ตรวจและพล็อต** เท่านั้น
-(มี test ยืนยันว่าสองทางให้ผลตรงกันที่กลางอนุกรม)
-
-**(2) ขอบของแกนเวลา** convolution ด้วย FFT โดยไม่เติมอะไรเลยคือ convolution แบบ **วน**
-(ปลายซ้ายปนกับปลายขวา) ซึ่งมีข้อดีคือผลรวมน้ำหนักเป็น 1 ทุกตำแหน่ง แต่มีข้อเสียที่ยอมไม่ได้:
-**ค่าปี 2023 ไหลเข้าไปปนกับปี 1951** ที่สเกลใหญ่ sigma เป็นหลักร้อยเดือน ⇒ ปนกันจริงจัง
-และไม่มีความหมายทางกายภาพเลย ⇒ ค่าปริยายของโปรเจกต์คือ **เติมศูนย์** (`pad="zero"`)
-ซึ่งเป็นแบบเดียวกับที่ CWT เองใช้ และเป็นเหตุผลที่ COI มีอยู่ตั้งแต่แรก
-(ผลข้างเคียง: ที่ขอบ ผลรวมน้ำหนักที่ "ตกบนข้อมูลจริง" น้อยกว่า 1 ⇒ power ถูกกดลง
-แต่มันถูกกดลงทั้งเศษและส่วนของ R^2 พร้อมกัน และบริเวณนั้นอยู่นอก COI อยู่แล้ว)
-`pad="wrap"` ยังเรียกได้ ใช้ตอนทดสอบว่าน้ำหนัก normalize ถูก (ค่าคงที่ต้องคงที่เป๊ะทุกตำแหน่ง)
-
-**(3) ขอบของแกนสเกล** หน้าต่างที่สเกลบนสุด/ล่างสุดมีเพื่อนบ้านไม่ครบ
-ที่นี่เลือก **normalize ใหม่ตามน้ำหนักที่ตกอยู่ในช่วงจริง** (`edge="renorm"`) = ค่าเฉลี่ยของ
-เพื่อนบ้านที่มีอยู่จริง ต่างจาก pycwt ที่ปล่อยให้ผลรวมน้ำหนักน้อยกว่า 1 แล้วค่าที่สเกลปลายสุด
-ถูกกดลงโดยไม่มีเหตุผล — ตรงนี้เราเลือกต่างเพราะมันถูกกว่า ไม่ใช่เพราะสะดวกกว่า
-(ต่างกันเฉพาะ 7 แถวบนสุด/ล่างสุดของแกนสเกล แถบ 2-7 ปีที่ใช้ตรวจ G1 อยู่กลางแกน)
-
-**พิสูจน์ว่าสองข้อข้างบนเป็น "ทางเลือก" ไม่ใช่ "บั๊ก"**: เรียก `smooth(..., compat=True)`
-แล้วผลจะตรงกับ `pycwt` ทั้งระนาบที่ระดับ 1e-14 (ดู scripts/validate_wtc.py ประตู G1)
-
-เขียนแล้ว 2026-09-20 (W1)
-"""
 from __future__ import annotations
 import numpy as np
 
-# scale-decorrelation length ของ Morlet: ที่ระยะห่าง 0.6 ในหน่วย log2(scale)
-# ค่า wavelet coefficient ยังสหสัมพันธ์กันอยู่ ⇒ ใช้เป็นความกว้างของ boxcar ตามแกนสเกล
-# (Torrence & Compo 1998 Table 2 · Grinsted et al. 2004 ใช้ค่าเดียวกัน)
 DELTA_J0 = 0.60
 
 
 def gaussian_time_weights(scale: float, dt: float, truncate: float = 6.0) -> np.ndarray:
-    """น้ำหนักของ S_time ที่สเกลเดียว — **ไว้ตรวจและพล็อต ไม่ใช่ตัวที่ใช้คำนวณจริง**
-
-    exp(-t^2 / 2s^2) เมื่อ t เป็นหน่วยเวลาจริง ⇒ ในหน่วย "จำนวนตัวอย่าง" ค่า sigma = s/dt
-    ตัวคูณ c1 คือการหารด้วยผลรวม ซึ่งทำให้ sum(w) = 1 พอดีตามนิยาม
-
-    ความกว้างต้องโตตามสเกล — นั่นคือเหตุผลทั้งหมดที่ smoothing ตัวนี้ต้องทำแยกรายสเกล
-    ไม่ใช่ moving average ความกว้างคงที่
-    """
     sigma = scale / dt
     half = int(np.ceil(truncate * sigma))
     n = np.arange(-half, half + 1, dtype=float)
@@ -75,23 +13,6 @@ def gaussian_time_weights(scale: float, dt: float, truncate: float = 6.0) -> np.
 
 
 def boxcar_scale_weights(dj: float) -> np.ndarray:
-    """น้ำหนักของ S_scale — PI(0.6s) ที่ถูกสุ่มตัวอย่างลงบนแกนสเกลแบบดยาดิก
-
-    แกนสเกลของ CWT วางแบบดยาดิก: s_j = s0 * 2^(j*dj) ⇒ ระยะห่าง dj ต่อหนึ่งช่อง
-    ความกว้าง 0.6 (ต่อข้าง) จึงเท่ากับ 0.6/dj ช่อง ⇒ ทั้งหน้าต่าง = 2*0.6/dj ช่อง
-    ที่ dj = 1/12 ได้ 14.4 -> ปัดเป็น 14 ช่อง
-
-    ⚠️ **ปลายสองข้างนับครึ่งน้ำหนัก** [0.5, 1, 1, ..., 1, 0.5] / ผลรวม
-    ไม่ใช่ [1, 1, ..., 1]/m อย่างที่ชื่อ "boxcar" ชวนให้เขียน — เหตุผล:
-    สิ่งที่สูตรบอกคือ convolve กับ **ฟังก์ชันต่อเนื่อง** PI(0.6s) การเอามาทำบนกริดคือ
-    การประมาณอินทิกรัล และปลายหน้าต่างวางคร่อมขอบพอดี ⇒ ตกอยู่ในช่วงแค่ครึ่งเดียว
-    (= กฎสี่เหลี่ยมคางหมู) ถ้าให้ปลายเต็มน้ำหนักจะกลายเป็นหน้าต่างที่กว้างเกินจริงไป 1 ช่อง
-
-    🐛 **ที่มาจริงของการแก้นี้ 2026-09-20** เขียนเป็น np.ones(m)/m ไว้ก่อน แล้วประตู G1
-    ไม่ผ่าน (ต่างจาก pycwt 0.087 ในแถบ 2-7 ปี · ต่างกัน ~3.5% แบบสม่ำเสมอแม้กลางระนาบ
-    ซึ่ง "สม่ำเสมอ" คือเบาะแสว่าไม่ใช่เรื่องขอบ แต่เป็นตัวน้ำหนักเอง) พอไปอ่าน
-    pycwt.helpers.rect จึงเห็นว่าเขาใส่ 0.5 ที่ปลายทั้งสอง เช่นเดียวกับ rect.m ของ Grinsted
-    """
     m = int(round(2 * DELTA_J0 / dj))
     m = max(m, 1)
     w = np.ones(m)
@@ -102,28 +23,6 @@ def boxcar_scale_weights(dj: float) -> np.ndarray:
 
 def smooth_time(W: np.ndarray, dt: float, scales: np.ndarray,
                 pad: str = "zero") -> np.ndarray:
-    """S_time — convolve ตามแกนเวลาด้วย Gaussian ที่ความกว้างขึ้นกับสเกล (ทำใน Fourier)
-
-    ทำไมถึงทำใน Fourier: ที่สเกลใหญ่ sigma โตเป็นหลักร้อยตัวอย่าง convolution ตรง ๆ
-    จะกลายเป็น O(N * sigma) ต่อสเกล แต่ FFT เป็น O(N log N) เท่ากันทุกสเกล
-    และ **ไม่ต้องตัดหาง** เพราะคูณด้วยฟังก์ชันถ่ายโอนของ Gaussian เต็มใบได้เลย:
-
-        FT{ (1/(sigma*sqrt(2pi))) exp(-n^2/2sigma^2) } = exp(-sigma^2 k^2 / 2)
-
-    ค่าที่ k=0 เท่ากับ 1 พอดี ⇒ **ผลรวมน้ำหนักเป็น 1 โดยโครงสร้าง** ไม่ต้อง normalize ทีหลัง
-    (นี่คือเหตุผลที่ test "น้ำหนักรวมกันได้ 1 ภายใน 1e-12" ผ่านแบบไม่มีลุ้น)
-
-    W: (nscale, ntime) เชิงซ้อนหรือจริงก็ได้ · คืนชนิดเดียวกับที่รับมา
-
-    pad="zero"  ค่าปริยาย — เติมศูนย์ถึง **กำลังสองถัดไป** แล้วตัดกลับ (ดูเหตุผลข้อ 2)
-                ตรงกับที่ pycwt ทำเป๊ะ ๆ · ที่ n = 865 คือเติมถึง 1024
-                🐛 เคยเขียนเป็น next_fast_len (= 875) แล้วค่าที่ขอบไม่ตรงกับ pycwt
-                   ทั้งที่สูตรเหมือนกันทุกอย่าง — ความยาวที่เติมมีผลจริง
-    pad="wrap"  convolution แบบวน ผลรวมน้ำหนักเป็น 1 ทุกตำแหน่ง ⇒ ใช้ทดสอบ normalize
-                **ห้ามใช้ผลิตผลจริง** เพราะปลายอนุกรมสองข้างจะปนกัน
-                มีไว้ให้ scripts/validate_wtc.py พิสูจน์ว่าความต่างที่เหลือทั้งหมด
-                คือ *ทางเลือกเรื่องขอบ* ไม่ใช่บั๊กในสูตร — ไม่ได้มีไว้ใช้ผลิตผลจริง
-    """
     W = np.asarray(W)
     n = W.shape[1]
     if pad == "wrap":
@@ -132,29 +31,20 @@ def smooth_time(W: np.ndarray, dt: float, scales: np.ndarray,
         m = int(2 ** np.ceil(np.log2(n)))
     else:
         raise ValueError(f"pad ต้องเป็น 'wrap' หรือ 'zero' ไม่ใช่ {pad!r}")
-    k = 2 * np.pi * np.fft.fftfreq(m)                 # เรเดียนต่อหนึ่งตัวอย่าง
-    sigma = (np.asarray(scales, float) / dt)[:, None]  # sigma ในหน่วยตัวอย่าง แยกรายสเกล
+    k = 2 * np.pi * np.fft.fftfreq(m)
+    sigma = (np.asarray(scales, float) / dt)[:, None]
     transfer = np.exp(-0.5 * (sigma ** 2) * (k[None, :] ** 2))
     out = np.fft.ifft(transfer * np.fft.fft(W, m, axis=1), axis=1)[:, :n]
     return out.real if np.isrealobj(W) else out
 
 
 def smooth_scale(W: np.ndarray, dj: float, edge: str = "renorm") -> np.ndarray:
-    """S_scale — convolve ตามแกนสเกลด้วย boxcar ยาว 2*0.6/dj ช่อง
-
-    edge="renorm"  ค่าปริยายของโปรเจกต์ — หารด้วย "ผลรวมน้ำหนักที่ตกในช่วงจริง"
-                   (ดูเหตุผลข้อ 3 ในหัวไฟล์) วิธีคิด: convolve ทั้งข้อมูลและ convolve
-                   ตัวนับที่เป็น 1 ทุกช่อง แล้วเอามาหารกัน — ได้ค่าเฉลี่ยจริงทุกแถว
-    edge="zero"    ปล่อยให้น้ำหนักที่ตกนอกช่วงหายไปเฉย ๆ = สิ่งที่ pycwt ทำ
-                   (ใช้เฉพาะตอนเทียบใน validate_wtc.py)
-    """
     W = np.asarray(W)
     w = boxcar_scale_weights(dj)
     if len(w) == 1:
         return W
 
     def conv_cols(a: np.ndarray) -> np.ndarray:
-        # np.convolve ทำทีละ 1 มิติ -> วนตามคอลัมน์เวลา (แกนสเกลคือแกนที่ถูก convolve)
         return np.apply_along_axis(lambda col: np.convolve(col, w, mode="same"), 0, a)
 
     num = conv_cols(W)
@@ -162,21 +52,12 @@ def smooth_scale(W: np.ndarray, dj: float, edge: str = "renorm") -> np.ndarray:
         return num
     if edge != "renorm":
         raise ValueError(f"edge ต้องเป็น 'renorm' หรือ 'zero' ไม่ใช่ {edge!r}")
-    den = conv_cols(np.ones((W.shape[0], 1)))         # ตัวหารเท่ากันทุกคอลัมน์เวลา
+    den = conv_cols(np.ones((W.shape[0], 1)))
     return num / den
 
 
 def smooth(W: np.ndarray, dt: float, dj: float, scales: np.ndarray,
            compat: bool = False) -> np.ndarray:
-    """S(W) = S_scale( S_time(W) ) — ลำดับตามสมการ (2) ของเปเปอร์ต้นทาง
-
-    สองตัวนี้สลับที่กันได้ในทางคณิตศาสตร์ (แต่ละตัวทำคนละแกน) แต่เรียงตามเปเปอร์ไว้
-    เพื่อให้เทียบโค้ดกันได้ตรง ๆ
-
-    compat=True เปลี่ยนการจัดการขอบทั้งสองแกนไปเป็นแบบเดียวกับ pycwt/Grinsted
-    ⇒ ผลต้องตรงกันถึงระดับ floating point ใช้พิสูจน์ในประตู G1 ว่าสูตรตรงกันจริง
-    **ห้ามใช้ compat=True ผลิตผลลัพธ์ที่จะรายงาน** — ค่าปริยายคือทางเลือกของเรา
-    """
     if compat:
         return smooth_scale(smooth_time(W, dt, scales, pad="zero"), dj, edge="zero")
     return smooth_scale(smooth_time(W, dt, scales), dj)

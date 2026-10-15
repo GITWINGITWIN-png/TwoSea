@@ -1,27 +1,6 @@
 #!/usr/bin/env python3
-"""Q1 (+ Q2, Q8 เป็นของสำรอง) — WTC ระหว่างระดับน้ำทะเลกับดัชนีเดี่ยวทีละตัว พร้อมนัยสำคัญ
-
-    uv run python scripts/run_wtc.py                 # 1000 surrogate ตามแผน (ผลจริง)
-    uv run python scripts/run_wtc.py --nmc 200       # ตอนพัฒนา
-
-ต่อหนึ่งคู่ (สถานี, ดัชนี):
-  1. WTC ด้วยโค้ดของเรา (wtc.coherence.wtc)
-  2. threshold 95% รายสเกลจาก AR(1) surrogate `nmc` คู่       (significance.threshold_wtc)
-  3. จุดที่นับได้ = ในกรวย COI และของเติมในหน้าต่าง ≤ 50%        (metrics.valid_mask)
-  4. PASC / AWC ทั้งระนาบ · 2–7 ปี · 8–16 ปี                   (metrics.summarize)
-  5. **p-value ของ PASC** เทียบการกระจายของ PASC จาก surrogate อีก `nmc` คู่ชุดใหม่
-     (significance.pasc_null) — จำเป็นเพราะ PASC รายแถบของ noise ล้วนขึ้นถึง ~22% ได้
-
-คำนวณครบ 3 สถานี แต่ **รายงานหลักคือ KO TAPHAO NOI** (PLAN.md §1.4) อีกสองสถานีเก็บไว้
-เป็นของสำรองสำหรับ Q2 (อันดามัน vs อ่าวไทย) และ Q8 (แผ่นดินทรุด)
-
-ขนานกันทีละคู่ด้วย process pool — 24 คู่ × 2000 surrogate รันทีละคู่ใช้ ~17 นาที
-ผล -> data/processed/wtc_q1.npz
-"""
 from __future__ import annotations
 import os
-# ต้องตั้งก่อน import numpy: ให้แต่ละ worker ใช้ BLAS เธรดเดียว ไม่งั้น 24 process × หลายเธรด
-# จะแย่งคอร์กันเองจนช้ากว่ารันทีละคู่
 for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
     os.environ.setdefault(_v, "1")
 
@@ -31,21 +10,20 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from wtc.coherence import wtc                                            # noqa: E402
-from wtc.metrics import BANDS, significance, summarize, valid_mask      # noqa: E402
+from wtc.coherence import wtc  # noqa: E402
+from wtc.metrics import BANDS, significance, summarize, valid_mask  # noqa: E402
 from wtc.significance import empirical_p, fit_ar1, pasc_null, threshold_wtc  # noqa: E402
-from wtc.transform import DJ, DT_MONTHLY, cwt                            # noqa: E402
+from wtc.transform import DJ, DT_MONTHLY, cwt  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 SERIES = ROOT / "data" / "processed" / "series.npz"
 OUT = ROOT / "data" / "processed" / "wtc_q1.npz"
-MAIN = "ko_taphao_noi"          # สถานีที่รายงานตาม proposal — เรียงไว้ก่อนเสมอ
+MAIN = "ko_taphao_noi"
 LABEL = {"ko_taphao_noi": "KO TAPHAO NOI (อันดามัน)", "ko_lak": "KO LAK (อ่าวไทย)",
          "fort_phrachula_chomklao": "FORT PHRACHULA (อ่าวไทยตอนบน)"}
 
 
 def one_pair(y, y_fill, x, x_fill, nmc, seed):
-    """งานของ worker หนึ่งตัว — คืนทุกอย่างของคู่นี้"""
     n = len(y)
     a_y, s_y = fit_ar1(y, y_fill)
     a_x, s_x = fit_ar1(x, x_fill)
@@ -89,7 +67,7 @@ def main() -> int:
         for i, s in enumerate(stations):
             iy = y_names.index(s)
             for j, k in enumerate(x_names):
-                seed = args.seed + 1000 * i + j          # คนละ seed ทุกคู่ แต่กำหนดได้ซ้ำ
+                seed = args.seed + 1000 * i + j
                 fut = pool.submit(one_pair, Y[iy], Yf[iy], X[j], Xf[j], args.nmc, seed)
                 jobs[fut] = (s, k)
         for n_done, fut in enumerate(as_completed(jobs), 1):
@@ -99,7 +77,6 @@ def main() -> int:
                   f"PASC {results[(s, k)]['summary']['ทั้งระนาบ']['pasc']:5.1f}% "
                   f"({time.perf_counter() - t0:5.0f} s)", flush=True)
 
-    # --- ตาราง ------------------------------------------------------------
     bands = list(BANDS)
     for s in stations:
         tag = "  ← รายงานหลัก" if s == MAIN else "  (สำรอง)"
@@ -120,7 +97,6 @@ def main() -> int:
             print(f"  {k:8s} {r['a_x']:6.3f} │ " + " │ ".join(cells))
     print("\n  * = PASC สูงกว่าที่ noise ทำได้ (p < 0.05 เทียบการกระจายของ PASC ใน null)")
 
-    # --- บันทึก -----------------------------------------------------------
     first = results[(MAIN, x_names[0])]
     stack = lambda key: np.array([[results[(s, k)][key] for k in x_names] for s in stations])
     summary = {s: {k: results[(s, k)]["summary"] for k in x_names} for s in stations}

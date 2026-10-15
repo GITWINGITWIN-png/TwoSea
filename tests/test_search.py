@@ -1,15 +1,3 @@
-"""ทดสอบ wtc/search.py — การค้นครบทุกชุดดัชนี (W6)
-
-เกณฑ์ผ่าน
-  - จำนวนชุดถูก: 8 ดัชนี ขนาด 1–5 = 218 ชุด
-  - ผลของ evaluate_subsets ต้องเท่ากับการคำนวณทีละชุดด้วยเส้นทางที่ผ่านการตรวจใน W5 มาแล้ว
-    (mwc_cached + metrics.valid_mask + metrics.pasc) — ทางลัดทั้งหมดต้องไม่เปลี่ยนคำตอบ
-  - pasc_fixed ที่ q=1 ต้องเท่ากับ pasc (threshold ตัวเดียวกัน)
-  - **Y ที่สร้างจาก X0 + X1 ต้องถูกค้นเจอ**: ชุดที่ดีที่สุดที่ q=2 ต้องเป็น {X0, X1}
-  - กฎความประหยัดและส่วนเพิ่มต่อ q คิดถูกบนตัวเลขที่รู้คำตอบ
-
-เขียนแล้ว 2026-10-02 (W6)
-"""
 import numpy as np
 import pytest
 
@@ -34,7 +22,6 @@ def test_all_subsets_counts():
 
 @pytest.fixture(scope="module")
 def setup():
-    """Y = X0 + X1 + noise อ่อน ๆ · X2, X3 ไม่เกี่ยว · Y มีช่องว่างยาวหนึ่งช่วง"""
     rng = np.random.default_rng(3)
     xs = [ar1_surrogate(N, a, s, rng) for a, s in zip(A_X, S_X)]
     y = xs[0] + xs[1] + 0.4 * ar1_surrogate(N, 0.5, 0.87, rng)
@@ -57,9 +44,9 @@ def setup():
 
 def test_matches_the_slow_checked_path(setup):
     s = setup
-    for i in (0, 5, len(s["subsets"]) - 1):                 # q = 1, 2, 3
+    for i in (0, 5, len(s["subsets"]) - 1):
         sub = s["subsets"][i]
-        R2, _ = mwc_cached(s["cache"], "y", sub)             # ทั้งระนาบ + ตรวจ cond
+        R2, _ = mwc_cached(s["cache"], "y", sub)
         valid = valid_mask(s["per"], s["coi"], s["sc"], DT_MONTHLY, s["y_fill"]) & np.isfinite(R2)
         sig = significance(R2, s["thr"][len(sub)])
         for b, band in enumerate(BANDS.values()):
@@ -78,16 +65,16 @@ def test_unchecked_path_gives_same_table(setup):
 def test_fixed_threshold_equals_adjusted_at_q1_and_inflates_after(setup):
     t = setup["tab"]
     np.testing.assert_array_equal(t.pasc[t.q == 1], t.pasc_fixed[t.q == 1])
-    assert np.all(t.pasc_fixed[t.q > 1] >= t.pasc[t.q > 1] - 1e-9)   # threshold ต่ำกว่า ⇒ ผ่านมากกว่า
+    assert np.all(t.pasc_fixed[t.q > 1] >= t.pasc[t.q > 1] - 1e-9)
 
 
 def test_search_recovers_the_true_pair(setup):
     t = setup["tab"]
     best = best_per_q(t.q, t.pasc[:, 0])
     assert setup["subsets"][best[2][0]] == ("x0", "x1")
-    assert best[2][1] > 60                                   # อธิบายได้เกือบทั้งระนาบ
+    assert best[2][1] > 60
     g = gains(best)
-    assert g[2] > 5 and g[3] < 5                             # เพิ่มตัวที่สองคุ้ม ตัวที่สามไม่คุ้ม
+    assert g[2] > 5 and g[3] < 5
     assert setup["subsets"][within_of_max(t.pasc[:, 0], t.q, 1.0)] == ("x0", "x1")
 
 
@@ -107,16 +94,15 @@ def test_reduce_and_selection_rules_on_known_numbers():
     best = best_per_q(q, v[:, 0])
     assert best == {1: (1, 12.0), 2: (2, 20.0), 3: (4, 20.4)}
     assert gains(best) == {2: 8.0, 3: pytest.approx(0.4)}
-    assert within_of_max(v[:, 0], q, 1.0) == 2               # ชุด q=2 แพ้ q=3 แค่ 0.4 ⇒ เลือกชุดเล็ก
+    assert within_of_max(v[:, 0], q, 1.0) == 2
     allowed = np.array([True, False, False, True, True])
     assert best_per_q(q, v[:, 0], allowed)[1] == (0, 10.0)
 
 
 def test_fast_search_matches_checked_path(setup):
-    """เส้นทางเร็ว (Cholesky เพิ่มทีละตัว · ทำทีละบล็อก) ต้องได้ PASC เท่ากับเส้นทางที่ตรวจแล้วทุกชุดทุกแถบ"""
     from wtc.search import FastSearch
     s = setup
-    for block in (4096, 1000):                               # ขนาดบล็อกต้องไม่มีผลต่อคำตอบ
+    for block in (4096, 1000):
         fs = FastSearch(NAMES, s["subsets"], s["thr"], s["per"], s["inside"], s["ok"], block=block)
         p, pf, n_bad = fs.run(s["cache"])
         assert n_bad == 0
@@ -126,7 +112,6 @@ def test_fast_search_matches_checked_path(setup):
 
 
 def test_fast_search_flags_singular_points(setup):
-    """ดัชนีที่ซ้ำกันเป๊ะ ⇒ จุดทั้งหมดของชุดที่มีทั้งคู่ต้องถูกนับเป็น n_bad และไม่มีนัยสำคัญ"""
     from wtc.search import FastSearch
     s = setup
     W = dict(s["cache"].W, dup=-s["cache"].W["x0"])

@@ -1,15 +1,4 @@
 #!/usr/bin/env python3
-"""รูปสุดท้ายสำหรับรายงาน — วาดจากไฟล์ผลใน data/processed/ เท่านั้น ไม่คำนวณผลใหม่
-
-    uv run python scripts/make_figures.py            # ทุกรูป -> figures/report/
-    uv run python scripts/make_figures.py fig04      # เฉพาะรูปที่ชื่อขึ้นต้นด้วย fig04
-
-ทำไมแยกจากโน้ตบุ๊ก: โน้ตบุ๊กมีรูประหว่างทางไว้ตรวจกระบวนการ (figures/w*.png) ส่วนนี้คือรูปชุดเดียว
-ที่เข้ารายงานและสไลด์ ⇒ สไตล์เดียวกัน ชื่อดัชนีเดียวกัน และ **ทุกตัวเลขในรูปมาจากไฟล์ผล** ถ้ารันสคริปต์
-คำนวณใหม่ แล้วรันไฟล์นี้ซ้ำ รูปจะตามทันเองโดยไม่ต้องแก้มือ
-
-รายงานสองทะเล (PLAN.md §1.4): อันดามัน = KO TAPHAO NOI · อ่าวไทย = KO LAK
-"""
 from __future__ import annotations
 import json, sys
 from pathlib import Path
@@ -57,10 +46,8 @@ def bh(p):
     out = np.empty(m); out[o] = np.minimum(q, 1); return out
 
 
-# ---------------------------------------------------------------------------
 @figure
 def fig01_series():
-    """ระดับน้ำทะเลหลังตัดแนวโน้ม+ฤดูกาลของสองทะเล เทียบกับ WNPMI และ SOI (ค่าเฉลี่ยเคลื่อนที่ 12 เดือน)"""
     d = np.load(PROC / "series.npz", allow_pickle=True)
     t, yn, xn = d["t"], [str(s) for s in d["y_names"]], [str(s) for s in d["x_names"]]
     sm = lambda x: np.convolve(x, np.ones(12) / 12, mode="same")
@@ -84,7 +71,6 @@ def fig01_series():
 
 @figure
 def fig02_filter():
-    """Q7 — ตัวกรอง anti-alias ที่ออกแบบเอง (Kaiser) พร้อมตำแหน่งน้ำขึ้นน้ำลง"""
     from wtc.multirate import TIDES_CPD, design_lowpass
     spec = json.loads(str(np.load(PROC / "decimation.npz", allow_pickle=True)["spec"]))
     design = design_lowpass(**spec)
@@ -96,7 +82,6 @@ def fig02_filter():
 
 @figure
 def fig03_wtc_maps():
-    """Q1/Q2 — WTC ของสองทะเลกับสามดัชนีหลัก + เส้นขอบนัยสำคัญ + ลูกศรเฟส"""
     r = np.load(PROC / "wtc_q1.npz", allow_pickle=True)
     st_ = [str(s) for s in r["stations"]]; ix = [str(s) for s in r["indices"]]
     t, per, coi = r["t"], r["periods"], r["coi"]
@@ -120,7 +105,6 @@ def fig03_wtc_maps():
 
 @figure
 def fig04_q1_pasc():
-    """Q1/Q2 — PASC ของดัชนีเดี่ยวทั้ง 8 ตัว สองทะเล สองแถบ · ขีดดำ = 95% ของ null · ดาว = ผ่าน BH"""
     r = np.load(PROC / "wtc_q1.npz", allow_pickle=True)
     st_ = [str(s) for s in r["stations"]]; ix = [str(s) for s in r["indices"]]
     bands = [str(b) for b in r["bands"]]; S = json.loads(str(r["summary"]))
@@ -151,7 +135,6 @@ def fig04_q1_pasc():
 
 @figure
 def fig05_threshold_vs_q():
-    """W5 — threshold ของ MWC สูงขึ้นตามจำนวนดัชนี (สถานีอันดามัน · สามสถานีแทบทับกัน)"""
     n = np.load(PROC / "mwc_null.npz", allow_pickle=True)
     per, qs = n["periods"], [int(q) for q in n["qs"]]
     fig, ax = plt.subplots(figsize=(8.5, 3.8))
@@ -169,7 +152,6 @@ def fig05_threshold_vs_q():
 
 @figure
 def fig06_q6_false_floor():
-    """Q6 — PASC เฉลี่ยทุกชุดขนาด q: ดัชนีจริง vs ดัชนีปลอม · ปรับ / ไม่ปรับ threshold · เทียบเปเปอร์"""
     s = np.load(PROC / "mwc_search.npz", allow_pickle=True)
     nc = np.load(PROC / "null_control.npz", allow_pickle=True)
     q = s["q"]; qs = sorted(set(int(v) for v in q)); kb = [str(b) for b in s["bands"]].index("ทั้งระนาบ")
@@ -192,7 +174,6 @@ def fig06_q6_false_floor():
 
 @figure
 def fig07_q3_best_per_q():
-    """Q3 — PASC ของชุดที่ดีที่สุดต่อ q เทียบ null ของค่าสูงสุด (Y ปลอม) · สองทะเล × สองแถบ"""
     s = np.load(PROC / "mwc_search.npz", allow_pickle=True)
     nc = np.load(PROC / "null_control.npz", allow_pickle=True)
     q = s["q"]; qs = sorted(set(int(v) for v in q)); bands = [str(b) for b in s["bands"]]
@@ -225,7 +206,6 @@ def fig07_q3_best_per_q():
 
 @figure
 def fig08_q5_regional():
-    """Q5 — ชุดที่ดีที่สุดจาก 8 ตัว vs จาก 6 ตัวของเปเปอร์ · แถบ 2–7 ปี · สองทะเล"""
     s = np.load(PROC / "mwc_search.npz", allow_pickle=True)
     q = s["q"]; qs = sorted(set(int(v) for v in q)); in6 = s["in_paper6"]
     kb = [str(b) for b in s["bands"]].index("2–7 ปี")
@@ -244,7 +224,6 @@ def fig08_q5_regional():
 
 @figure
 def fig09_sensitivity():
-    """W7 — ข้อสรุปหลักภายใต้การเตรียมข้อมูลแต่ละแบบ (สองทะเล)"""
     from wtc.series import VARIANTS
     files = {n: PROC / f"sens_{n}.npz" for n in VARIANTS}
     have = {n: f for n, f in files.items() if f.exists()}

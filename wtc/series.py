@@ -1,14 +1,3 @@
-"""สร้างเมทริกซ์วิเคราะห์ (Y สถานี × X ดัชนี บนกริดรายเดือนร่วม) — แบบมาตรฐานและแบบทดสอบความไว
-
-    build_series(BASELINE)            = สิ่งที่ scripts/build_series.py เขียนลง series.npz
-    build_series(VARIANTS["cut_2004"]) = แบบทดสอบความไวของ W7
-
-ย้ายมาจาก scripts/build_series.py เมื่อ 2026-10-07 (W7) เพื่อให้สคริปต์ทดสอบความไวสร้างอนุกรมแบบอื่น
-ได้ด้วยโค้ดเส้นเดียวกันทุกบรรทัด — ถ้าแต่ละแบบมีโค้ดสร้างอนุกรมของตัวเอง ความต่างของผลอาจมาจาก
-โค้ดที่ต่างกัน ไม่ใช่จากสิ่งที่ตั้งใจเปลี่ยน ⇒ **แต่ละแบบเปลี่ยนได้แค่ทีละหนึ่งอย่าง** (ดู Variant)
-
-เทสต์บังคับว่า build_series(BASELINE) ต้องได้เลขเดียวกับ series.npz ทุกหลัก (tests/test_series.py)
-"""
 from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -24,24 +13,22 @@ RAW = ROOT / "data" / "raw"
 STATIONS = {"ko_lak": "KO LAK (อ่าวไทย)",
             "ko_taphao_noi": "KO TAPHAO NOI (อันดามัน)",
             "fort_phrachula_chomklao": "FORT PHRACHULA (อ่าวไทยตอนบน)"}
-# 8 ตัวของ PLAN.md §1.3 — 6 ตัวของเปเปอร์ต้นทาง + DMI + WNPMI · WHWP ไม่อยู่ในนี้
 INDEX_FILES = ["nino34", "soi", "pdo", "amo", "nao", "tpi", "dmi"]
 INDEX_NAMES = INDEX_FILES + ["wnpmi"]
-UHSLC_STATIONS = ("ko_taphao_noi", "ko_lak")      # สถานีที่มี UHSLC รายชั่วโมง (ใช้ในแบบ y_q7)
+UHSLC_STATIONS = ("ko_taphao_noi", "ko_lak")
 
 
 @dataclass(frozen=True)
 class Variant:
-    """หนึ่งแบบของการเตรียมข้อมูล — ทุกช่องมีค่าปริยายเท่ากับแบบมาตรฐาน"""
     name: str
     label: str
-    max_interp: int = MAX_INTERP_MONTHS          # ช่องว่างยาวกว่านี้เติม 0 แทน interp
-    max_filled: float = 0.5                      # เกณฑ์ของเติมในหน้าต่าง smoothing (ใช้ตอนนับ PASC)
-    exclude: tuple[float, float] | None = None   # ช่วงปีของ Y ที่ทำให้เป็นช่องว่างก่อนเตรียม
+    max_interp: int = MAX_INTERP_MONTHS
+    max_filled: float = 0.5
+    exclude: tuple[float, float] | None = None
     indices: tuple[str, ...] = tuple(INDEX_NAMES)
-    y_source: str = "psmsl"                      # "psmsl" หรือ "q7" (UHSLC รายชั่วโมงผ่านโซ่ Q7)
+    y_source: str = "psmsl"
     stations: tuple[str, ...] = tuple(STATIONS)
-    window: tuple[float, float] | None = None    # บังคับหน้าต่างเวลา (ตัดให้แคบลงจากหน้าต่างร่วม)
+    window: tuple[float, float] | None = None
     why: str = ""
 
 
@@ -71,18 +58,12 @@ VARIANTS: dict[str, Variant] = {v.name: v for v in (
 
 
 def q7_monthly(station: str) -> tuple[np.ndarray, np.ndarray]:
-    """ระดับน้ำรายเดือนจาก UHSLC รายชั่วโมง ผ่านโซ่ anti-alias + decimation ของ Q7
-
-    ใช้ตัวกรองและสเปกเดียวกับ scripts/verify_decimation.py ทุกประการ
-    (เดือนที่มีวันใช้ได้ < 15 วัน ⇒ NaN ตามกฎของ daily_to_monthly)
-    -> (ปีทศนิยมกลางเดือน, mm)
-    """
     from .multirate import daily_to_monthly, design_lowpass, hourly_to_daily
-    spec = dict(f_pass=0.1, f_stop=0.5, atten_db=70.0, fs=24.0)    # = verify_decimation.SPEC
+    spec = dict(f_pass=0.1, f_stop=0.5, atten_db=70.0, fs=24.0)
     t, v = read_uhslc_grid(RAW / "uhslc" / f"{station}_hourly.csv")
     days, daily = hourly_to_daily(t, v, design_lowpass(**spec))
     months, monthly, _ = daily_to_monthly(days, daily)
-    m = months.astype("datetime64[M]").astype(int)                # เดือนนับจาก 1970-01
+    m = months.astype("datetime64[M]").astype(int)
     return 1970 + m / 12 + 1 / 24, monthly
 
 
@@ -94,7 +75,7 @@ def load_raw(variant: Variant = BASELINE, verbose: bool = False
             series[k] = q7_monthly(k)
             continue
         t, v = read_psmsl(RAW / "psmsl" / f"{k}_monthly.rlrdata")
-        v, cut = apply_exclusions(k, t, v)          # ค่าที่พิสูจน์แล้วว่าผิด (wtc/qc.py)
+        v, cut = apply_exclusions(k, t, v)
         if cut and verbose:
             print(f"  ตัดค่าที่พิสูจน์แล้วว่าผิดของ {k}: {', '.join(cut)} (หลักฐานใน wtc/qc.py)")
         series[k] = (t, v)
@@ -106,19 +87,12 @@ def load_raw(variant: Variant = BASELINE, verbose: bool = False
 
 
 def build_series(variant: Variant = BASELINE, verbose: bool = False) -> dict:
-    """-> dict(t, Y, Y_fill, X, X_fill, y_names, x_names, meta, stats, variant)
-
-    หน้าต่างเวลา
-      psmsl  กำหนดโดย **ดัชนี** (SOI เริ่มช้าสุด · AMO จบก่อนเพื่อน) — PSMSL ครอบคลุม 1940–2024 อยู่แล้ว
-             จึงไม่เอามาคิด เพื่อไม่ให้ช่องว่างของสถานีใดสถานีหนึ่งไปตัดหน้าต่างของทั้งงาน
-      q7     ต้องตัดด้วยช่วงของ Y ด้วย เพราะ UHSLC มีแค่ 1985–2019
-    """
     raw = load_raw(variant, verbose)
     window_series = {n: raw[n] for n in variant.indices}
     if variant.y_source == "q7":
         window_series |= {k: raw[k] for k in variant.stations}
     start, stop = common_window(window_series)
-    if variant.window is not None:                   # แคบลงได้อย่างเดียว ไม่ยืดเกินที่ข้อมูลมี
+    if variant.window is not None:
         start, stop = max(start, variant.window[0]), min(stop, variant.window[1] - 1e-6)
     grid, aligned = align(raw, start, stop)
 

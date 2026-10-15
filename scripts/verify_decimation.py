@@ -1,25 +1,4 @@
 #!/usr/bin/env python3
-"""Q7 — โซ่ anti-alias + decimation ที่เขียนเอง ให้ค่าตรงกับ PSMSL ทางการไหม
-
-    uv run python scripts/verify_decimation.py
-
-    UHSLC รายชั่วโมง (KO TAPHAO NOI 1985–2019)
-      ──[ FIR Kaiser 70 dB ]──> รายวัน   เทียบ UHSLC daily (ตัวกรองทางการของ UHSLC)
-      ──[ เฉลี่ยเดือนปฏิทิน ]──> รายเดือน เทียบ PSMSL รายเดือน
-      ──[ เฉลี่ย 12 เดือน ]───> รายปี    เทียบ PSMSL รายปี
-
-เกณฑ์ (proposal §4 · PLAN.md §6): **รายงาน RMS จริง พร้อมอธิบายที่มาของผลต่างที่เหลือ**
-ไม่ตั้งเกณฑ์ลอย ๆ ไว้ล่วงหน้า ⇒ สคริปต์นี้แยกการเทียบตามช่วงเวลาที่ datum ของสองแหล่ง
-ต่างกันอย่างมีเอกสารรองรับ (ดู docstring ของ PERIODS) เพื่อให้ตัวเลขแต่ละตัวตอบคำถามเดียว
-
-ผลเมื่อ 2026-09-30 (ใช้เป็นเลขอ้างอิงถ้ารันใหม่แล้วต่าง)
-    ตัวกรอง       261 taps · beta 6.7553 · stopband วัดได้ 70.07 dB
-    รายวัน         vs UHSLC daily   RMS  3.0 mm
-    รายเดือน 1988–2005 (datum นิ่ง)  median|d| 1.2 mm · 90% ภายใน ±5 mm
-    รายเดือน 2015–2019 (นิ่งอีกครั้ง) median|d| 1.1 mm · 85% ภายใน ±5 mm แต่ offset ขยับไป −100.7 mm
-    รายเดือน 2006–2012               ส่วนต่างไม่นิ่ง ← สองแหล่งไม่ตรงกันเอง ไม่ใช่ตัวกรอง
-    ไม่กรองเลย                       RMS 152 mm · offset ขยับ 290 mm (= S2 พับลง DC)
-"""
 from __future__ import annotations
 import json, sys
 from pathlib import Path
@@ -27,7 +6,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from wtc.loaders import read_psmsl, read_uhslc_daily, read_uhslc_grid  # noqa: E402
-from wtc.multirate import (TIDES_CPD, compare, daily_to_monthly,        # noqa: E402
+from wtc.multirate import (TIDES_CPD, compare, daily_to_monthly,  # noqa: E402
                            decimal_year_to_month, design_lowpass, hourly_to_daily,
                            monthly_mean_direct, monthly_to_annual, naive_daily)
 
@@ -35,20 +14,8 @@ ROOT = Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw"
 OUT = ROOT / "data" / "processed" / "decimation.npz"
 
-# สเปกตัวกรอง — ที่มาของแต่ละตัวเลขอยู่ใน wtc/multirate.py หัวไฟล์
 SPEC = dict(f_pass=0.1, f_stop=0.5, atten_db=70.0, fs=24.0)
 
-# ช่วงเวลาที่ใช้แยกการเทียบ — แต่ละรอยต่อมีเอกสารของ PSMSL สถานี 446 รองรับ
-# (psmsl.org/data/obtaining/stations/446.php · Documentation added 2011-07-12)
-#   "From 1987 onwards the benchmark was BM 105 ..."
-#   "In 1988 the datum was raised 14mm."
-#   "In 1998 the primary benchmark became AS-1/2531 ..."
-# และปี 2004 คือปีสึนามิที่มาตรวัดเสียหาย (หายทั้งปีในทุกแหล่ง)
-#
-# ช่วงหลังปี 2004 แบ่งตามที่ข้อมูลแสดงเอง (ไม่มีเอกสารของ PSMSL รองรับ):
-#   2005        ยังต่างคงที่เท่ายุคก่อน (มาตรวัดที่ติดตั้งใหม่ยังตรงกันทั้งสองแหล่ง)
-#   2006–2012   ส่วนต่างไม่นิ่ง แกว่งเป็นหลักสิบถึงร้อย mm
-#   2015–2019   กลับมานิ่งอีกครั้ง แต่ที่ระดับต่างจากยุคแรก ~101 mm = ขั้นบันไดของ datum
 PERIODS = {
     "1985–1987 (ก่อนยก datum 14 mm)": ("1985-01", "1988-01"),
     "1988–2005 (datum นิ่ง ยุคแรก)":   ("1988-01", "2006-01"),
@@ -70,7 +37,6 @@ def run() -> dict:
     ta, va = read_psmsl(RAW / "psmsl" / "ko_taphao_noi_annual.rlrdata")
     pm, py = decimal_year_to_month(tp), np.floor(ta).astype(int)
 
-    # ตัวเปรียบเทียบ: ไม่ผ่าน FIR เลย / ไม่กรองแล้วสุ่มวันละครั้ง / ใช้ daily ของ UHSLC แทนของเรา
     dm, dmv, _ = monthly_mean_direct(t, v)
     nd, ndv = naive_daily(t, v, hour=0)
     nm, nmv, _ = daily_to_monthly(nd, ndv)
@@ -104,9 +70,6 @@ def main() -> int:
           f"รายปี {np.isfinite(r['annual']).sum()}/{len(r['years'])}")
 
     def row(label, c):
-        # median|d| และ "ภายใน ±5 mm" วัดรอบ **ค่ากลาง** ของส่วนต่าง ไม่ใช่รอบค่าเฉลี่ย
-        # เพราะค่าโดดไม่กี่เดือน (±250 mm) ดึงค่าเฉลี่ยจนเดือนปกติทั้งหมดดูเหมือนต่างกันหลายมิลลิเมตร
-        # ส่วน RMS ยังคิดรอบค่าเฉลี่ยตามนิยาม — สองตัวนี้ตอบคนละคำถามจึงรายงานทั้งคู่
         rob = c.diff + c.offset - c.median_offset
         print(f"  {label:40s} n={c.n:5d} offset={c.offset:+8.1f} (ค่ากลาง {c.median_offset:+8.1f}) "
               f"RMS={c.rms:6.2f} median|d|={np.median(np.abs(rob)):6.2f} "

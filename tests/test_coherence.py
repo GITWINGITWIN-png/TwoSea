@@ -1,17 +1,3 @@
-"""ทดสอบ wtc/coherence.py — WTC
-
-เกณฑ์ผ่าน (PLAN.md §6)
-  - wtc(x, x) = 1 ทุกจุด ภายใน 1e-10
-  - wtc ของ AR(1) อิสระสองเส้น: ค่าเฉลี่ยต้องใกล้ระดับ null ไม่ใช่ใกล้ 1
-    (ถ้าได้ใกล้ 1 แปลว่าลืม smoothing)
-  - 🚦 ประตูตาย G1: โค้ดเราเทียบ pycwt.wct — อยู่ใน scripts/validate_wtc.py
-    (ต้องใช้ข้อมูลจริงและ pycwt จึงไม่เอามาไว้ใน unit test ที่ต้องรันเร็ว
-     แต่มีตัวย่อส่วนที่ใช้ข้อมูลสังเคราะห์อยู่ในไฟล์นี้ ถ้าติดตั้ง pycwt ไว้)
-
-⚠️ ห้ามใช้ KO LAK เป็นตัวตัดสินว่าโค้ดถูกหรือผิด — สถานีนั้นไม่มีสัญญาณจริง
-
-เขียนแล้ว 2026-09-20 (W1)
-"""
 import numpy as np
 import pytest
 
@@ -34,7 +20,6 @@ def test_wtc_of_series_with_itself_is_one():
 
 
 def test_wtc_of_independent_series_is_not_one():
-    """ถ้าได้ใกล้ 1 แปลว่า smoothing ไม่ทำงาน — เป็นบั๊กที่เงียบที่สุดของทั้งโปรเจกต์"""
     Wx, scales, _, _ = cwt(_series(seed=1))
     Wy, _, _, _ = cwt(_series(seed=2))
     R2, _ = wtc(Wx, Wy, DT_MONTHLY, DJ, scales)
@@ -51,7 +36,6 @@ def test_wtc_stays_in_unit_interval():
 
 
 def test_phase_of_shifted_series_has_right_sign():
-    """เลื่อนอนุกรมไปข้างหน้า -> เฟสต้องเปลี่ยนเครื่องหมายเมื่อสลับลำดับอาร์กิวเมนต์"""
     x = _series(seed=5)
     y = np.roll(x, 3)
     Wx, scales, _, _ = cwt(x)
@@ -68,7 +52,6 @@ def test_xwt_is_conjugate_symmetric():
 
 
 def test_matches_pycwt_on_synthetic_data():
-    """ประตู G1 ฉบับย่อ — ใช้ข้อมูลสังเคราะห์ ไม่ต้องรอไฟล์ข้อมูลจริง"""
     pycwt = pytest.importorskip("pycwt")
     from wtc.transform import OMEGA0, morlet_flambda
     x, y = _series(seed=8), _series(seed=9)

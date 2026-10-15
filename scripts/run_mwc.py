@@ -1,37 +1,13 @@
 #!/usr/bin/env python3
-"""Q3 · Q4 · Q5 — ค้น MWC ครบทุกชุดดัชนี (218 ชุด/สถานี) พร้อมนัยสำคัญ
-
-    uv run python scripts/run_mwc.py                # ต้องรัน run_mwc_null.py มาก่อน
-    uv run python scripts/run_mwc.py --no-exact     # ข้าม null เจาะจงชุด (ตอนพัฒนา)
-
-ต่อสถานี
-  1. cache spectrum ที่ smooth แล้วของทุกคู่ (1 + 8 + 36 = 45 อัน)
-  2. MWC ของทุกชุดขนาด 1–5 จากดัชนี 8 ตัว ⇒ PASC/AWC สามแถบ
-     - **pasc**        ใช้ threshold ของ q ตัวเอง (null รวมต่อ q จาก mwc_null.npz) ← ผลหลัก
-     - **pasc_fixed**  ใช้ threshold ของ q=1 ตลอด ← ไว้เทียบกับเส้นของเปเปอร์ต้นทางเท่านั้น
-  3. p-value ของ PASC ต่อชุด เทียบการกระจายของ PASC ใน null รวมต่อ q
-     ⚠️ p นี้ตอบว่า "ชุดนี้ชุดเดียวเกิน noise ไหม" — **ไม่ได้ชดเชยการเลือกชุดที่ดีที่สุด**
-        p ที่ชดเชยการเลือกมาจาก scripts/null_control.py (Q6)
-
-คำถาม
-  Q3  ต้องใช้ดัชนีกี่ตัว      PASC สูงสุดต่อ q + เกณฑ์ "เพิ่มอย่างน้อย 5 จุด" ของ Hu et al. (2017)
-  Q4  ชุดไหนดีที่สุด          argmax + กฎความประหยัด (ชุดเล็กสุดที่อยู่ใน 1 จุดของค่าสูงสุด)
-  Q5  ดัชนีภูมิภาคช่วยไหม     ชุดที่ดีที่สุดจาก 6 ตัวของเปเปอร์ เทียบจากทั้ง 8 ตัว ที่ q เท่ากัน
-
-สถานีหลัก: รัน **null เจาะจงชุด** ให้ชุดที่ดีที่สุดต่อ q (PLAN.md §4) เพื่อยืนยันว่าตัวเลขที่จะรายงาน
-ไม่ได้ขึ้นกับการใช้ null รวม
-
-ผล -> data/processed/mwc_search.npz
-"""
 from __future__ import annotations
 import argparse, json, os, sys, time
 from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from wtc.coherence import mwc_cached                                             # noqa: E402
-from wtc.metrics import BANDS, pasc, significance                                # noqa: E402
-from wtc.search import (all_subsets, best_per_q, evaluate_subsets, gains,        # noqa: E402
+from wtc.coherence import mwc_cached  # noqa: E402
+from wtc.metrics import BANDS, pasc, significance  # noqa: E402
+from wtc.search import (all_subsets, best_per_q, evaluate_subsets, gains,  # noqa: E402
                         prepare_station, within_of_max)
 from wtc.significance import empirical_p, fit_ar1, pasc_null_mwc, threshold_mwc  # noqa: E402
 
@@ -40,13 +16,12 @@ SERIES = ROOT / "data" / "processed" / "series.npz"
 NULL = ROOT / "data" / "processed" / "mwc_null.npz"
 OUT = ROOT / "data" / "processed" / "mwc_search.npz"
 MAIN = "ko_taphao_noi"
-PAPER6 = ("nino34", "pdo", "nao", "soi", "amo", "tpi")     # ดัชนีของเปเปอร์ต้นทาง
-GAIN_RULE = 5.0          # จุดร้อยละ — Hu et al. (2017)
-PRIMARY = ("ทั้งระนาบ", "2–7 ปี")                          # แถบที่ใช้ตัดสิน (8–16 ปีตอบไม่ได้ · Q1)
+PAPER6 = ("nino34", "pdo", "nao", "soi", "amo", "tpi")
+GAIN_RULE = 5.0
+PRIMARY = ("ทั้งระนาบ", "2–7 ปี")
 
 
 def bh_qvalues(p: np.ndarray) -> np.ndarray:
-    """Benjamini–Hochberg — q_(i) = min_{k>=i} p_(k) m / k (NaN ถูกข้าม)"""
     p = np.asarray(p, float)
     out = np.full(p.shape, np.nan)
     ok = np.isfinite(p)
@@ -89,7 +64,7 @@ def main() -> int:
         tab = evaluate_subsets(cache, "y", subsets, thr, periods, inside, ok)
         p = np.array([[empirical_p(tab.pasc[i, k], null[int(tab.q[i])][b])
                        for k, b in enumerate(bands)] for i in range(len(subsets))])
-        qv = bh_qvalues(p.ravel()).reshape(p.shape)        # BH บน 218 × 3 การทดสอบของสถานีนี้
+        qv = bh_qvalues(p.ravel()).reshape(p.shape)
         tables[st], P[st], Qv[st] = tab, p, qv
 
         tag = "← รายงานหลัก" if st == MAIN else "(สำรอง)"
@@ -109,7 +84,6 @@ def main() -> int:
             best8 = best_per_q(tab.q, v)
             best6 = best_per_q(tab.q, v, in6)
             gain = gains(best8)
-            # Q3: จำนวนดัชนีที่ "พอ" = q ใหญ่สุดที่การเพิ่มขั้นสุดท้ายยังได้ >= 5 จุด (เริ่มนับที่ 1)
             q_enough = 1
             for q in sorted(gain):
                 if gain[q] >= GAIN_RULE and q == q_enough + 1:
@@ -140,7 +114,6 @@ def main() -> int:
             }
         summary[st] = summ
 
-    # --- null เจาะจงชุด ให้ชุดที่ดีที่สุดต่อ q ของสถานีหลัก ---------------------------
     exact = {}
     if not args.no_exact:
         y_names = [str(s) for s in d["y_names"]]

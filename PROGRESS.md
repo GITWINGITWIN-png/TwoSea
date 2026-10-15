@@ -4,6 +4,23 @@
 
 > 📖 อยากเข้าใจว่าทำอะไรไปแล้วบ้าง ทำไม และได้ผลอะไร (ไม่ลงรายละเอียดโค้ด) → อ่าน [`WORKLOG.md`](WORKLOG.md)
 
+## 2026-10-15 — ตัดคอมเมนต์/คำอธิบายแบบสอนออกจากโค้ด
+
+- `wtc/` `scripts/` `tests/` `notebooks/` (44 ไฟล์ · −2,357 บรรทัด): ลบ docstring ทั้งหมด + คอมเมนต์ `#` ทั้งหมด (เหลือแค่หัวข้อ section · shebang · `# noqa`)
+- notebook: cell markdown เหลือแค่หัวข้อ + สูตร `$$` + ตาราง · ลบ print ที่เป็นคำบรรยาย 6 ตัว (เก็บหัวตาราง/legend/✅ ไว้)
+- ตรวจแล้ว: AST ตรงกับต้นฉบับทุกไฟล์ (ต่างแค่ docstring + print 6 ตัว) · `pytest tests` ผ่าน 77 ข้อ · ไม่แตะ `presentation/`
+- คำอธิบายเดิมดูได้จาก git (`git show ca1fa91:<ไฟล์>`)
+
+## 2026-10-15 — pre-report.md → PDF (ตรวจ claim ทุกประโยค)
+
+**📄 [`reports/final/pre-report.pdf`](reports/final/pre-report.pdf)** (14 หน้า · ต้นฉบับ `pre-report.tex` · `latexmk -xelatex pre-report.tex`)
+- รูปแบบ paper สากล (Times + Noto Serif Thai · หัวเรื่อง/บทคัดย่อหน้าแรก) + ย่อหน้าแบบไทยทุกย่อหน้า (`indentfirst`)
+- คงถ้อยคำของ pre-report.md · แก้เฉพาะ claim ผิด/ขาดเงื่อนไข/ขาดอ้างอิง ~30 จุด (เช่น 450 → 470 กม., สาเหตุ 10 ซม., "ตามกลไก" → "สอดคล้องกับ") — บันทึกใน [`pre-report-claimcheck.md`](reports/final/pre-report-claimcheck.md)
+- เติมรูป 15 + แผนภาพขั้นตอน · รายการอ้างอิง 19 รายการ · ตัดภาคผนวกออก (ผล Q8 ป้อมพระจุลฯ ย้ายไป §4.3)
+- ⚠️ ข้อความไทยใน .tex: ขึ้นบรรทัดใหม่ = ช่องว่าง → ถ้าตัดบรรทัดกลางวลีต้องปิดท้ายด้วย `%`
+
+- [ ] ผู้ใช้ตรวจ ⚠️ 3 ข้อใน `pre-report-claimcheck.md`
+
 ## 2026-10-15 — เตรียม repo ขึ้น GitHub (public · `GITWINGITWIN-png/TwoSea`)
 
 - ตรวจแล้ว: ไม่มี secret/API key · ไม่มีไฟล์เกิน 100 MB · commit แรกราว 252 ไฟล์ ~80 MB (ใหญ่สุด `GEO_indian_ocean.blend` 33 MB)

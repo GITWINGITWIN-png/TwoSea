@@ -1,16 +1,4 @@
 #!/usr/bin/env python3
-"""เลขเป้าของ premise test — รัน WTC ด้วยไลบรารี เพื่อให้โค้ดที่เขียนเองมีอะไรให้เทียบ
-
-    uv run --with pycwt python scripts/baseline_pycwt.py
-
-⚠️ **สคริปต์นี้ไม่ใช่โปรเจกต์** มันคือ *ตัวเทียบ* — โปรเจกต์คือการเขียน
-cross-spectrum + smoothing + MWC + significance เอง แล้วดูว่าได้ตัวเลขใกล้กันไหม
-ถ้าส่งสคริปต์นี้เป็นโครงงาน จะไม่เหลือทักษะของวิชาให้ตรวจเลย (ดู docs/feasibility.md L6)
-
-ผลที่ได้เมื่อ 2026-09-09 (surrogate 60 ชุด, seed 7):
-    KO TAPHAO NOI  coherence แถบ 2–7 ปี = 0.3583   p = 0.016   <- สัญญาณจริง
-    KO LAK         coherence แถบ 2–7 ปี = 0.1689   p = 0.984   <- ไม่มีเลย
-"""
 from __future__ import annotations
 import argparse, sys, warnings
 from pathlib import Path
@@ -18,19 +6,14 @@ import numpy as np
 
 warnings.filterwarnings("ignore")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from wtc.loaders import read_psmsl, read_noaa_index   # noqa: E402
+from wtc.loaders import read_psmsl, read_noaa_index  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw"
-BAND = (2.0, 7.0)          # แถบ ENSO เป็นปี
+BAND = (2.0, 7.0)
 
 
 def deseason(t: np.ndarray, y: np.ndarray) -> np.ndarray:
-    """ตัดแนวโน้มเชิงเส้น + วงรอบปีและครึ่งปีออก แล้ว normalise
-
-    ต้องทำก่อนเสมอ — ถ้าไม่ตัด วงรอบรายปีจะครอบงำ coherence ทั้งระนาบ
-    (ที่ KO LAK วงรอบนี้กินความแปรปรวนไป 80%)
-    """
     A = np.column_stack([t - t.mean(), np.ones_like(t)] +
                         [f(2 * np.pi * k * t) for k in (1, 2) for f in (np.sin, np.cos)])
     r = y - A @ np.linalg.lstsq(A, y, rcond=None)[0]
@@ -51,7 +34,6 @@ def ar1_surrogate(n: int, a: float, s: float, rng) -> np.ndarray:
 
 
 def band_coherence(a: np.ndarray, b: np.ndarray, dt: float, n: int, dj: float) -> float:
-    """coherence เฉลี่ยในแถบ ENSO เฉพาะจุดที่อยู่นอก cone of influence"""
     import pycwt
     W, _, coi, freq, _ = pycwt.wct(a, b, dt, dj=dj, s0=4 * dt, J=-1, sig=False)
     per = 1 / freq
@@ -79,7 +61,6 @@ def main() -> int:
                        ("ko_lak", "KO LAK (อ่าวไทย)")]:
         ts, vs = read_psmsl(RAW / "psmsl" / f"{key}_monthly.rlrdata")
         g = ~np.isnan(vs)
-        # ⚠️ เติมช่องว่างด้วย linear interpolation — หยาบ และเป็นสิ่งที่โปรเจกต์ต้องทำให้ดีกว่านี้
         y = deseason(grid, np.interp(grid, ts[g], vs[g]))
         obs = band_coherence(y, x, dt, n, args.dj)
         ay, sy = ar1_params(y); ax, sx = ar1_params(x)

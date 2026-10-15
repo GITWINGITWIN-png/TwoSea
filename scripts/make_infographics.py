@@ -1,19 +1,4 @@
 #!/usr/bin/env python3
-"""รูปเชิงสื่อสารของรายงานฉบับสมบูรณ์ — แผนที่ กลไก ใบรายงานผล ความแข็งแรง และประวัติมาตรวัด
-
-    uv run --group report python scripts/make_infographics.py          # ทุกรูป -> figures/report/
-    uv run --group report python scripts/make_infographics.py map02    # เฉพาะรูปที่ชื่อขึ้นต้นด้วย map02
-
-ทำไมแยกจาก make_figures.py
-  - รูปพวกนี้ต้องใช้ cartopy (แผนที่ชายฝั่ง + ความลึกจาก Natural Earth) ซึ่งอยู่ในกลุ่ม `report`
-    เท่านั้น — สายวิเคราะห์หลักจึงไม่ต้องพึ่งไลบรารีแผนที่
-  - make_figures.py = รูปเชิงเทคนิค (ระนาบ coherence, null, threshold) · ไฟล์นี้ = รูปที่ "เล่าเรื่อง"
-    แบบรายงานภูมิอากาศ (ทะเลอยู่ตรงไหน ดัชนีวัดที่ไหน สัญญาณเดินทางอย่างไร ผลแข็งแรงแค่ไหน)
-
-กติกาเดียวกับ make_figures.py: **ตัวเลขผลทุกตัวมาจากไฟล์ใน data/processed/** ส่วนที่พิมพ์มือมีเพียง
-(ก) พิกัดสถานีและกล่องของดัชนีตามนิยาม (ข) ข้อเท็จจริงจากเอกสารอ้างอิงในรูปกลไกและประวัติมาตรวัด
-ซึ่งระบุแหล่งไว้ข้างค่าคงที่แต่ละตัว (รายละเอียดใน reports/กลไก ระดับน้ำทะเลไทย กับ ดัชนีภูมิอากาศ.md)
-"""
 from __future__ import annotations
 import json, sys
 from pathlib import Path
@@ -30,16 +15,14 @@ from wtc.plotting import use_thai_font  # noqa: E402
 
 FIGS = {}
 
-# ---------------------------------------------------------------------------
 # ค่าคงที่ทางภูมิศาสตร์ (ตามนิยาม ไม่ใช่ผล)
-STATION_LL = {                                   # PSMSL station pages (446, 174, 444)
+STATION_LL = {
     "ko_taphao_noi": (98.433, 7.833),
     "ko_lak": (99.817, 11.800),
     "fort_phrachula_chomklao": (100.583, 13.550),
 }
 STATION_TH = {"ko_taphao_noi": "เกาะตะเภาน้อย (ภูเก็ต)", "ko_lak": "เกาะหลัก (ประจวบฯ)",
               "fort_phrachula_chomklao": "ป้อมพระจุลฯ"}
-# กล่องของดัชนี (ลองจิจูด 0–360) — NOAA PSL / Saji et al. 1999 / Wang & Fan 1999
 BOXES = {
     "nino34": [(190, -5, 240, 5)],
     "dmi": [(50, -10, 70, 10), (90, -10, 110, 0)],
@@ -70,7 +53,6 @@ def load_sens() -> tuple[dict, dict]:
 
 
 def base_map(ax, extent, depth=True, borders=True):
-    """พื้นแผนที่: ทะเลไล่สีตามความลึก (Natural Earth 10m) + แผ่นดิน + เส้นพรมแดน"""
     import cartopy.crs as ccrs
     import cartopy.feature as cfeature
     ax.set_extent(extent, crs=ccrs.PlateCarree())
@@ -100,7 +82,6 @@ def depth_legend(ax, loc="lower left"):
 
 
 def coastal_arrow(ax, pts, color, lw, alpha=1.0, head=(6, 10), zorder=6):
-    """ลูกศรหลายท่อนเลียบชายฝั่ง (เส้นตรงทีละท่อน + หัวลูกศรที่ท่อนสุดท้าย) — พิกัด lon/lat"""
     import cartopy.crs as ccrs
     pc = ccrs.PlateCarree()
     xs, ys = zip(*pts)
@@ -110,10 +91,8 @@ def coastal_arrow(ax, pts, color, lw, alpha=1.0, head=(6, 10), zorder=6):
                                  arrowstyle=f"-|>,head_width={head[0]},head_length={head[1]}"))
 
 
-# ---------------------------------------------------------------------------
 @figure
 def map01_indices():
-    """ดัชนีภูมิอากาศวัดกันที่ไหน — กล่อง/จุดของ Niño3.4, SOI, DMI, WNPMI เทียบกับที่ตั้งสองทะเล"""
     import cartopy.crs as ccrs
     pc = ccrs.PlateCarree()
     fig = plt.figure(figsize=(13, 5.0))
@@ -169,7 +148,6 @@ def map01_indices():
 
 @figure
 def map02_two_seas():
-    """ภาพหลัก — สองทะเลของไทย ความลึก ที่ตั้งมาตรวัด และผลสรุปของแต่ละทะเล"""
     import cartopy.crs as ccrs
     pc = ccrs.PlateCarree()
     S, _ = load_sens()
@@ -205,7 +183,6 @@ def map02_two_seas():
     ax.text(x - 0.3, y + 0.05, "ป้อมพระจุลฯ (หมายเหตุ)", transform=pc, fontsize=7.5, color="0.3",
             va="center", ha="right", zorder=8)
 
-    # กล่องผลสรุป — ข้อความสร้างจากไฟล์ผล
     txt_a = ("อันดามัน · เกาะตะเภาน้อย\n"
              f"สัมพันธ์กับ {' · '.join(NAME[k] for k in robust)}\n"
              f"ผ่านทุก {n_var} แบบทดสอบความไว\n"
@@ -221,8 +198,6 @@ def map02_two_seas():
                     bbox=dict(boxstyle="round,pad=0.5", fc="white", ec=COLOR[st], lw=2.0),
                     arrowprops=dict(arrowstyle="-", color=COLOR[st], lw=1.8))
 
-    # ลูกศรสัญญาณ: จากศูนย์สูตรเลียบสุมาตรา (ชี้ตำแหน่งเท่านั้น รายละเอียดอยู่ใน map03)
-    # เลียบชายฝั่งสุมาตรา 3 ท่อน (มุมน้อย อ่านง่าย)
     coastal_arrow(ax, [(96.6, 0.6), (94.8, 4.2), (95.1, 6.0), (97.8, 7.3)], "#c0392b", 3.0,
                   alpha=0.85, head=(5, 8))
     ax.text(94.3, 2.0, "คลื่นเคลวิน\nเลียบชายฝั่ง\nจากศูนย์สูตร", transform=pc, fontsize=9, color="#c0392b",
@@ -238,7 +213,6 @@ def map02_two_seas():
 
 @figure
 def map03_mechanism():
-    """กลไก — ลมศูนย์สูตร → คลื่นเคลวิน → สุมาตรา → อันดามัน · อ่าวไทยอยู่นอกเส้นทาง"""
     import cartopy.crs as ccrs
     pc = ccrs.PlateCarree()
     fig = plt.figure(figsize=(12.5, 6.6))
@@ -246,29 +220,23 @@ def map03_mechanism():
     base_map(ax, (42, 128, -14, 24))
     ax.plot([42, 128], [0, 0], color="0.4", lw=0.7, ls="--", transform=pc, zorder=2)
     ax.text(43, 0.4, "เส้นศูนย์สูตร", transform=pc, fontsize=8, color="0.3", zorder=2)
-    # ขั้วของ IOD บวก: ตะวันตกอุ่น ตะวันออกเย็น (ตำแหน่งตามกล่อง DMI)
     ax.add_patch(Ellipse((60, -1), 18, 12, transform=pc, fc="#e74c3c", alpha=0.22, ec="none", zorder=2))
     ax.add_patch(Ellipse((101, -5), 18, 10, transform=pc, fc="#2e86c1", alpha=0.25, ec="none", zorder=2))
     ax.text(60, -6.5, "น้ำอุ่นผิดปกติ", transform=pc, ha="center", fontsize=8.5, color="#a93226", zorder=3)
     ax.text(101.5, -9.6, "น้ำเย็น/เทอร์โมไคลน์ยกตัว", transform=pc, ha="center", fontsize=8.5,
             color="#1b4f72", zorder=3)
-    # (1) ลมตะวันออกผิดปกติตามแนวศูนย์สูตร
-    for x in (88, 80, 72):              # ไม่วาดทับสุมาตรา — ให้ลูกศรคลื่นเคลวินเด่นตรงนั้น
+    for x in (88, 80, 72):
         ax.add_patch(FancyArrowPatch((x + 5.5, 1.6), (x, 1.6), transform=pc,
                                      arrowstyle="-|>,head_width=4,head_length=6", lw=2.2, color="#555",
                                      zorder=5))
-    # (2) คลื่นเคลวินศูนย์สูตรวิ่งไปตะวันออก (3) เลี้ยวขึ้นเหนือเลียบสุมาตราเป็นคลื่นเคลวินชายฝั่ง
     kel = dict(arrowstyle="-|>,head_width=6,head_length=10", lw=4.0, color="#c0392b", zorder=6)
     ax.add_patch(FancyArrowPatch((70, -1.4), (96.8, -1.8), transform=pc, connectionstyle="arc3,rad=0.0", **kel))
-    # เลียบชายฝั่งตะวันตกของสุมาตรา 3 ท่อน (นอกเกาะนีอัส → นอกอาเจะห์ → เข้าภูเก็ต)
     coastal_arrow(ax, [(97.2, -1.2), (95.0, 4.0), (95.0, 6.3), (97.7, 7.7)], "#c0392b", 4.0)
-    # ท่อนำคลื่นรอบอ่าวเบงกอลทวนเข็มนาฬิกา (ต่อจากอันดามัน)
-    wg = [(97.6, 9.5), (97.4, 15.5), (94.0, 18.5), (90.5, 22.0), (86.5, 20.5), (82.0, 16.5)]   # หยุดก่อนถึงกล่อง ⑤
+    wg = [(97.6, 9.5), (97.4, 15.5), (94.0, 18.5), (90.5, 22.0), (86.5, 20.5), (82.0, 16.5)]
     for a, b in zip(wg[:-1], wg[1:]):
         ax.add_patch(FancyArrowPatch(a, b, transform=pc, arrowstyle="-|>,head_width=3,head_length=5",
                                      lw=1.4, color="#c0392b", alpha=0.55, ls="--", zorder=5))
-    # Walker circulation จากแปซิฟิก
-    ax.add_patch(FancyArrowPatch((127.5, 5.8), (112.5, 5.8), transform=pc,   # วิ่งในช่องว่างระหว่างกล่อง ① กับ ④
+    ax.add_patch(FancyArrowPatch((127.5, 5.8), (112.5, 5.8), transform=pc,
                                  arrowstyle="-|>,head_width=5,head_length=8", lw=2.5, color="#7d3c98", zorder=5))
     x, y = STATION_LL["ko_taphao_noi"]
     ax.plot(x, y, "o", ms=12, color=COLOR["ko_taphao_noi"], mec="k", mew=1.2, transform=pc, zorder=9)
@@ -284,7 +252,7 @@ def map03_mechanism():
     step("④", 104.2, 0.2, "ชนสุมาตรา → กลายเป็นคลื่นเคลวินชายฝั่ง\nวิ่งขึ้นเหนือเข้าทะเลอันดามัน\nภายในไม่ถึงสองสัปดาห์",
          "#c0392b")
     step("⑤", 93.4, 9.2, "ระดับน้ำภูเก็ตต่ำลง\n1997–98: ต่ำสุดราว 29 ซม. นาน 7 เดือน\nทช. บันทึกน้ำลงต่ำผิดปกติ 1997 · 2006 · 2019",
-         COLOR["ko_taphao_noi"], ha="right", va="bottom")   # อยู่เหนือ-ซ้ายหัวลูกศร ไม่บังเส้นทางคลื่น
+         COLOR["ko_taphao_noi"], ha="right", va="bottom")
     ax.annotate("", xy=(x - 0.3, y + 0.3), xycoords=pc._as_mpl_transform(ax), xytext=(93.5, 9.9),
                 textcoords=pc._as_mpl_transform(ax),
                 arrowprops=dict(arrowstyle="->", color=COLOR["ko_taphao_noi"], lw=1.3), zorder=10)
@@ -302,10 +270,8 @@ def map03_mechanism():
     save(fig, "map03_mechanism")
 
 
-# ---------------------------------------------------------------------------
 @figure
 def fig10_scorecard():
-    """ใบรายงานผล — PASC ดัชนีเดี่ยว 8 ตัว × สองทะเล × สองแถบ · ✓ = p < 0.05 · n/8 = จำนวนแบบที่ผ่าน"""
     S, _ = load_sens()
     base = S["baseline"]
     cols = [(st, b) for st in SEAS for b in ("ทั้งระนาบ", "2–7 ปี")]
@@ -341,7 +307,6 @@ def fig10_scorecard():
 
 
 def _running(x, w=12, min_real=9):
-    """ค่าเฉลี่ยเคลื่อนที่แบบกึ่งกลางที่ไม่นับเดือนที่เป็น NaN (ต้องมีจริงอย่างน้อย min_real เดือน)"""
     ok = np.isfinite(x).astype(float)
     xs = np.where(ok > 0, x, 0.0)
     k = np.ones(w)
@@ -351,7 +316,6 @@ def _running(x, w=12, min_real=9):
 
 @figure
 def fig11_events():
-    """อนุกรมระดับน้ำ (mm) เทียบกับ DMI และ Niño3.4 (กลับด้าน) · ช่วงเหตุการณ์ที่หน่วยงานไทยบันทึก"""
     d = np.load(PROC / "series.npz", allow_pickle=True)
     meta = json.loads(str(d["meta"]))
     t, yn, xn = d["t"], [str(s) for s in d["y_names"]], [str(s) for s in d["x_names"]]
@@ -399,14 +363,12 @@ def fig11_events():
         print(f"     r {st:14s} vs −{k:6s} = {r:+.2f}")
 
 
-# ทิศที่คาดตามกลไก (องศา, θ = φ_ระดับน้ำ − φ_ดัชนี) — ตาราง "ทิศและเฟสที่คาดไว้" ของรายงานค้นคว้า
 EXPECTED = {"soi": (-30, 30, "หนักแน่น"), "nino34": (150, 210, "หนักแน่น"),
             "dmi": (150, 210, "หนักแน่น"), "wnpmi": (0, 60, "อนุมาน")}
 
 
 @figure
 def fig12_phase():
-    """เข็มทิศเฟส — ทิศเฉลี่ยในบริเวณมีนัยสำคัญ (แถบ 2–7 ปี) เทียบทิศที่กลไกคาดไว้ · อันดามัน"""
     r = np.load(PROC / "wtc_q1.npz", allow_pickle=True)
     st_, ix = [str(s) for s in r["stations"]], [str(s) for s in r["indices"]]
     per = r["periods"]; band = (per >= 2) & (per <= 7)
@@ -450,7 +412,6 @@ def fig12_phase():
 
 
 def robustness_rows(S):
-    """ข้อสรุปหลัก -> สถานะต่อแบบ: 2 = ผ่าน · 1 = ก้ำกึ่ง · 0 = ไม่ผ่าน (เกณฑ์เดียวกับ PROGRESS.md W7)"""
     A, G = "ko_taphao_noi", "ko_lak"
     one = lambda n, st, b: S[n][st]["bands"][b]
     top = lambda n, b: max(one(n, A, b)["single"].items(), key=lambda kv: kv[1]["pasc"])[0]
@@ -475,7 +436,6 @@ def robustness_rows(S):
 
 @figure
 def fig13_robustness():
-    """สัญญาณไฟ — ข้อสรุปหลัก × แบบทดสอบความไว 8 แบบ"""
     S, M = load_sens()
     names = list(S)
     rows = robustness_rows(S)
@@ -503,8 +463,7 @@ def fig13_robustness():
     save(fig, "fig13_robustness")
 
 
-# ประวัติสถานี KO TAPHAO NOI — UHSLC qa148a (2020) · PSMSL 446 · Naeije et al. 2022
-KTN_EVENTS = [            # (ปี, ข้อความ, ชั้นความสูงของป้าย, ฝั่ง)
+KTN_EVENTS = [
     (1988.5, "PSMSL ยก datum 14 มม.", 0, "right"),
     (2004.98, "แผ่นดินไหว/สึนามิ\n26 ธ.ค. 2004", 0, "left"),
     (2005.78, "UHSLC เปลี่ยนไปใช้\nเรดาร์ของตัวเอง\n12 ต.ค. 2005", 1, "right"),
@@ -516,7 +475,6 @@ KTN_EVENTS = [            # (ปี, ข้อความ, ชั้นคว�
 
 @figure
 def fig14_ktn_datum():
-    """ประวัติมาตรวัดเกาะตะเภาน้อย — ผลต่าง PSMSL − UHSLC (ผ่านโซ่ Q7) รายเดือน พร้อมเหตุการณ์ที่มีเอกสาร"""
     from wtc.loaders import read_psmsl
     from wtc.qc import apply_exclusions
     from wtc.series import RAW, q7_monthly
