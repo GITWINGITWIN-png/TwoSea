@@ -1,0 +1,458 @@
+# สร้างโดย tools/make_shotlist.py จาก script.md — อย่าแก้มือ
+- id: SQ01_S030
+  sequence: SQ01
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq01_opening.py
+  fallback: card:ทะเลสองฝั่ง ฟังภูมิอากาศคนละแบบ
+  headline: ความสัมพันธ์เชิงเวลา–คาบระหว่างความผันแปรระหว่างปีของระดับน้ำทะเลชายฝั่งประเทศไทยกับดัชนีภูมิอากาศด้วย Wavelet
+    Coherence และ Multiple Wavelet Coherence
+  steps: 1
+  sentences: 1
+  visual: ชื่อเรื่องใหญ่ · บรรทัดรอง "ความสัมพันธ์ระหว่างระดับน้ำทะเลไทยกับดัชนีภูมิอากาศ ด้วย Wavelet Coherence และ Multiple
+    Wavelet Coherence" (ชื่อรองของรายงาน) · ชื่อวิชา · ผู้จัดทำ · เส้นคลื่นจาง ๆ สองเส้นไหลใต้ชื่อ (loop) = **ระดับน้ำรายเดือนจริง**
+    ของภูเก็ต (น้ำเงิน) และประจวบฯ (ส้ม) เลื่อนผ่านช้า ๆ · ป้ายเล็กมุมจอ "ข้อมูลจริง" · เส้นคู่นี้เป็นพื้นหลังจาง ๆ ของทุกหน้าจนถึง
+    SQ02_S010
+- id: SQ01_S010
+  sequence: SQ01
+  tool: manim
+  kind: schematic
+  course: null
+  scene_file: manim/sq01_opening.py
+  fallback: fig:map02_two_seas
+  headline: 'พื้นที่ศึกษา: มาตรวัดระดับน้ำสองฝั่งคาบสมุทร ห่างกันประมาณ 470 กม.'
+  steps: 3
+  sentences: 5
+  visual: '**ภาพ 3D คาบสมุทรเรนเดอร์ใหม่** (แทน `v001_3d_peninsula.png` ที่ดูแบน): ทะเลบอกด้วยสีความลึก ไม่ใช่จุดจิ้ม — อันดามันไล่จากฟ้าอมเขียวตรงไหล่ทวีปไปน้ำเงินเข้มตรงที่ลาดลงมหาสมุทรลึก
+    · อ่าวไทยเป็นฟ้าอ่อนสม่ำเสมอเพราะตื้นทั้งแอ่ง · แสงอาทิตย์มุมต่ำให้เงาภูเขาชัด · ผิวน้ำมีประกายสะท้อนเบา ๆ · กล้องเอียงราว
+    35° · ป้าย "แผนภาพ · ความสูงขยายเกินจริง"'
+- id: SQ01_S020
+  sequence: SQ01
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq01_opening.py
+  fallback: fig:fig11_events
+  headline: ช่วง ค.ศ. 1997–98 ระดับน้ำทะเลอันดามันลดลงผิดปกติ ขณะที่อ่าวไทยไม่ลดลงตาม
+  steps: 1
+  sentences: 5
+  visual: 'ต่อจากภาพกว้างของหน้าก่อน (ภาพนิ่ง 3D เดิมจางลงเป็นพื้น) · ลูกศรชี้ที่ทะเลอันดามัน → กราฟ 2D เล็กโผล่ข้างทะเล:
+    ระดับน้ำจริงของภูเก็ต (ค่าเฉลี่ย 12 เดือน · 1996–1999) วาดจากซ้ายไปขวา แล้วร่วงเป็นหลุมลึกช่วง 1997–98 · ป้ายเหตุการณ์
+    "1997–98 · −29 ซม. · 7 เดือน (รายงานภาคสนาม)" · ลูกศรชี้ที่อ่าวไทย → กราฟคู่ช่วงเวลาเดียวกัน แกนตั้งสเกลเดียวกัน: เส้นเกือบแบน
+    ไม่มีหลุม · แกนตั้งของกราฟไม่มีตัวเลข (ตัวเลขเดียวบนจอคือป้ายเหตุการณ์) · ป้าย "ข้อมูลจริง" · ข้อมูล: `derived()["andaman_mm_12m"/"gulf_mm_12m"]`'
+- id: SQ02_S010
+  sequence: SQ02
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq02_data.py
+  fallback: fig:map01_indices
+  headline: 'ข้อมูล: ระดับน้ำทะเลรายเดือนสองสถานี 865 เดือน และดัชนีภูมิอากาศ 8 ตัว'
+  steps: 1
+  sentences: 6
+  visual: '**แบ่งบน–ล่าง** · เส้นคลื่นจาง ๆ ที่ไหลอยู่ใต้ทุกหน้าถูกดึงขึ้นมาขยาย **เต็มจอ** แล้วชัดขึ้น → เผยว่าเป็นระดับน้ำรายเดือนจริงสองสถานี
+    Y[n] (น้ำเงิน = ภูเก็ต · ส้ม = ประจวบฯ) + แกนเวลา 1951 → 2023 + "865 เดือน" · คลิกถัดไป: ครึ่งล่างมีแผนที่มหาสมุทรกับกล่องดัชนีผุดเป็นรายชื่อ
+    X₁…X₈ (Niño3.4 · SOI · DMI · WNPMI · PDO · TPI · AMO · NAO) และคลื่นหดขึ้นไปอยู่ครึ่งบน · ข้อมูลคลื่น: ค่ารายเดือนจริงของสองสถานี
+    (ต้องเพิ่ม `Y_mm` ลง `data/derived.npz` ผ่าน `tools/export_facts.py`)'
+- id: SQ02_S040
+  sequence: SQ02
+  tool: manim
+  kind: card
+  course: null
+  scene_file: manim/sq02_data.py
+  fallback: 'card:Y[n] กับ X[n]: คาบไหน · เมื่อไร · เกิน noise หรือไม่'
+  headline: 'คำถามการวิจัย: สองสัญญาณสัมพันธ์กันที่คาบใด ช่วงเวลาใด และเกินระดับสัญญาณรบกวนหรือไม่'
+  steps: 2
+  sentences: 5
+  visual: 'การ์ดงานต้นแบบ Song & Chen (2022): 82 สถานี อเมริกาเหนือ · WTC + MWC → การ์ด "ของเรา": ไทย 2 สถานี · 8 ดัชนี (+
+    DMI · WNPMI) · ไม่มีแถบคำถามซ้ำหัวข้อ (ผู้ใช้ 10-14)'
+- id: SQ03_S005
+  sequence: SQ03
+  tool: manim
+  kind: schematic
+  course: null
+  scene_file: manim/sq03_signal.py
+  fallback: card:กรอง + ลดอัตรา → เตรียมสัญญาณ → CWT → WTC / MWC → เทียบ noise → ตรวจทิศ
+  headline: ภาพรวมขั้นตอนการประมวลผลสัญญาณ
+  steps: 3
+  sentences: 4
+  visual: 'แถบสายงานแนวนอน 7 ช่อง · **แต่ละช่องเป็นภาพย่อของผลจริงของขั้นนั้น ชื่อขั้นอยู่ข้างล่าง** (ไม่มีป้ายบท ไม่มีตัวเทียบ
+    ไม่มีขอบประ):'
+- id: SQ03_S010
+  sequence: SQ03
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq03_signal.py
+  fallback: fig:w2-hourly-sample
+  headline: องค์ประกอบของสัญญาณระดับน้ำทะเล และความผันแปรระหว่างปีที่ใช้ศึกษา
+  steps: 2
+  sentences: 4
+  visual: 'ระดับน้ำรายชั่วโมง 7 วันที่เกาะตะเภาน้อย (UHSLC) → แยกเป็นสี่ชั้นที่รวมกันเป็นเส้นจริง: น้ำขึ้นน้ำลง (ชั่วโมง)
+    · ฤดูกาล (1 ปี) · ระหว่างปี (2–7 ปี · กรอบเน้นทั้งแถว) · แนวโน้มระยะยาวของระดับน้ำ (เส้นตรงที่ fit) · ทุกชั้นมีแกน y หน่วย
+    มม. · ช่วงที่ PSMSL ไม่มีข้อมูลแรเงาเทา (ผู้ใช้ 10-14)'
+- id: SQ03_S020
+  sequence: SQ03
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq03_signal.py
+  fallback: fig:w2-aliasing-before-after
+  headline: การสุ่มวันละครั้งให้ความถี่ Nyquist เพียง 0.5 รอบต่อวัน ต่ำกว่าความถี่น้ำขึ้นน้ำลง
+  steps: 3
+  sentences: 6
+  visual: '**โดเมนเวลาก่อน แล้วค่อยความถี่** (ผู้ใช้ 10-14: หน้าเดิมโล่ง ไม่รู้ว่ากำลังทำอะไร) · บน: เส้นน้ำขึ้นน้ำลงรายชั่วโมงราว
+    30 วัน (ขึ้นลงวันละรอบ · แผนภาพ) → จุดสุ่มวันละครั้ง (เวลาเดียวกันทุกวัน) ตกลงบนเส้นทีละจุด → ต่อจุดเข้าด้วยกันได้เส้นช้า
+    ๆ ที่ไม่ใช่น้ำขึ้นน้ำลงจริง (กราฟเต็มความกว้าง ไม่มีกล่องดำ · ผู้ใช้ 10-15) · ล่าง (ข้อมูลจริง · ผู้ใช้ 10-14): สเปกตรัมกำลังจากการแปลงฟูริเยร์
+    (FFT หน้าต่าง Hann) ของระดับน้ำรายชั่วโมงจริงหนึ่งปีเต็ม (เกาะตะเภาน้อย 2010) แกน 0 → 2.5 รอบต่อวัน · พื้นที่ "จับได้"
+    ทางซ้ายของเส้น Nyquist ที่ 0.5 · ยอดน้ำขึ้นน้ำลงที่ราว 1 และ 2 อยู่นอกพื้นที่'
+- id: SQ03_S040
+  sequence: SQ03
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq03_signal.py
+  fallback: fig:fig02_filter
+  headline: ตัวกรอง FIR ออกแบบด้วยสูตร Kaiser 261 taps ลดทอนน้ำขึ้นน้ำลง 77–99 dB
+  steps: 3
+  sentences: 6
+  visual: 'ซ้าย: สเปก (passband · stopband เริ่มที่ 0.5 รอบต่อวัน · −70 dB) → กล่อง "สูตร Kaiser" → β และจำนวน taps · ขวา:
+    ผลตอบสนอง (dB) จาก `derived()["fir_w"/"fir_h_db"]` วาดขึ้น · เส้นสเปก −70 dB · จุดน้ำขึ้นน้ำลงแต่ละตัวตกใต้เส้นพร้อมค่า
+    dB'
+- id: SQ03_S060
+  sequence: SQ03
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq03_signal.py
+  fallback: fig:w1-detrend-deseason
+  headline: การกำจัดแนวโน้มระยะยาวและวงรอบฤดูกาลออกจากระดับน้ำทะเล
+  steps: 2
+  sentences: 4
+  visual: 'อนุกรมรายเดือนอ่าวไทย: (1) เส้นดิบ + เส้น fit แนวโน้มระยะยาว + ฮาร์มอนิกรายปี/ครึ่งปี (2) ลบออกเหลือ residual ·
+    ไม่มีการ์ดสรุป (ซ้ำกับหัวข้อ · ผู้ใช้ 10-14)'
+- id: SQ04_S020
+  sequence: SQ04
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq04_correlation.py
+  fallback: fig:fig11_events
+  headline: สหสัมพันธ์ทั้งอนุกรมมีค่าเพียง 0.30 และ 0.10 เนื่องจากความสัมพันธ์ไม่คงที่ตามเวลา
+  steps: 1
+  sentences: 4
+  visual: 'ระดับน้ำอันดามัน (ค่าเฉลี่ย 12 เดือน) พื้นแดง/ฟ้า + เส้น −Niño3.4 และ −DMI · ช่วง 1997–98 ร่วง ~210 มม. ไฮไลต์
+    (หลุมเดียวกับกราฟเล็กใน SQ01_S020) · ตัวเลข r ขึ้นจอ: 0.30 (−Niño3.4) · 0.10 (−DMI) · ช่วงที่ความสัมพันธ์ "เปิด" สว่าง
+    ที่เหลือมืด'
+- id: SQ05_S020
+  sequence: SQ05
+  tool: manim
+  kind: schematic
+  course: null
+  scene_file: manim/sq05_wavelet.py
+  fallback: card:CWT · Morlet ω0 = 6 · 12 สเกลต่อ octave
+  headline: การแปลงเวฟเล็ตแบบต่อเนื่องด้วย Morlet ω0 = 6 ที่ 12 สเกลต่อ octave
+  steps: 2
+  sentences: 4
+  visual: Morlet wavelet (คลื่นสั้นในซองรูประฆัง · แสดงทั้งส่วนจริงและส่วนจินตภาพ) เลื่อนไปตามสัญญาณ · คูณแล้วรวม (convolution)
+    → ได้หนึ่งแถวของระนาบ · เปลี่ยนสเกล → แถวถัดไป · ป้ายสเกล ↔ คาบ
+- id: SQ05_S030
+  sequence: SQ05
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq05_wavelet.py
+  fallback: fig:w1-power-spectra
+  headline: ระนาบกำลังเวฟเล็ตและกรวยอิทธิพล (COI)
+  steps: 2
+  sentences: 2
+  visual: ระนาบเวฟเล็ตของระดับน้ำอันดามันค่อย ๆ ก่อตัว · เส้นประกรวยอิทธิพล · ขอบนอกกรวยจางลง · ไม่เทียบดนตรี ไม่มีการ์ดสรุป
+    (ผู้ใช้ 10-14)
+- id: SQ06_S020
+  sequence: SQ06
+  tool: manim
+  kind: schematic
+  course: null
+  scene_file: manim/sq06_coherence.py
+  fallback: card:WTC = coherence ทุกจุดเวลา × คาบ · ลูกศร → ไปด้วยกัน · ← สวนทาง
+  headline: 'Wavelet coherence: ความสัมพันธ์ของสองสัญญาณบนระนาบเวลา–คาบพร้อมมุมเฟส'
+  steps: 2
+  sentences: 5
+  visual: 'สูตร R²(s,τ) = |S(s⁻¹W_XY)|² / (S(s⁻¹|W_X|²) · S(s⁻¹|W_Y|²)) · ตัว S ถูกไฮไลต์ "ปรับเรียบในเวลาและสเกล" · θ = arg
+    S(s⁻¹W_YX) · ลูกศรเฟส: → 0° ไปด้วยกัน · ← 180° สวนทาง · ↑ ระดับน้ำนำ'
+- id: SQ06_S030
+  sequence: SQ06
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq06_coherence.py
+  fallback: fig:fig03_wtc_maps
+  headline: ทะเลอันดามันมี coherence ต่อเนื่องที่คาบ 2–5 ปี ส่วนอ่าวไทยกระจายเป็นจุด
+  steps: 1
+  sentences: 2
+  visual: 'ระนาบ WTC จริง: บน อันดามัน × Niño3.4 · ล่าง อ่าวไทย × Niño3.4 · เส้นขาว = เกินเกณฑ์ 95% · เส้นประ = กรวยอิทธิพล'
+- id: SQ06_S040
+  sequence: SQ06
+  tool: manim
+  kind: schematic
+  course: null
+  scene_file: manim/sq06_coherence.py
+  fallback: card:MWC = coherence ของหลายดัชนีพร้อมกัน · ดัชนีเดียว → ลดรูปเป็น WTC
+  headline: 'Multiple wavelet coherence: ความสัมพันธ์กับหลายดัชนีพร้อมกัน ครบ 218 ชุด'
+  steps: 2
+  sentences: 4
+  visual: สูตร ρ²(s,τ) = W̃_YX W̃_XX⁻¹ W̃_YXᴴ / W̃_YY (Hu & Si 2016) · ป้าย "q = 1 → ลดรูปเป็น WTC พอดี" · ป้าย "218 ชุด"
+- id: SQ07_S010
+  sequence: SQ07
+  tool: manim
+  kind: schematic
+  course: null
+  scene_file: manim/sq07_noise.py
+  fallback: fig:w4-q1-pasc-null
+  headline: การทดสอบนัยสำคัญด้วยการจำลองกระบวนการ AR(1) จำนวน 1,000 คู่
+  steps: 2
+  sentences: 2
+  visual: คู่สัญญาณสุ่ม AR(1) หลายคู่ไหลผ่าน · ระนาบ coherence ของ noise ก็มีก้อน · ฮิสโทแกรมของ R² ที่แต่ละสเกลสะสม → quantile
+    95% = เกณฑ์
+- id: SQ07_S020
+  sequence: SQ07
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq07_noise.py
+  fallback: fig:fig04_q1_pasc
+  headline: 'ผลดัชนีเดี่ยว: อันดามันเกินระดับสัญญาณรบกวนสี่ดัชนี อ่าวไทยไม่เกินทั้ง 8 ดัชนี'
+  steps: 3
+  sentences: 6
+  visual: แท่ง PASC ของ 8 ดัชนี อันดามัน (น้ำเงิน) กับอ่าวไทย (ส้ม) · เส้นระดับ noise ~9% (ทั้งระนาบ) มีป้ายชี้เส้นอันเดียว
+    · สี่แท่งของอันดามันข้ามเส้น
+- id: SQ07_S040
+  sequence: SQ07
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq07_noise.py
+  fallback: fig:fig05_threshold_vs_q
+  headline: เกณฑ์นัยสำคัญของ MWC ต้องปรับตามจำนวนดัชนี และการรวมดัชนีไม่เพิ่มอำนาจอธิบาย
+  steps: 3
+  sentences: 8
+  visual: '**กราฟเดียว เล่าเรื่องเดียว** (ผู้ใช้ 10-14: หน้าเดิมไม่บอกว่ากราฟคืออะไร ดัชนีปลอมคืออะไร) · บรรทัดอธิบายใต้หัว:
+    "ดัชนีปลอม = สัญญาณสุ่มที่ไม่เกี่ยวกับทะเลเลย ใช้ตรวจว่าวิธีหลอกเราได้ไหม" · แกนนอน = จำนวนดัชนีที่รวมกัน (1–5) · แกนตั้ง
+    = PASC (%) 0–100 · (1) เส้นแดงประ ดัชนีปลอม + เกณฑ์เดิม ไต่จาก 4.8 → 97.2 · ป้าย "ยิ่งรวม ยิ่งดูดี ทั้งที่เป็น noise"
+    (2) ช่องเล็กมุมจอ: เกณฑ์ต้องสูงขึ้นตามจำนวนดัชนี 0.59 → 0.96 (บันไดย่อ) (3) เส้นแดงทึบ ดัชนีปลอมหลังปรับเกณฑ์ ราบใต้ 5%
+    · ฟอง "ของจริงรวมแล้วเพิ่มได้สูงสุด +0.6 จุด" · **ดัชนีจริง (น้ำเงิน) คู่กับดัชนีปลอมทุกขั้น** (ผู้ใช้ 10-14): เกณฑ์เดิมไต่
+    9.3 → 98.5 แบบเดียวกัน · ปรับเกณฑ์แล้วราบราว 9–10 อยู่เหนือดัชนีปลอม'
+- id: SQ08_S020
+  sequence: SQ08
+  tool: manim
+  kind: schematic
+  course: null
+  scene_file: manim/sq08_mechanism.py
+  fallback: fig:map03_mechanism
+  headline: 'กลไกฝั่งอันดามัน: ลมเหนือเส้นศูนย์สูตร → คลื่นเคลวิน → ระดับน้ำภูเก็ตลดลง'
+  steps: 4
+  sentences: 8
+  visual: 'แผนที่ 2D เรียบ มหาสมุทรอินเดียตะวันออก–แปซิฟิกตะวันตก (แผ่นดินเทา ทะเลขาว-ฟ้า) · ลำดับลูกศรเป็นเส้นทาง: (1) กล่อง
+    "เอลนีโญ" ในแปซิฟิก → ลูกศรโค้งในอากาศ (เส้นประเทา) ข้ามทะเลทวีป → ลูกศรลมตะวันออกนอกชวา–สุมาตรา · ป้าย "มาทางอากาศ ไม่ใช่ทางทะเล"
+    (2) แอ่งน้ำต่ำยาว (น้ำเงินเข้ม) วิ่งไปตะวันออกตามศูนย์สูตร · ป้าย "คลื่นเคลวิน · ดูดน้ำขึ้น → ผิวน้ำต่ำ" (3) ชนสุมาตรา
+    → เลี้ยวขึ้นเหนือเลียบชายฝั่ง → จุดภูเก็ต "ระดับน้ำลด" (4) ฟองหลักฐาน: แท่งเทียบ "ลมที่ศูนย์สูตร r = 0.95" vs "ลมท้องถิ่น
+    r = 0.28" · บรรทัดเล็ก "แบบจำลอง · Han & Webster 2002 · ขอบตะวันออกอ่าวเบงกอล" · อ่าวไทยจาง ๆ ไม่มีลูกศรเข้า (ส่งต่อหน้าถัดไป)
+    · ไม่มีป้ายหลักฐานบนจอ'
+- id: SQ08_S030
+  sequence: SQ08
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq08_mechanism.py
+  fallback: fig:map03_mechanism
+  headline: 'การไม่ปรากฏความสัมพันธ์ในอ่าวไทย: แอ่งตื้น ฤดูกาลเด่น และอยู่นอกเส้นทางคลื่น'
+  steps: 4
+  sentences: 7
+  visual: 'แผนภาพ 2D สี่ฉาก:'
+- id: SQ08_S050
+  sequence: SQ08
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq08_mechanism.py
+  fallback: fig:fig12_phase
+  headline: ทิศและความล่าช้าของเฟสสอดคล้องกับกลไกทั้งสี่ดัชนี
+  steps: 3
+  sentences: 8
+  visual: '**ภาษาธรรมดา · ไม่มีการทาย** (ผู้ใช้ 10-14) · แถบบน = คำอธิบายสามคำด้วยกราฟเส้นคู่จิ๋ว: "ไปด้วยกัน" · "สวนทาง"
+    · "ตามหลัง" · ล่าง = ตารางสี่แถว Niño3.4 · SOI · DMI · WNPMI × "เมื่อดัชนีขึ้น ระดับน้ำภูเก็ต…" (ลง / ขึ้น) · "ตรงกับกลไก"
+    (✓) · "จังหวะ" · ไม่มีหน้าปัด ไม่มี θ ไม่มีกล่องดำ'
+- id: SQ08_S060
+  sequence: SQ08
+  tool: manim
+  kind: schematic
+  course: null
+  scene_file: manim/sq08_mechanism.py
+  fallback: card:เอลนีโญ / IOD → ลมศูนย์สูตร → คลื่นเคลวิน → อันดามัน
+  headline: ลมเหนือเส้นศูนย์สูตรมหาสมุทรอินเดียเป็นกลไกร่วมที่อธิบายผลทั้งหมด
+  steps: 4
+  sentences: 5
+  visual: 'แถบเส้นทางย่อด้านบน "เอลนีโญ / IOD → ลมศูนย์สูตร → คลื่นเคลวิน → อันดามัน" · การ์ดตารางสองคอลัมน์ "ผลที่เราพบ"
+    (ชิปสีตามทะเล) → "คำอธิบายทางกายภาพ" · ไม่มีคอลัมน์หลักฐาน:'
+- id: SQ10_S010
+  sequence: SQ10
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq10_summary.py
+  fallback: fig:map02_two_seas
+  headline: 'สรุปผล: ทะเลอันดามันสัมพันธ์กับ ENSO และ IOD ส่วนอ่าวไทยไม่พบสัญญาณที่ตรวจได้'
+  steps: 4
+  sentences: 11
+  visual: 'ภาพนิ่ง 3D มุมกว้าง (เรนเดอร์ชุดใหม่เดียวกับ SQ01_S010) จาง ๆ เป็นพื้น · **ผลการทดลองสามข้อ** ขึ้นทีละข้อ: (1)
+    อันดามัน: coherence เกิน noise กับ SOI · DMI · WNPMI · Niño3.4 + ทิศตรงกับกลไก (2) อ่าวไทย: ไม่เกิน noise ทั้ง 8 ดัชนี
+    (3) ปรับเกณฑ์ตามจำนวนดัชนีแล้ว รวมหลายดัชนีไม่ได้ผลมากขึ้น · ปิดด้วยกราฟเล็กสองเส้นจาก SQ01_S020 (หลุม 1997–98 กับเส้นราบ)
+    ย้อนคำถามตอนต้น + ชื่อเรื่อง'
+- id: SQ10_S020
+  sequence: SQ10
+  tool: manim
+  kind: card
+  course: null
+  scene_file: manim/sq10_summary.py
+  fallback: card:ขอบคุณครับ · ถาม-ตอบ
+  headline: ขอบคุณครับ ช่วงถาม–ตอบ
+  steps: 1
+  sentences: 1
+  visual: '"ขอบคุณครับ · ถาม-ตอบ" ใหญ่ · ด้านล่างเครดิตย่อ: ข้อมูล: PSMSL · UHSLC · NOAA PSL/CPC · วิธี: Grinsted et al. 2004
+    · Hu & Si 2016 · Song & Chen 2022 · Torrence & Compo 1998 · กลไก: Han & Webster 2002 · Aparna et al. 2012 · Brown et al.
+    2019 · Anutaliya 2023 · Liu et al. 2011 · เครื่องมือ: Manim · Blender · ผู้จัดทำ: กวินภพ จันเจือ · 6710503739 · (รอคุณตัดสิน:
+    "ทำร่วมกับ Claude (Anthropic)")'
+- id: SQ11_S010
+  sequence: SQ11
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq11_appendix.py
+  fallback: fig:w2-monthly-vs-psmsl
+  headline: ภาคผนวก · การสร้างค่ารายเดือนจากข้อมูลรายชั่วโมง
+  steps: 0
+  sentences: 1
+  visual: รูป w2-monthly-vs-psmsl จากรายงาน
+- id: SQ11_S020
+  sequence: SQ11
+  tool: manim
+  kind: data
+  course: บทที่ 3 · Down-sampling
+  scene_file: manim/sq11_appendix.py
+  fallback: fig:w2-filter-response
+  headline: ภาคผนวก · ผลตอบสนองเชิงความถี่และผลตอบสนองอิมพัลส์ของตัวกรองป้องกัน aliasing
+  steps: 0
+  sentences: 1
+  visual: รูป w2-filter-response จากรายงาน
+- id: SQ11_S030
+  sequence: SQ11
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq11_appendix.py
+  fallback: fig:w1-detrend-deseason
+  headline: 'ภาคผนวก · การเตรียมสัญญาณ: การกำจัดแนวโน้มระยะยาวและวงรอบฤดูกาล'
+  steps: 0
+  sentences: 1
+  visual: รูป w1-detrend-deseason จากรายงาน
+- id: SQ11_S040
+  sequence: SQ11
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq11_appendix.py
+  fallback: fig:w4-q1-pasc-null
+  headline: ภาคผนวก · การทดสอบนัยสำคัญด้วยกระบวนการ AR(1)
+  steps: 0
+  sentences: 1
+  visual: รูป w4-q1-pasc-null จากรายงาน
+- id: SQ11_S050
+  sequence: SQ11
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq11_appendix.py
+  fallback: fig:fig05_threshold_vs_q
+  headline: ภาคผนวก · เกณฑ์นัยสำคัญของ MWC ตามจำนวนดัชนี
+  steps: 0
+  sentences: 1
+  visual: รูป fig05_threshold_vs_q จากรายงาน
+- id: SQ11_S060
+  sequence: SQ11
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq11_appendix.py
+  fallback: fig:fig07_q3_best_per_q
+  headline: ภาคผนวก · ชุดดัชนีที่ดีที่สุดตามจำนวนดัชนี
+  steps: 0
+  sentences: 1
+  visual: รูป fig07_q3_best_per_q จากรายงาน
+- id: SQ11_S070
+  sequence: SQ11
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq11_appendix.py
+  fallback: fig:fig09_sensitivity
+  headline: ภาคผนวก · การวิเคราะห์ความไวต่อการเตรียมข้อมูล
+  steps: 0
+  sentences: 1
+  visual: รูป fig09_sensitivity จากรายงาน
+- id: SQ11_S080
+  sequence: SQ11
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq11_appendix.py
+  fallback: fig:fig10_scorecard
+  headline: ภาคผนวก · สรุปผลของดัชนีทั้งหมด
+  steps: 0
+  sentences: 1
+  visual: รูป fig10_scorecard จากรายงาน
+- id: SQ11_S090
+  sequence: SQ11
+  tool: manim
+  kind: schematic
+  course: null
+  scene_file: manim/sq11_appendix.py
+  fallback: fig:map03_mechanism
+  headline: ภาคผนวก · กลไก ENSO และ IOD ต่อระดับน้ำทะเลอันดามัน
+  steps: 0
+  sentences: 1
+  visual: รูป map03_mechanism จากรายงาน
+- id: SQ11_S100
+  sequence: SQ11
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq11_appendix.py
+  fallback: fig:map01_indices
+  headline: ภาคผนวก · พื้นที่ที่ใช้คำนวณดัชนีภูมิอากาศ
+  steps: 0
+  sentences: 1
+  visual: รูป map01_indices จากรายงาน
+- id: SQ11_S110
+  sequence: SQ11
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq11_appendix.py
+  fallback: fig:map01_indices
+  headline: ภาคผนวก · ดัชนีที่มี coherence เกินระดับสัญญาณรบกวนที่ทะเลอันดามัน
+  steps: 0
+  sentences: 3
+  visual: 'การ์ด 2 × 2 หนึ่งใบต่อดัชนี: วัดอะไร (พิกัดกล่อง/สถานี) · เครื่องหมาย · แหล่งข้อมูล · ผลที่อันดามัน (PASC ทั้งระนาบ
+    + แถบ 2–7 ปี) · ทิศและจังหวะ · ผลที่อ่าวไทย (ผู้ใช้ 10-14: ขอภาคผนวกอธิบายดัชนีละเอียดขึ้น)'
+- id: SQ11_S120
+  sequence: SQ11
+  tool: manim
+  kind: data
+  course: null
+  scene_file: manim/sq11_appendix.py
+  fallback: fig:map01_indices
+  headline: ภาคผนวก · ดัชนีที่ไม่มี coherence เกินระดับสัญญาณรบกวน
+  steps: 0
+  sentences: 3
+  visual: การ์ด 2 × 2 แบบเดียวกับหน้าก่อน · ทุกใบมีบรรทัด "ทำไมไม่เกิน noise" จากรายงาน

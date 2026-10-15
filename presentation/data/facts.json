@@ -1,0 +1,1094 @@
+{
+ "alias.K1_days": {
+  "kind": "method",
+  "source": "§3 กล่อง Q7 · K1 สุ่มรายวัน",
+  "unit": "วัน",
+  "value": 365.2434347492509
+ },
+ "alias.K2_days": {
+  "kind": "method",
+  "source": "§3 กล่อง Q7 · K2 สุ่มรายวัน",
+  "unit": "วัน",
+  "value": 182.62171737462546
+ },
+ "alias.P1_days": {
+  "kind": "method",
+  "source": "§3 กล่อง Q7 · P1 สุ่มรายวัน",
+  "unit": "วัน",
+  "value": 365.24343474926576
+ },
+ "archive.events": {
+  "kind": "literature",
+  "source": "§8 · UHSLC qa148a (2020), PSMSL 446",
+  "unit": "",
+  "value": {
+   "datum_fix_before": "2012-04-01",
+   "datum_fix_cm": 10,
+   "platform_destroyed": "2013-07",
+   "uhslc_radar": "2005-10-12"
+  }
+ },
+ "archive.nino34.psmsl": {
+  "kind": "data",
+  "source": "§8 ตาราง source · sens_short_1985",
+  "unit": "%",
+  "value": 39.101717305151915
+ },
+ "archive.nino34.uhslc": {
+  "kind": "data",
+  "source": "§8 ตาราง source · sens_y_q7",
+  "unit": "%",
+  "value": 43.08124174372523
+ },
+ "archive.soi.psmsl": {
+  "kind": "data",
+  "source": "§8 ตาราง source · sens_short_1985",
+  "unit": "%",
+  "value": 49.66974900924703
+ },
+ "archive.soi.uhslc": {
+  "kind": "data",
+  "source": "§8 ตาราง source · sens_y_q7",
+  "unit": "%",
+  "value": 50.346763540290624
+ },
+ "archive.wnpmi.psmsl": {
+  "kind": "data",
+  "source": "§8 ตาราง source · sens_short_1985",
+  "unit": "%",
+  "value": 70.50858652575958
+ },
+ "archive.wnpmi.uhslc": {
+  "kind": "data",
+  "source": "§8 ตาราง source · sens_y_q7",
+  "unit": "%",
+  "value": 34.87450462351387
+ },
+ "corr.andaman.neg_dmi": {
+  "kind": "data",
+  "source": "§4 fig11 · ค่าเฉลี่ยเคลื่อนที่ 12 เดือน (make_infographics._running)",
+  "unit": "",
+  "value": 0.09977851137787103
+ },
+ "corr.andaman.neg_nino34": {
+  "kind": "data",
+  "source": "§4 fig11 · ค่าเฉลี่ยเคลื่อนที่ 12 เดือน (make_infographics._running)",
+  "unit": "",
+  "value": 0.299572551241733
+ },
+ "corr.gulf.neg_dmi": {
+  "kind": "data",
+  "source": "§4 fig11 · ค่าเฉลี่ยเคลื่อนที่ 12 เดือน (make_infographics._running)",
+  "unit": "",
+  "value": -0.07718866059456944
+ },
+ "corr.gulf.neg_nino34": {
+  "kind": "data",
+  "source": "§4 fig11 · ค่าเฉลี่ยเคลื่อนที่ 12 เดือน (make_infographics._running)",
+  "unit": "",
+  "value": 0.13662149499882342
+ },
+ "cwt.morlet_w0": {
+  "kind": "method",
+  "source": "§3.2 · Morlet ω0 = 6",
+  "unit": "",
+  "value": 6
+ },
+ "cwt.scales_per_octave": {
+  "kind": "method",
+  "source": "§3.2 · wtc_q1.npz scales",
+  "unit": "สเกล/octave",
+  "value": 12
+ },
+ "decim.daily_rms_mm": {
+  "kind": "data",
+  "source": "§3 กล่อง Q7 · decimation results daily_vs_uhslc",
+  "unit": "มม.",
+  "value": 3.029823539088947
+ },
+ "decim.monthly_median_mm": {
+  "kind": "data",
+  "source": "§3 กล่อง Q7 · มัธยฐาน |ต่าง| ช่วง datum นิ่ง 1988–2005 และ 2015–2019",
+  "unit": "มม.",
+  "value": [
+   1.1036991170021793,
+   1.2152808996934255
+  ]
+ },
+ "event.andaman_9798_min_mm": {
+  "kind": "data",
+  "source": "§4 · ต่ำสุดของค่าเฉลี่ย 12 เดือน ก.ค. 97 – มิ.ย. 98",
+  "unit": "มม.",
+  "value": -208.03349073910962
+ },
+ "event.dmcr_low_years": {
+  "kind": "literature",
+  "source": "§4 · กรมทรัพยากรทางทะเลและชายฝั่ง (2564)",
+  "unit": "ปี",
+  "value": [
+   1997,
+   2006,
+   2019
+  ]
+ },
+ "event.phuket_drop_cm": {
+  "kind": "literature",
+  "source": "§4 · Brown et al. (2019) — ต่ำกว่าปกติราว 29 ซม. นาน 7 เดือน",
+  "unit": "ซม.",
+  "value": 29
+ },
+ "event.phuket_drop_months": {
+  "kind": "literature",
+  "source": "§4 · Brown et al. (2019)",
+  "unit": "เดือน",
+  "value": 7
+ },
+ "fir.beta": {
+  "kind": "method",
+  "source": "§3 กล่อง Q7 · สูตร Kaiser β = 0.1102(A − 8.7)",
+  "unit": "",
+  "value": 6.75526
+ },
+ "fir.measured_db": {
+  "kind": "data",
+  "source": "§3 กล่อง Q7 · ความลดทอนต่ำสุดในแถบหยุดของ taps จริง (freqz)",
+  "unit": "dB",
+  "value": 70.07330253699901
+ },
+ "fir.spec_db": {
+  "kind": "method",
+  "source": "§3 กล่อง Q7 · decimation.npz spec",
+  "unit": "dB",
+  "value": 70.0
+ },
+ "fir.taps": {
+  "kind": "data",
+  "source": "§3 กล่อง Q7 · decimation.npz taps",
+  "unit": "taps",
+  "value": 261
+ },
+ "fir.tide_suppression_db": {
+  "kind": "data",
+  "source": "§3 กล่อง Q7 · |H| ที่ความถี่องค์ประกอบน้ำขึ้นน้ำลง",
+  "unit": "dB",
+  "value": {
+   "K1": 79.89877932271608,
+   "K2": 88.40571718659302,
+   "M2": 98.89215096265288,
+   "N2": 85.37747586482871,
+   "O1": 85.42587091788141,
+   "P1": 78.84328592707837,
+   "Q1": 76.56224412137547,
+   "S2": 87.17877477257935
+  }
+ },
+ "fir.tide_suppression_max_db": {
+  "kind": "data",
+  "source": "§3 กล่อง Q7 (77–99 dB)",
+  "unit": "dB",
+  "value": 98.89215096265288
+ },
+ "fir.tide_suppression_min_db": {
+  "kind": "data",
+  "source": "§3 กล่อง Q7 (77–99 dB)",
+  "unit": "dB",
+  "value": 76.56224412137547
+ },
+ "gulf.depth_m": {
+  "kind": "literature",
+  "source": "§5 · ความลึกเฉลี่ยอ่าวไทย",
+  "unit": "ม.",
+  "value": 40
+ },
+ "gulf.enso_cm": {
+  "kind": "literature",
+  "source": "§5 กล่อง · Luu et al. (2015) ENSO ±3–5 ซม. ชายฝั่งตะวันออกมาเลเซีย",
+  "unit": "ซม.",
+  "value": [
+   3,
+   5
+  ]
+ },
+ "gulf.enso_mm": {
+  "kind": "literature",
+  "source": "§5 กล่อง · Luu et al. (2015) ±3–5 ซม. = ±30–50 มม.",
+  "unit": "มม.",
+  "value": [
+   30,
+   50
+  ]
+ },
+ "gulf.n_sig_index_variant": {
+  "kind": "data",
+  "source": "§5 · ทุกแบบทดสอบความไว sens_*.npz",
+  "unit": "ครั้ง",
+  "value": 0
+ },
+ "gulf.season_grace_cm": {
+  "kind": "literature",
+  "source": "§5 กล่อง · GRACE (Wouters & Chambers 2010) วงรอบรายปีราว 20 ซม.",
+  "unit": "ซม.",
+  "value": 20
+ },
+ "gulf.season_grace_mm": {
+  "kind": "literature",
+  "source": "§5 กล่อง · GRACE (Wouters & Chambers 2010) ราว 20 ซม. = 200 มม.",
+  "unit": "มม.",
+  "value": 200
+ },
+ "gulf.wind_r": {
+  "kind": "literature",
+  "source": "§5 · Anutaliya (2023) ระดับน้ำตาม curl ของลม ไม่มีความหน่วง",
+  "unit": "",
+  "value": -0.84
+ },
+ "hourly.n_points": {
+  "kind": "data",
+  "source": "README โครงงาน (UHSLC รายชั่วโมง)",
+  "unit": "จุด/สถานี",
+  "value": 306785
+ },
+ "indices.n": {
+  "kind": "data",
+  "source": "§2 · series.npz x_names",
+  "unit": "ดัชนี",
+  "value": 8
+ },
+ "mech.han_webster_r": {
+  "kind": "literature",
+  "source": "§6 · Han & Webster (2002) ลมศูนย์สูตรอธิบายระดับน้ำขอบตะวันออกอ่าวเบงกอล",
+  "unit": "",
+  "value": 0.95
+ },
+ "mech.kelvin_weeks": {
+  "kind": "literature",
+  "source": "§6 · อนุมาน: คลื่นจากสุมาตราถึงภูเก็ตไม่ถึงสองสัปดาห์",
+  "unit": "สัปดาห์",
+  "value": 2
+ },
+ "mech.local_wind_r": {
+  "kind": "literature",
+  "source": "§6 · Han & Webster (2002) ลมท้องถิ่นอย่างเดียวอธิบายได้เพียงเท่านี้",
+  "unit": "",
+  "value": 0.28
+ },
+ "mwc.andaman.fake_adjusted": {
+  "kind": "data",
+  "source": "§7 fig06 · null_control pasc",
+  "unit": "%",
+  "value": [
+   4.7847771644592285,
+   4.778116226196289,
+   4.713949680328369,
+   4.593830585479736,
+   4.5591206550598145
+  ]
+ },
+ "mwc.andaman.fake_unadjusted": {
+  "kind": "data",
+  "source": "§7 fig06 · null_control pasc_fixed",
+  "unit": "%",
+  "value": [
+   4.7847771644592285,
+   25.656082153320312,
+   59.838409423828125,
+   86.44705200195312,
+   97.20143127441406
+  ]
+ },
+ "mwc.andaman.real_adjusted": {
+  "kind": "data",
+  "source": "§7 fig06 · mwc_search pasc",
+  "unit": "%",
+  "value": [
+   9.295952079022893,
+   10.036612923217744,
+   9.746313679312745,
+   9.33886976668796,
+   8.831377942620685
+  ]
+ },
+ "mwc.andaman.real_unadjusted": {
+  "kind": "data",
+  "source": "§7 fig06 · mwc_search pasc_fixed",
+  "unit": "%",
+  "value": [
+   9.295952079022893,
+   35.139288813035726,
+   67.45242822818241,
+   90.23796016437679,
+   98.48906141245791
+  ]
+ },
+ "mwc.gulf.fake_adjusted": {
+  "kind": "data",
+  "source": "§7 fig06 · null_control pasc",
+  "unit": "%",
+  "value": [
+   4.329433917999268,
+   4.306369781494141,
+   4.067105293273926,
+   3.8783152103424072,
+   3.5797297954559326
+  ]
+ },
+ "mwc.gulf.fake_unadjusted": {
+  "kind": "data",
+  "source": "§7 fig06 · null_control pasc_fixed",
+  "unit": "%",
+  "value": [
+   4.329433917999268,
+   23.98052215576172,
+   57.501853942871094,
+   85.06503295898438,
+   96.94217681884766
+  ]
+ },
+ "mwc.gulf.real_adjusted": {
+  "kind": "data",
+  "source": "§7 fig06 · mwc_search pasc",
+  "unit": "%",
+  "value": [
+   4.500933982205181,
+   4.275719037553575,
+   3.8897198755626716,
+   3.7341732150757374,
+   3.7737036022687107
+  ]
+ },
+ "mwc.gulf.real_unadjusted": {
+  "kind": "data",
+  "source": "§7 fig06 · mwc_search pasc_fixed",
+  "unit": "%",
+  "value": [
+   4.500933982205181,
+   23.67024576138277,
+   57.716062387202335,
+   84.88168388330608,
+   96.52533455991647
+  ]
+ },
+ "mwc.max_gain_plane": {
+  "kind": "data",
+  "source": "§7 · ส่วนเพิ่มสูงสุดของชุดที่ดีที่สุดเทียบดัชนีเดี่ยว",
+  "unit": "จุด",
+  "value": 0.6257091370219587
+ },
+ "mwc.threshold_mid": {
+  "kind": "data",
+  "source": "§7 · sens_baseline thr_mid (q = 1…5)",
+  "unit": "ρ²",
+  "value": [
+   0.5908628432080925,
+   0.7695630764163373,
+   0.8719055326027589,
+   0.9297826350156144,
+   0.962468118623591
+  ]
+ },
+ "noise.pasc_mean_plane": {
+  "kind": "data",
+  "source": "§3.3 · wtc_q1.npz null (ทุกดัชนี) ค่าเฉลี่ย",
+  "unit": "%",
+  "value": 4.999653898178025
+ },
+ "noise.pasc_p95_band": {
+  "kind": "data",
+  "source": "§3.3 · null quantile 95% แถบ 2–7 ปี",
+  "unit": "%",
+  "value": [
+   12.92708265697032,
+   14.825660671384966
+  ]
+ },
+ "noise.pasc_p95_plane": {
+  "kind": "data",
+  "source": "§3.3 · wtc_q1.npz null quantile 95%",
+  "unit": "%",
+  "value": 8.821135230272807
+ },
+ "null.n_pairs": {
+  "kind": "data",
+  "source": "§3.3 · wtc_q1.npz null (คู่ AR(1) ต่อกรณี)",
+  "unit": "คู่",
+  "value": 1000
+ },
+ "p.andaman.band.amo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "",
+  "value": 0.04595404595404595
+ },
+ "p.andaman.band.dmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "",
+  "value": 0.012987012987012988
+ },
+ "p.andaman.band.nao": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "",
+  "value": 0.19880119880119881
+ },
+ "p.andaman.band.nino34": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "",
+  "value": 0.055944055944055944
+ },
+ "p.andaman.band.pdo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "",
+  "value": 0.7382617382617382
+ },
+ "p.andaman.band.soi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "",
+  "value": 0.024975024975024976
+ },
+ "p.andaman.band.tpi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "",
+  "value": 0.12187812187812187
+ },
+ "p.andaman.band.wnpmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "",
+  "value": 0.000999000999000999
+ },
+ "p.andaman.plane.amo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.07592407592407592
+ },
+ "p.andaman.plane.dmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.002997002997002997
+ },
+ "p.andaman.plane.nao": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.4255744255744256
+ },
+ "p.andaman.plane.nino34": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.025974025974025976
+ },
+ "p.andaman.plane.pdo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.8651348651348651
+ },
+ "p.andaman.plane.soi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.001998001998001998
+ },
+ "p.andaman.plane.tpi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.16383616383616384
+ },
+ "p.andaman.plane.wnpmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.002997002997002997
+ },
+ "p.gulf.band.amo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "",
+  "value": 0.05194805194805195
+ },
+ "p.gulf.band.dmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "",
+  "value": 0.5314685314685315
+ },
+ "p.gulf.band.nao": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "",
+  "value": 0.22677322677322678
+ },
+ "p.gulf.band.nino34": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "",
+  "value": 0.9050949050949051
+ },
+ "p.gulf.band.pdo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "",
+  "value": 0.8781218781218781
+ },
+ "p.gulf.band.soi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "",
+  "value": 0.7582417582417582
+ },
+ "p.gulf.band.tpi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "",
+  "value": 0.948051948051948
+ },
+ "p.gulf.band.wnpmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "",
+  "value": 0.43156843156843155
+ },
+ "p.gulf.plane.amo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.2097902097902098
+ },
+ "p.gulf.plane.dmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.48151848151848153
+ },
+ "p.gulf.plane.nao": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.1998001998001998
+ },
+ "p.gulf.plane.nino34": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.948051948051948
+ },
+ "p.gulf.plane.pdo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.7792207792207793
+ },
+ "p.gulf.plane.soi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.5444555444555444
+ },
+ "p.gulf.plane.tpi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.7612387612387612
+ },
+ "p.gulf.plane.wnpmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "",
+  "value": 0.44455544455544455
+ },
+ "paper.pasc_by_q": {
+  "kind": "literature",
+  "source": "§7 · Song & Chen (2022) · make_figures.PAPER_PASC",
+  "unit": "%",
+  "value": {
+   "1": 14.03,
+   "2": 49.63,
+   "3": 81.11,
+   "4": 96.0
+  }
+ },
+ "pasc.andaman.band.amo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "%",
+  "value": 13.927667034608142
+ },
+ "pasc.andaman.band.dmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "%",
+  "value": 17.726121680410362
+ },
+ "pasc.andaman.band.nao": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "%",
+  "value": 8.343614051035647
+ },
+ "pasc.andaman.band.nino34": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "%",
+  "value": 13.291344717875463
+ },
+ "pasc.andaman.band.pdo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "%",
+  "value": 1.6946951496656062
+ },
+ "pasc.andaman.band.soi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "%",
+  "value": 16.135315888578663
+ },
+ "pasc.andaman.band.tpi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "%",
+  "value": 9.850009739627296
+ },
+ "pasc.andaman.band.wnpmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi 2–7 ปี single",
+  "unit": "%",
+  "value": 32.205700928511135
+ },
+ "pasc.andaman.plane.amo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "%",
+  "value": 8.135887338984181
+ },
+ "pasc.andaman.plane.dmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "%",
+  "value": 13.57371687912968
+ },
+ "pasc.andaman.plane.nao": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "%",
+  "value": 5.045718480945071
+ },
+ "pasc.andaman.plane.nino34": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "%",
+  "value": 10.03637455783221
+ },
+ "pasc.andaman.plane.pdo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "%",
+  "value": 3.060134819462057
+ },
+ "pasc.andaman.plane.soi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "%",
+  "value": 14.261162651004472
+ },
+ "pasc.andaman.plane.tpi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "%",
+  "value": 6.91450310351732
+ },
+ "pasc.andaman.plane.wnpmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_taphao_noi ทั้งระนาบ single",
+  "unit": "%",
+  "value": 13.340118801308149
+ },
+ "pasc.gulf.band.amo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "%",
+  "value": 13.46665800922018
+ },
+ "pasc.gulf.band.dmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "%",
+  "value": 3.304980196091163
+ },
+ "pasc.gulf.band.nao": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "%",
+  "value": 7.480033764041296
+ },
+ "pasc.gulf.band.nino34": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "%",
+  "value": 0.24673722485552887
+ },
+ "pasc.gulf.band.pdo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "%",
+  "value": 0.4739951951172002
+ },
+ "pasc.gulf.band.soi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "%",
+  "value": 1.3830270761638854
+ },
+ "pasc.gulf.band.tpi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "%",
+  "value": 0.01947925459385754
+ },
+ "pasc.gulf.band.wnpmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak 2–7 ปี single",
+  "unit": "%",
+  "value": 4.480228556587234
+ },
+ "pasc.gulf.plane.amo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "%",
+  "value": 6.383850300676728
+ },
+ "pasc.gulf.plane.dmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "%",
+  "value": 4.687935243900441
+ },
+ "pasc.gulf.plane.nao": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "%",
+  "value": 6.460862868472366
+ },
+ "pasc.gulf.plane.nino34": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "%",
+  "value": 2.475872126366154
+ },
+ "pasc.gulf.plane.pdo": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "%",
+  "value": 3.34595028592964
+ },
+ "pasc.gulf.plane.soi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "%",
+  "value": 4.394632060168116
+ },
+ "pasc.gulf.plane.tpi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "%",
+  "value": 3.419685723180783
+ },
+ "pasc.gulf.plane.wnpmi": {
+  "kind": "data",
+  "source": "§4/§5 · sens_baseline summary ko_lak ทั้งระนาบ single",
+  "unit": "%",
+  "value": 4.838683248947222
+ },
+ "phase.dmi.R": {
+  "kind": "data",
+  "source": "§4 fig12 · phase_summary.json",
+  "unit": "",
+  "value": 0.5483386931471401
+ },
+ "phase.dmi.inside_expected": {
+  "kind": "data",
+  "source": "§4 fig12 · ตกในช่วงที่กลไกทำนาย",
+  "unit": "",
+  "value": true
+ },
+ "phase.dmi.lag_months": {
+  "kind": "data",
+  "source": "§4 fig12 · phase_summary.json (+ = ระดับน้ำนำ)",
+  "unit": "เดือน",
+  "value": 4.673812428468758
+ },
+ "phase.dmi.offset_deg": {
+  "kind": "data",
+  "source": "§4 fig12 · θ − ทิศหลักที่ใกล้สุด (0° หรือ ±180°)",
+  "unit": "องศา",
+  "value": 29.50974602928477
+ },
+ "phase.dmi.period_months": {
+  "kind": "data",
+  "source": "§4 fig12 · คาบกลาง (มัธยฐาน) ของจุดที่มีนัยสำคัญ แถบ 2–7 ปี",
+  "unit": "เดือน",
+  "value": 57.0175179609817
+ },
+ "phase.dmi.theta": {
+  "kind": "data",
+  "source": "§4 fig12 · phase_summary.json",
+  "unit": "องศา",
+  "value": -150.49025397071523
+ },
+ "phase.n_match": {
+  "kind": "data",
+  "source": "§4 · ทิศตรงกลไก",
+  "unit": "ดัชนี",
+  "value": 4
+ },
+ "phase.nino34.R": {
+  "kind": "data",
+  "source": "§4 fig12 · phase_summary.json",
+  "unit": "",
+  "value": 0.9156955537520524
+ },
+ "phase.nino34.inside_expected": {
+  "kind": "data",
+  "source": "§4 fig12 · ตกในช่วงที่กลไกทำนาย",
+  "unit": "",
+  "value": true
+ },
+ "phase.nino34.lag_months": {
+  "kind": "data",
+  "source": "§4 fig12 · phase_summary.json (+ = ระดับน้ำนำ)",
+  "unit": "เดือน",
+  "value": -2.505547785823204
+ },
+ "phase.nino34.offset_deg": {
+  "kind": "data",
+  "source": "§4 fig12 · θ − ทิศหลักที่ใกล้สุด (0° หรือ ±180°)",
+  "unit": "องศา",
+  "value": -23.702694202638156
+ },
+ "phase.nino34.period_months": {
+  "kind": "data",
+  "source": "§4 fig12 · คาบกลาง (มัธยฐาน) ของจุดที่มีนัยสำคัญ แถบ 2–7 ปี",
+  "unit": "เดือน",
+  "value": 38.05462768008707
+ },
+ "phase.nino34.theta": {
+  "kind": "data",
+  "source": "§4 fig12 · phase_summary.json",
+  "unit": "องศา",
+  "value": 156.29730579736184
+ },
+ "phase.soi.R": {
+  "kind": "data",
+  "source": "§4 fig12 · phase_summary.json",
+  "unit": "",
+  "value": 0.9583497541790732
+ },
+ "phase.soi.inside_expected": {
+  "kind": "data",
+  "source": "§4 fig12 · ตกในช่วงที่กลไกทำนาย",
+  "unit": "",
+  "value": true
+ },
+ "phase.soi.lag_months": {
+  "kind": "data",
+  "source": "§4 fig12 · phase_summary.json (+ = ระดับน้ำนำ)",
+  "unit": "เดือน",
+  "value": -2.7949972854087504
+ },
+ "phase.soi.offset_deg": {
+  "kind": "data",
+  "source": "§4 fig12 · θ − ทิศหลักที่ใกล้สุด (0° หรือ ±180°)",
+  "unit": "องศา",
+  "value": -28.013169361234326
+ },
+ "phase.soi.period_months": {
+  "kind": "data",
+  "source": "§4 fig12 · คาบกลาง (มัธยฐาน) ของจุดที่มีนัยสำคัญ แถบ 2–7 ปี",
+  "unit": "เดือน",
+  "value": 35.91878554589992
+ },
+ "phase.soi.theta": {
+  "kind": "data",
+  "source": "§4 fig12 · phase_summary.json",
+  "unit": "องศา",
+  "value": -28.013169361234326
+ },
+ "phase.wnpmi.R": {
+  "kind": "data",
+  "source": "§4 fig12 · phase_summary.json",
+  "unit": "",
+  "value": 0.965232836861703
+ },
+ "phase.wnpmi.inside_expected": {
+  "kind": "data",
+  "source": "§4 fig12 · ตกในช่วงที่กลไกทำนาย",
+  "unit": "",
+  "value": true
+ },
+ "phase.wnpmi.lag_months": {
+  "kind": "data",
+  "source": "§4 fig12 · phase_summary.json (+ = ระดับน้ำนำ)",
+  "unit": "เดือน",
+  "value": 5.542557449578878
+ },
+ "phase.wnpmi.offset_deg": {
+  "kind": "data",
+  "source": "§4 fig12 · θ − ทิศหลักที่ใกล้สุด (0° หรือ ±180°)",
+  "unit": "องศา",
+  "value": 55.550894929301386
+ },
+ "phase.wnpmi.period_months": {
+  "kind": "data",
+  "source": "§4 fig12 · คาบกลาง (มัธยฐาน) ของจุดที่มีนัยสำคัญ แถบ 2–7 ปี",
+  "unit": "เดือน",
+  "value": 35.91878554589992
+ },
+ "phase.wnpmi.theta": {
+  "kind": "data",
+  "source": "§4 fig12 · phase_summary.json",
+  "unit": "องศา",
+  "value": 55.550894929301386
+ },
+ "robust.n_pass": {
+  "kind": "data",
+  "source": "§8 fig13 · จำนวนแบบที่ผ่านต่อข้อสรุป",
+  "unit": "แบบ",
+  "value": [
+   8,
+   8,
+   8,
+   8,
+   5,
+   6,
+   4
+  ]
+ },
+ "robust.rows": {
+  "kind": "data",
+  "source": "§8 fig13 · make_infographics.robustness_rows",
+  "unit": "แบบ",
+  "value": [
+   {
+    "label": "อันดามันสัมพันธ์กับดัชนีภูมิอากาศ (ดัชนีเดี่ยว p < 0.05)",
+    "n_pass": 8
+   },
+   {
+    "label": "อ่าวไทยไม่มีดัชนีเดี่ยวใดเกิน noise",
+    "n_pass": 8
+   },
+   {
+    "label": "SOI · DMI · WNPMI · Niño3.4 เกิน noise ทั้งสี่ตัว",
+    "n_pass": 8
+   },
+   {
+    "label": "ดัชนีเดียวพอ (ทั้งระนาบ)",
+    "n_pass": 8
+   },
+   {
+    "label": "ดัชนีเดียวพอ (แถบ 2–7 ปี)",
+    "n_pass": 5
+   },
+   {
+    "label": "WNPMI อันดับหนึ่งในแถบ 2–7 ปี",
+    "n_pass": 6
+   },
+   {
+    "label": "ดัชนีภูมิภาคเพิ่มอำนาจอธิบาย (Q5, แถบ 2–7 ปี)",
+    "n_pass": 4
+   }
+  ]
+ },
+ "season.amp_andaman_mm": {
+  "kind": "data",
+  "source": "§3.1 · series meta stats.annual_amp",
+  "unit": "มม.",
+  "value": 86.76322046568167
+ },
+ "season.amp_gulf_mm": {
+  "kind": "data",
+  "source": "§3.1 · series meta stats.annual_amp",
+  "unit": "มม.",
+  "value": 212.626921681533
+ },
+ "season.share_andaman": {
+  "kind": "data",
+  "source": "§3.1 · series meta stats.frac_season",
+  "unit": "%",
+  "value": 29.830830546668473
+ },
+ "season.share_gulf": {
+  "kind": "data",
+  "source": "§3.1 · series meta stats.frac_season",
+  "unit": "%",
+  "value": 81.16432247206617
+ },
+ "sens.n_variants": {
+  "kind": "data",
+  "source": "§3.4 · sens_*.npz",
+  "unit": "แบบ",
+  "value": 8
+ },
+ "series.end_year": {
+  "kind": "data",
+  "source": "§2 · series.npz meta.window",
+  "unit": "ปี",
+  "value": 2023
+ },
+ "series.n_months": {
+  "kind": "data",
+  "source": "§2 ตาราง data · series.npz meta.n",
+  "unit": "เดือน",
+  "value": 865
+ },
+ "series.start_year": {
+  "kind": "data",
+  "source": "§2 · series.npz meta.window",
+  "unit": "ปี",
+  "value": 1951
+ },
+ "series.years": {
+  "kind": "data",
+  "source": "§8 'ข้อมูล 72 ปี' · series.npz meta.window",
+  "unit": "ปี",
+  "value": 72
+ },
+ "stations.distance_km": {
+  "kind": "data",
+  "source": "ระยะเส้นตรง (great circle) ระหว่างพิกัดสถานีใน make_infographics.STATION_LL · รายงาน §5 เขียน 'ไม่ถึง 450 กม.'",
+  "unit": "กม.",
+  "value": 466.4365971488665
+ },
+ "stations.klk_latlon": {
+  "kind": "data",
+  "source": "§2 ตาราง data · STATION_LL",
+  "unit": "องศา",
+  "value": [
+   11.8,
+   99.817
+  ]
+ },
+ "stations.ktn_latlon": {
+  "kind": "data",
+  "source": "§2 ตาราง data · STATION_LL",
+  "unit": "องศา",
+  "value": [
+   7.833,
+   98.433
+  ]
+ },
+ "wtc.vs_pycwt_max_diff": {
+  "kind": "data",
+  "source": "README โครงงาน · scripts/validate_wtc.py (ต่างจาก pycwt.wct ทั้งระนาบ)",
+  "unit": "",
+  "value": 1.4e-15
+ }
+}

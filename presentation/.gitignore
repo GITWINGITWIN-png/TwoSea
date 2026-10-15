@@ -1,0 +1,20 @@
+# สร้างใหม่ได้จากโค้ด — ไม่เก็บใน git (design 07 §5)
+renders/
+export/
+media/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.blend1
+data/*.npz
+slides/
+blend/edit.blend
+# deck (Slidev): แพ็กเกจ · ผล build · ของที่สคริปต์สร้าง/คัดลอกให้ (คลิปจาก export_clips.py · facts จาก data/)
+deck/node_modules/
+deck/dist/
+deck/.slidev/
+deck/public/clips/
+deck/public/figs/
+deck/public/plots/
+deck/data/facts.json

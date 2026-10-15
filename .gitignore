@@ -1,0 +1,39 @@
+__pycache__/
+*.py[oc]
+.venv/
+.ipynb_checkpoints/
+
+# ข้อมูลดิบ: ไฟล์ UHSLC ใหญ่ ~5 MB ต่อไฟล์ และโหลดใหม่ได้ด้วย scripts/fetch_data.py
+# ส่วน PSMSL กับดัชนีภูมิอากาศเล็กมาก (< 30 KB) จึง commit ไว้ให้ผลทำซ้ำได้
+data/raw/uhslc/*.csv
+
+# ผลลัพธ์ที่สร้างใหม่ได้
+figures/*.png
+figures/report/*.png
+figures/*.pdf
+!figures/.gitkeep
+
+# ผลผลิตของไปป์ไลน์ — สร้างใหม่ได้จาก scripts/build_series.py และ run_*.py
+data/processed/*
+!data/processed/.gitkeep
+.pytest_cache/
+
+# ไฟล์ระหว่างคอมไพล์ LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+# ไฟล์ระหว่างทางของ LaTeX (รายงานฉบับสมบูรณ์) — เก็บเฉพาะ .tex กับ .pdf
+reports/final/*.aux
+reports/final/*.log
+reports/final/*.fls
+reports/final/*.fdb_latexmk
+reports/final/*.xdv
+reports/final/*.toc
+reports/final/*.out
+reports/final/build.log
+
+# โน้ตส่วนตัว / สถานะหน้าต่าง Obsidian (เปลี่ยนทุกครั้งที่เปิดแท็บ) — ไม่ขึ้น repo
+project note.md
+.obsidian/workspace.json

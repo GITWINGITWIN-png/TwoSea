@@ -1,0 +1,25 @@
+[project]
+name = "sealevel-wtc"
+version = "0.1.0"
+description = "ทำซ้ำ Song & Chen (2022) — wavelet coherence + MWC ระหว่างระดับน้ำทะเลไทยกับดัชนีภูมิอากาศ · โครงงานวิชา 01204496"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.0",
+    "scipy>=1.14",
+    "matplotlib>=3.9",
+    "ipykernel>=6.29",
+]
+
+[dependency-groups]
+dev = [
+    "nbclient>=0.11.0",
+    "nbformat>=5.11.1",
+    "pytest>=9.1.1",
+]
+# ⚠️ pycwt ใช้ "เป็นตัวเทียบ" เท่านั้น ไม่ใช่ตัวรัน — ดู docs/syllabus-map.md
+# แยกออกจาก dependencies หลักโดยตั้งใจ เพื่อให้ชัดว่าโปรเจกต์ไม่ได้พึ่งมัน
+reference = ["pycwt>=0.5.0b0"]
+report = [
+    "cartopy>=0.26.0",
+]

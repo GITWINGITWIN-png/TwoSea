@@ -1,0 +1,18 @@
+# การตั้งค่าของ production "two-seas" (โครงตาม MyStudio design 07 §2)
+
+[production]
+title = "ทะเลสองฝั่ง ฟังภูมิอากาศคนละแบบ"
+slug = "two-seas"
+deadline = "2026-10-15"   # วันนำเสนอ
+
+[sources]
+# โครงงาน DSP = โฟลเดอร์แม่ของ presentation/ (repo เดียวกัน) — path สัมพัทธ์จากไฟล์นี้
+# อ่านอย่างเดียว: ตัวเลขทุกตัวในงานนำเสนอมาจากที่นี่ (ผ่าน tools/export_facts.py)
+dsp_project = ".."
+
+[video]
+width = 1920
+height = 1080
+fps = 30
+loudness_lufs = -16
+font = "Sarabun"

@@ -1,0 +1,88 @@
+/* theme D · สื่อวิทยาศาสตร์อธิบาย (เลือก 2026-10-13 — context/design-brief.md "การตัดสินใจ")
+   ขนาดทั้งหมดคิดที่ canvas 1920×1080 = ค่าบนกระดาน 1280×720 × 1.5
+   หัวข้อ Kanit Medium · เนื้อความ/ป้าย/ตัวเลขแกน Anuphan · ฟอนต์อยู่ใน public/fonts (OFL) → ฝังใน PDF ได้ */
+@font-face { font-family: 'Kanit'; src: url('/fonts/Kanit-Regular.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Kanit'; src: url('/fonts/Kanit-Medium.ttf') format('truetype'); font-weight: 500; }
+@font-face { font-family: 'Anuphan'; src: url('/fonts/Anuphan-VF.ttf') format('truetype'); font-weight: 100 700; }
+
+:root {
+  --bg: #EAF3F6;          /* ฟ้าน้ำทะเลอ่อน */
+  --card: #FFFFFF;
+  --ink: #12303D;         /* หมึกหลัก */
+  --ink-2: #3B5866;       /* ข้อความรอง */
+  --ink-3: #5B7480;       /* ตัวเลขแกน · ที่มา */
+  --andaman: #2F74C0;     /* อันดามัน = น้ำเงิน (ทุกหน้า) */
+  --gulf: #D9822B;        /* อ่าวไทย = ส้ม (ห้ามใช้กับอย่างอื่น) */
+  --nino: #2E3A46;
+  --dmi: #7B61B0;
+  --event: #FFD7A8;       /* แถบไฮไลต์ช่วงเหตุการณ์ */
+  --real-bg: #D6EEE4;  --real-fg: #1C5E45;   /* ป้าย ข้อมูลจริง */
+  --diag-bg: #DCE6F7;  --diag-fg: #24407A;   /* ป้าย แผนภาพ */
+  --comp-bg: #EDE4F5;  --comp-fg: #563A78;   /* ป้าย เปรียบเทียบ */
+  --strong-bg: #D6EEE4; --strong-fg: #1C5E45; /* หลักฐาน หนักแน่น */
+  --infer-bg: #E4E7EA; --infer-fg: #44515C;  /* หลักฐาน อนุมาน */
+  --radius: 30px;
+  --shadow: 0 1.5px 3px rgba(18, 48, 61, 0.08), 0 12px 36px rgba(18, 48, 61, 0.06);
+}
+
+.slidev-layout {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Anuphan', sans-serif;
+  font-size: 24px;
+  line-height: 1.5;
+  padding: 0;
+}
+.slidev-layout h1 {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 500;
+  font-size: 51px;
+  line-height: 1.4;
+  margin: 0;
+  max-width: 1620px;
+  color: var(--ink);
+}
+.slidev-layout .fact { font-variant-numeric: tabular-nums; }
+
+/* การ์ดสีขาวมุมมน = กรอบหลักฐานของทุกหน้า */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 27px 36px;
+}
+/* ฟองข้อความชี้จุด (motif ของแนว D) */
+.bubble {
+  background: var(--ink);
+  color: #FFFFFF;
+  border-radius: 21px;
+  padding: 15px 24px;
+  font-size: 24px;
+  line-height: 1.45;
+}
+/* ป้ายเม็ดยา */
+.pill {
+  display: inline-flex; align-items: center;
+  border-radius: 999px;
+  padding: 5px 21px;
+  font-size: 22px; font-weight: 600; line-height: 1.4;
+  white-space: nowrap;
+}
+.pill.real   { background: var(--real-bg);   color: var(--real-fg); }
+.pill.diag   { background: var(--diag-bg);   color: var(--diag-fg); }
+.pill.comp   { background: var(--comp-bg);   color: var(--comp-fg); }
+.pill.strong { background: var(--strong-bg); color: var(--strong-fg); }
+.pill.infer  { background: var(--infer-bg);  color: var(--infer-fg); }
+.pill.appx   { background: var(--infer-bg);  color: var(--infer-fg); }
+.pill.seq    { background: var(--ink); color: #FFFFFF; padding: 3px 18px; }
+
+.andaman { color: var(--andaman); }
+.gulf { color: var(--gulf); }
+.muted { color: var(--ink-2); }
+
+/* การ์ดข้อความ (ภาพสำรองของหน้าการ์ด / หน้าที่ยังไม่มีภาพ) */
+.textcard {
+  flex: 1 1 auto; min-height: 0;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font-size: 42px; line-height: 1.5; color: var(--ink); padding: 48px 96px;
+}
